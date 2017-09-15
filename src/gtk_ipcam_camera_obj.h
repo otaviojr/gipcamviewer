@@ -1,0 +1,67 @@
+#ifndef __GTK_FOSCAM_CAMERA_OBJ_H__
+#define __GTK_FOSCAM_CAMERA_OBJ_H__
+
+#include <gtk/gtk.h>
+
+#include "gtk_ipcam_camera_driver_obj.h"
+
+G_BEGIN_DECLS
+
+typedef struct _GtkIpcamCameraObj
+    GtkIpcamCameraObj;
+typedef struct _GtkIpcamCameraObjClass
+    GtkIpcamCameraObjClass;
+
+#define GTK_TYPE_FOSCAM_CAMERA_OBJ                     (gtk_ipcam_camera_obj_get_type ())
+#define GTK_IS_FOSCAM_CAMERA_OBJ(obj)                  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_FOSCAM_CAMERA_OBJ))
+#define GTK_IS_FOSCAM_CAMERA_OBJ_CLASS(klass)          (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_FOSCAM_CAMERA_OBJ))
+#define GTK_FOSCAM_CAMERA_OBJ_GET_CLASS(obj)           (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_FOSCAM_CAMERA_OBJ, GtkIpcamCameraObjClass))
+#define GTK_FOSCAM_CAMERA_OBJ(obj)                     (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_FOSCAM_CAMERA_OBJ, GtkIpcamCameraObj))
+#define GTK_FOSCAM_CAMERA_OBJ_CLASS(klass)             (G_TYPE_CHECK_CLASS_CAST ((klass), GTK_FOSCAM_CAMERA_OBJ, GtkIpcamCameraObjClass))
+#define GTK_FOSCAM_CAMERA_OBJ_CAST(obj)                ((GtkIpcamCameraObj*)(obj))
+
+
+GType gtk_ipcam_camera_obj_get_type(void);
+GType gtk_ipcam_camera_obj_get_boxed_type (void);
+
+GtkIpcamCameraObj* gtk_ipcam_camera_obj_new(void);
+
+GtkIpcamCameraDriverObj* gtk_ipcam_camera_obj_get_camera_driver(GtkIpcamCameraObj* self);
+gboolean gtk_ipcam_camera_obj_is_valid(GtkIpcamCameraObj* self);
+
+/* CAMERA PROPERTIES */
+gchar* gtk_ipcam_camera_obj_get_model(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_model(GtkIpcamCameraObj * self, const gchar* val);
+gchar* gtk_ipcam_camera_obj_get_name(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_name(GtkIpcamCameraObj * self, const gchar* val);
+gboolean gtk_ipcam_camera_obj_get_remote_https(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_remote_https(GtkIpcamCameraObj * self, const gboolean val);
+gchar * gtk_ipcam_camera_obj_get_remote_url(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_remote_url(GtkIpcamCameraObj * self, const gchar* val);
+gboolean gtk_ipcam_camera_obj_get_local_https(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_local_https(GtkIpcamCameraObj * self, const gboolean val);
+gchar * gtk_ipcam_camera_obj_get_local_url(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_local_url(GtkIpcamCameraObj * self, const gchar* val);
+gchar* gtk_ipcam_camera_obj_get_remote_port(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_remote_port(GtkIpcamCameraObj * self, const gchar* val);
+gchar* gtk_ipcam_camera_obj_get_remote_media_port(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_remote_media_port(GtkIpcamCameraObj * self, const gchar* val);
+gchar* gtk_ipcam_camera_obj_get_local_port(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_local_port(GtkIpcamCameraObj * self, const gchar* val);
+gchar* gtk_ipcam_camera_obj_get_local_media_port(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_local_media_port(GtkIpcamCameraObj * self, const gchar* val);
+gchar * gtk_ipcam_camera_obj_get_username(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_username(GtkIpcamCameraObj * self, const gchar* val);
+gchar * gtk_ipcam_camera_obj_get_password(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_password(GtkIpcamCameraObj * self, const gchar* val);
+gboolean gtk_ipcam_camera_obj_get_subchannel(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_subchannel(GtkIpcamCameraObj * self, const gboolean val);
+/* CAMERA PROPERTIES END */
+
+/* CAMERA METHODS */
+gchar* gtk_ipcam_camera_obj_get_stream_url(GtkIpcamCameraObj* camera);
+/* END CAMERA METHODS */
+
+G_END_DECLS
+
+#endif //__GTK_FOSCAM_CAMERA_OBJ_H__

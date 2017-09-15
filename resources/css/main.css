@@ -1,0 +1,154 @@
+/* GLOBALS */
+.icon-button {
+  font-family: 'MaterialIcons';
+}
+/* END GLOBALS */
+
+/* HEADER */
+.main-header,
+.dialog-header {
+  background: none #2c3133;
+  border: 1px solid #2c3133;
+  color: #FAFAFA;
+  outline: none;
+  box-shadow: none;
+}
+
+.main-header:backdrop,
+.dialog-header:backdrop {
+  background: none #3c4143;
+  border: 1px solid #2c3133;
+  color: #FAFAFA;
+  outline: none;
+  box-shadow: none;
+}
+
+.main-header button,
+.main-header .menu-button,
+.dialog-header button,
+.dialog-header .menu-button {
+  background: none #2c3133;
+  border: 1px solid transparent;
+  box-shadow: none;
+  color: #F0F0F0;
+  font-size: 18px;
+  text-shadow: none;
+  padding: 2px 8px;
+}
+
+.main-header button.default,
+.main-header .menu-button.default,
+.dialog-header button.default,
+.dialog-header .menu-button.default {
+  background: none blue;
+}
+
+.main-header:backdrop button,
+.main-header:backdrop .menu-button,
+.dialog-header:backdrop button,
+.dialog-header:backdrop .menu-button {
+  background: none #3c4143;
+}
+
+.main-header:backdrop .menu-button,
+.dialog-header:backdrop .menu-button {
+  border: 1px solid #2c3133;
+}
+
+.main-header .custom-button,
+.dialog-header .custom-button,
+.dialog-header button {
+  border: 1px solid #1c2123;
+}
+
+.main-header button:hover,
+.main-header button:active,
+.main-header .menu-button:hover,
+.main-header .menu-button:active,
+.dialog-header button:hover,
+.dialog-header button:active,
+.dialog-header .menu-button:hover,
+.dialog-header .menu-button:active {
+  background: linear-gradient(#3c4143,#1c2123);
+  border: 1px solid #000000;
+  border-radius: 5px;
+  box-shadow: none;
+  color: #FFFFFF;
+}
+
+.main-header:backdrop button:hover,
+.main-header:backdrop button:active,
+.dialog-header:backdrop button:hover,
+.dialog-header:backdrop button:active
+{
+  background: none #3c4143;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  box-shadow: none;
+  color: #FFFFFF;
+}
+
+.main-header:backdrop .menu-button:hover,
+.main-header:backdrop .menu-button:active,
+.dialog-header:backdrop .menu-button:hover,
+.dialog-header:backdrop .menu-button:active {
+  background: none #3c4143;
+  border: 1px solid #2c3133;
+  border-radius: 5px;
+  box-shadow: none;
+  color: #FFFFFF;
+}
+/* END HEADER */
+
+/* CAMERAS */
+.cameras-area {
+  background-color: #33393b;
+  border: 10px solid #33393b;
+}
+
+.foscam-player {
+  background-color: #33393b;
+  border: 5px solid #33393b;
+}
+
+.foscam-player border {
+  padding: 10px;
+  border-style: dashed;
+  border-radius: 5px;
+  background-color: #000000;
+  border-color: #FFFFFF;
+}
+
+.foscam-player label {
+  color: red;
+  margin: 0px;
+  background-color: #000000;
+  padding: 10px 10px 0px 10px;
+  border-top-style: dashed;
+  border-left-style: dashed;
+  border-right-style: dashed;
+  border-color: #FFFFFF;
+  border-top-width: 1px;
+  border-left-width: 1px;
+  border-right-width: 1px;
+}
+
+.vlc-player-drawing {
+  background-color: #000000;
+}
+
+.null-layer {
+  color: #FFFFFF;
+}
+/* END CAMERAS */
+
+/* CAMERAS MANAGER */
+.properties-area {
+}
+
+.properties-area .property-label {
+}
+
+.selection-list {
+}
+/* CAMERAS MANAGER END */
