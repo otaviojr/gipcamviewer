@@ -1,5 +1,5 @@
-#ifndef __GTK_FOSCAM_DIALOG_GROUPS_EDIT_H__
-#define __GTK_FOSCAM_DIALOG_GROUPS_EDIT_H__
+#ifndef __GTK_IPCAM_DIALOG_GROUPS_EDIT_H__
+#define __GTK_IPCAM_DIALOG_GROUPS_EDIT_H__
 
 #include "gtk_ipcam_util.h"
 #include "gtk_ipcam_preference_obj.h"
@@ -22,4 +22,4 @@ typedef struct {
 
 void gtk_ipcam_dialog_groups_edit_new(GtkIpcamDialogCameraEditInfo* info);
 
-#endif //__GTK_FOSCAM_DIALOG_GROUPS_EDIT_H__
+#endif //__GTK_IPCAM_DIALOG_GROUPS_EDIT_H__

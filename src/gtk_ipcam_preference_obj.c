@@ -27,30 +27,30 @@ struct _GtkIpcamPreferenceObjClass
 
 enum
 {
-  GTK_FOSCAM_PREFERENCE_OBJ_PROP_0,
-  GTK_FOSCAM_PREFERENCE_OBJ_PROP_WIDTH,
-  GTK_FOSCAM_PREFERENCE_OBJ_PROP_HEIGHT,
-  GTK_FOSCAM_PREFERENCE_OBJ_PROP_TOP,
-  GTK_FOSCAM_PREFERENCE_OBJ_PROP_LEFT,
-  GTK_FOSCAM_PREFERENCE_OBJ_PROP_CAMERA_GROUPS,
-  GTK_FOSCAM_PREFERENCE_OBJ_PROP_LAST
+  GTK_IPCAM_PREFERENCE_OBJ_PROP_0,
+  GTK_IPCAM_PREFERENCE_OBJ_PROP_WIDTH,
+  GTK_IPCAM_PREFERENCE_OBJ_PROP_HEIGHT,
+  GTK_IPCAM_PREFERENCE_OBJ_PROP_TOP,
+  GTK_IPCAM_PREFERENCE_OBJ_PROP_LEFT,
+  GTK_IPCAM_PREFERENCE_OBJ_PROP_CAMERA_GROUPS,
+  GTK_IPCAM_PREFERENCE_OBJ_PROP_LAST
 };
 
 enum
 {
-  GTK_FOSCAM_PREFERENCE_OBJ_SIGNAL_0,
-  GTK_FOSCAM_PREFERENCE_OBJ_SIGNAL_CHANGED,
-  GTK_FOSCAM_PREFERENCE_OBJ_SIGNAL_GROUP_CHANGED,
-  GTK_FOSCAM_PREFERENCE_OBJ_SIGNAL_LAST
+  GTK_IPCAM_PREFERENCE_OBJ_SIGNAL_0,
+  GTK_IPCAM_PREFERENCE_OBJ_SIGNAL_CHANGED,
+  GTK_IPCAM_PREFERENCE_OBJ_SIGNAL_GROUP_CHANGED,
+  GTK_IPCAM_PREFERENCE_OBJ_SIGNAL_LAST
 };
 
 G_DEFINE_TYPE (GtkIpcamPreferenceObj, gtk_ipcam_preference_obj, G_TYPE_OBJECT);
 
 static GParamSpec*
-gtk_ipcam_preference_obj_param_specs[GTK_FOSCAM_PREFERENCE_OBJ_PROP_LAST] = { NULL, };
+gtk_ipcam_preference_obj_param_specs[GTK_IPCAM_PREFERENCE_OBJ_PROP_LAST] = { NULL, };
 
 static guint
-gtk_ipcam_preference_obj_signals[GTK_FOSCAM_PREFERENCE_OBJ_SIGNAL_LAST] = {0, };
+gtk_ipcam_preference_obj_signals[GTK_IPCAM_PREFERENCE_OBJ_SIGNAL_LAST] = {0, };
 
 static void
 gtk_ipcam_preference_obj_free_camera_groups(gpointer camera_group)
@@ -63,22 +63,22 @@ static void
 gtk_ipcam_preference_obj_get_property(GObject * object,
     guint prop_id, GValue * value, GParamSpec * pspec)
 {
-  GtkIpcamPreferenceObj *self = GTK_FOSCAM_PREFERENCE_OBJ(object);
+  GtkIpcamPreferenceObj *self = GTK_IPCAM_PREFERENCE_OBJ(object);
 
   switch (prop_id) {
-    case GTK_FOSCAM_PREFERENCE_OBJ_PROP_WIDTH:
+    case GTK_IPCAM_PREFERENCE_OBJ_PROP_WIDTH:
       g_value_set_uint(value, g_value_get_uint(&self->width));
       break;
-    case GTK_FOSCAM_PREFERENCE_OBJ_PROP_HEIGHT:
+    case GTK_IPCAM_PREFERENCE_OBJ_PROP_HEIGHT:
       g_value_set_uint(value, g_value_get_uint(&self->height));
       break;
-    case GTK_FOSCAM_PREFERENCE_OBJ_PROP_TOP:
+    case GTK_IPCAM_PREFERENCE_OBJ_PROP_TOP:
       g_value_set_uint(value, g_value_get_uint(&self->top));
       break;
-    case GTK_FOSCAM_PREFERENCE_OBJ_PROP_LEFT:
+    case GTK_IPCAM_PREFERENCE_OBJ_PROP_LEFT:
       g_value_set_uint(value, g_value_get_uint(&self->left));
       break;
-    case GTK_FOSCAM_PREFERENCE_OBJ_PROP_CAMERA_GROUPS:
+    case GTK_IPCAM_PREFERENCE_OBJ_PROP_CAMERA_GROUPS:
       g_value_set_boxed(value, g_value_get_boxed(&self->camera_groups));
       break;
     default:
@@ -95,19 +95,19 @@ gtk_ipcam_preference_obj_set_property(GObject * object, guint prop_id, const GVa
   GtkIpcamPreferenceObj *self = (GtkIpcamPreferenceObj *) object;
 
   switch (prop_id) {
-    case GTK_FOSCAM_PREFERENCE_OBJ_PROP_WIDTH:
+    case GTK_IPCAM_PREFERENCE_OBJ_PROP_WIDTH:
       g_value_set_uint(&self->width, g_value_get_uint(value));
       break;
-    case GTK_FOSCAM_PREFERENCE_OBJ_PROP_HEIGHT:
+    case GTK_IPCAM_PREFERENCE_OBJ_PROP_HEIGHT:
       g_value_set_uint(&self->height, g_value_get_uint(value));
       break;
-    case GTK_FOSCAM_PREFERENCE_OBJ_PROP_TOP:
+    case GTK_IPCAM_PREFERENCE_OBJ_PROP_TOP:
       g_value_set_uint(&self->top, g_value_get_uint(value));
       break;
-    case GTK_FOSCAM_PREFERENCE_OBJ_PROP_LEFT:
+    case GTK_IPCAM_PREFERENCE_OBJ_PROP_LEFT:
       g_value_set_uint(&self->left, g_value_get_uint(value));
       break;
-    case GTK_FOSCAM_PREFERENCE_OBJ_PROP_CAMERA_GROUPS:
+    case GTK_IPCAM_PREFERENCE_OBJ_PROP_CAMERA_GROUPS:
       /*
        * We don't have to duplicate it as the json parser will not destroy the
        * local object. So, we have to free it when we destroy this object
@@ -124,7 +124,7 @@ gtk_ipcam_preference_obj_set_property(GObject * object, guint prop_id, const GVa
 static void
 gtk_ipcam_preference_obj_finalize(GObject * object)
 {
-  GtkIpcamPreferenceObj *self = GTK_FOSCAM_PREFERENCE_OBJ(object);
+  GtkIpcamPreferenceObj *self = GTK_IPCAM_PREFERENCE_OBJ(object);
 
   printf("gtk_ipcam_preference_obj_finalize\n");
 
@@ -153,36 +153,36 @@ gtk_ipcam_preference_obj_class_init(GtkIpcamPreferenceObjClass * klass)
   gobject_class->finalize = gtk_ipcam_preference_obj_finalize;
 
   gtk_ipcam_preference_obj_param_specs
-      [GTK_FOSCAM_PREFERENCE_OBJ_PROP_WIDTH] =
+      [GTK_IPCAM_PREFERENCE_OBJ_PROP_WIDTH] =
       g_param_spec_uint("width", "Width",
       "Last window width.", 0,10000,800,
       G_PARAM_READWRITE);
 
   gtk_ipcam_preference_obj_param_specs
-      [GTK_FOSCAM_PREFERENCE_OBJ_PROP_HEIGHT] =
+      [GTK_IPCAM_PREFERENCE_OBJ_PROP_HEIGHT] =
       g_param_spec_uint("height", "Height",
       "Last window height.", 0,10000,600,
       G_PARAM_READWRITE);
 
   gtk_ipcam_preference_obj_param_specs
-      [GTK_FOSCAM_PREFERENCE_OBJ_PROP_TOP] =
+      [GTK_IPCAM_PREFERENCE_OBJ_PROP_TOP] =
       g_param_spec_uint("top", "Top",
       "Last window top position.", 0,10000,0,
       G_PARAM_READWRITE);
 
   gtk_ipcam_preference_obj_param_specs
-      [GTK_FOSCAM_PREFERENCE_OBJ_PROP_LEFT] =
+      [GTK_IPCAM_PREFERENCE_OBJ_PROP_LEFT] =
       g_param_spec_uint("left", "Left",
       "Last window left position.", 0,10000,0,
       G_PARAM_READWRITE);
 
   gtk_ipcam_preference_obj_param_specs
-      [GTK_FOSCAM_PREFERENCE_OBJ_PROP_CAMERA_GROUPS] =
+      [GTK_IPCAM_PREFERENCE_OBJ_PROP_CAMERA_GROUPS] =
       g_param_spec_boxed("camera_groups", "Camera groups", "Group of cameras",
       gtk_ipcam_camera_group_obj_get_boxed_type(),
       G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
-  gtk_ipcam_preference_obj_signals[GTK_FOSCAM_PREFERENCE_OBJ_SIGNAL_CHANGED] =
+  gtk_ipcam_preference_obj_signals[GTK_IPCAM_PREFERENCE_OBJ_SIGNAL_CHANGED] =
       g_signal_newv("changed",
                     G_TYPE_FROM_CLASS(gobject_class),
                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
@@ -194,7 +194,7 @@ gtk_ipcam_preference_obj_class_init(GtkIpcamPreferenceObjClass * klass)
                     0,
                     NULL);
 
-  gtk_ipcam_preference_obj_signals[GTK_FOSCAM_PREFERENCE_OBJ_SIGNAL_GROUP_CHANGED] =
+  gtk_ipcam_preference_obj_signals[GTK_IPCAM_PREFERENCE_OBJ_SIGNAL_GROUP_CHANGED] =
       g_signal_newv("group-changed",
                     G_TYPE_FROM_CLASS(gobject_class),
                     G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
@@ -207,7 +207,7 @@ gtk_ipcam_preference_obj_class_init(GtkIpcamPreferenceObjClass * klass)
                     NULL);
 
   g_object_class_install_properties (gobject_class,
-      GTK_FOSCAM_PREFERENCE_OBJ_PROP_LAST, gtk_ipcam_preference_obj_param_specs);
+      GTK_IPCAM_PREFERENCE_OBJ_PROP_LAST, gtk_ipcam_preference_obj_param_specs);
 }
 
 static const gchar*
@@ -246,9 +246,9 @@ gtk_ipcam_preference_obj_new(void)
   gchar* filename = g_build_filename(gtk_ipcam_preference_obj_get_home_dir(),".gipcamviewer","preferences.json",NULL);
   if(json_parser_load_from_file(parser, filename, &error) == TRUE){
     JsonNode* rootNode = json_parser_get_root(parser);
-    ret = GTK_FOSCAM_PREFERENCE_OBJ(json_gobject_deserialize(GTK_TYPE_FOSCAM_PREFERENCE_OBJ, rootNode));
+    ret = GTK_IPCAM_PREFERENCE_OBJ(json_gobject_deserialize(GTK_TYPE_IPCAM_PREFERENCE_OBJ, rootNode));
   } else {
-    ret = g_object_new(GTK_TYPE_FOSCAM_PREFERENCE_OBJ, NULL);
+    ret = g_object_new(GTK_TYPE_IPCAM_PREFERENCE_OBJ, NULL);
   }
 
   g_free(filename);
@@ -279,7 +279,7 @@ gtk_ipcam_preference_obj_save(GtkIpcamPreferenceObj* self, gboolean notify)
 
   if(notify)
   {
-    g_signal_emit(self, gtk_ipcam_preference_obj_signals[GTK_FOSCAM_PREFERENCE_OBJ_SIGNAL_CHANGED], 0);
+    g_signal_emit(self, gtk_ipcam_preference_obj_signals[GTK_IPCAM_PREFERENCE_OBJ_SIGNAL_CHANGED], 0);
   }
   return ret;
 }
@@ -289,7 +289,7 @@ gtk_ipcam_preference_obj_get_width(GtkIpcamPreferenceObj * self)
 {
   guint ret;
 
-  g_return_val_if_fail (GTK_IS_FOSCAM_PREFERENCE_OBJ(self), 0);
+  g_return_val_if_fail (GTK_IS_IPCAM_PREFERENCE_OBJ(self), 0);
 
   g_object_get(self, "width", &ret, NULL);
 
@@ -299,7 +299,7 @@ gtk_ipcam_preference_obj_get_width(GtkIpcamPreferenceObj * self)
 gboolean
 gtk_ipcam_preference_obj_set_width(GtkIpcamPreferenceObj * self, const guint val)
 {
-  g_return_val_if_fail (GTK_IS_FOSCAM_PREFERENCE_OBJ(self), FALSE);
+  g_return_val_if_fail (GTK_IS_IPCAM_PREFERENCE_OBJ(self), FALSE);
 
   g_object_set(self, "width", val, NULL);
 
@@ -311,7 +311,7 @@ gtk_ipcam_preference_obj_get_height(GtkIpcamPreferenceObj * self)
 {
   guint ret;
 
-  g_return_val_if_fail (GTK_IS_FOSCAM_PREFERENCE_OBJ(self), 0);
+  g_return_val_if_fail (GTK_IS_IPCAM_PREFERENCE_OBJ(self), 0);
 
   g_object_get(self, "height", &ret, NULL);
 
@@ -321,7 +321,7 @@ gtk_ipcam_preference_obj_get_height(GtkIpcamPreferenceObj * self)
 gboolean
 gtk_ipcam_preference_obj_set_height(GtkIpcamPreferenceObj * self, const guint val)
 {
-  g_return_val_if_fail (GTK_IS_FOSCAM_PREFERENCE_OBJ(self), FALSE);
+  g_return_val_if_fail (GTK_IS_IPCAM_PREFERENCE_OBJ(self), FALSE);
 
   g_object_set(self, "height", val, NULL);
 
@@ -333,7 +333,7 @@ gtk_ipcam_preference_obj_get_left(GtkIpcamPreferenceObj * self)
 {
   guint ret;
 
-  g_return_val_if_fail (GTK_IS_FOSCAM_PREFERENCE_OBJ(self), 0);
+  g_return_val_if_fail (GTK_IS_IPCAM_PREFERENCE_OBJ(self), 0);
 
   g_object_get(self, "left", &ret, NULL);
 
@@ -343,7 +343,7 @@ gtk_ipcam_preference_obj_get_left(GtkIpcamPreferenceObj * self)
 gboolean
 gtk_ipcam_preference_obj_set_left(GtkIpcamPreferenceObj * self, const guint val)
 {
-  g_return_val_if_fail (GTK_IS_FOSCAM_PREFERENCE_OBJ(self), FALSE);
+  g_return_val_if_fail (GTK_IS_IPCAM_PREFERENCE_OBJ(self), FALSE);
 
   g_object_set(self, "left", val, NULL);
 
@@ -355,7 +355,7 @@ gtk_ipcam_preference_obj_get_top(GtkIpcamPreferenceObj * self)
 {
   guint ret;
 
-  g_return_val_if_fail (GTK_IS_FOSCAM_PREFERENCE_OBJ(self), 0);
+  g_return_val_if_fail (GTK_IS_IPCAM_PREFERENCE_OBJ(self), 0);
 
   g_object_get(self, "top", &ret, NULL);
 
@@ -365,7 +365,7 @@ gtk_ipcam_preference_obj_get_top(GtkIpcamPreferenceObj * self)
 gboolean
 gtk_ipcam_preference_obj_set_top(GtkIpcamPreferenceObj * self, const guint val)
 {
-  g_return_val_if_fail (GTK_IS_FOSCAM_PREFERENCE_OBJ(self), FALSE);
+  g_return_val_if_fail (GTK_IS_IPCAM_PREFERENCE_OBJ(self), FALSE);
 
   g_object_set(self, "top", val, NULL);
 
@@ -388,7 +388,7 @@ gtk_ipcam_preference_obj_add_camera_group(GtkIpcamPreferenceObj * self, const gc
   GtkIpcamCameraGroupObj* camera_group = gtk_ipcam_camera_group_obj_new();
   gtk_ipcam_camera_group_obj_set_name(camera_group,group_name);
   g_ptr_array_add(array,camera_group);
-  g_signal_emit(self, gtk_ipcam_preference_obj_signals[GTK_FOSCAM_PREFERENCE_OBJ_SIGNAL_GROUP_CHANGED], 0);
+  g_signal_emit(self, gtk_ipcam_preference_obj_signals[GTK_IPCAM_PREFERENCE_OBJ_SIGNAL_GROUP_CHANGED], 0);
   return TRUE;
 }
 
@@ -427,7 +427,7 @@ gtk_ipcam_preference_obj_del_group(GtkIpcamPreferenceObj * self, GtkIpcamCameraG
   }
 
   g_ptr_array_remove(array, group);
-  g_signal_emit(self, gtk_ipcam_preference_obj_signals[GTK_FOSCAM_PREFERENCE_OBJ_SIGNAL_GROUP_CHANGED], 0);
+  g_signal_emit(self, gtk_ipcam_preference_obj_signals[GTK_IPCAM_PREFERENCE_OBJ_SIGNAL_GROUP_CHANGED], 0);
   g_object_unref(group);
   return TRUE;
 }

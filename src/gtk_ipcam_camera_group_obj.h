@@ -1,5 +1,5 @@
-#ifndef __GTK_FOSCAM_CAMERA_GROUP_OBJ_H__
-#define __GTK_FOSCAM_CAMERA_GROUP_OBJ_H__
+#ifndef __GTK_IPCAM_CAMERA_GROUP_OBJ_H__
+#define __GTK_IPCAM_CAMERA_GROUP_OBJ_H__
 
 #include <gtk/gtk.h>
 #include "gtk_ipcam_camera_obj.h"
@@ -11,13 +11,13 @@ typedef struct _GtkIpcamCameraGroupObj
 typedef struct _GtkIpcamCameraGroupObjClass
     GtkIpcamCameraGroupObjClass;
 
-#define GTK_TYPE_FOSCAM_CAMERA_GROUP_OBJ                     (gtk_ipcam_camera_group_obj_get_type ())
-#define GTK_IS_FOSCAM_CAMERA_GROUP_OBJ(obj)                  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_FOSCAM_CAMERA_GROUP_OBJ))
-#define GTK_IS_FOSCAM_CAMERA_GROUP_OBJ_CLASS(klass)          (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_FOSCAM_CAMERA_GROUP_OBJ))
-#define GTK_FOSCAM_CAMERA_GROUP_OBJ_GET_CLASS(obj)           (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_FOSCAM_CAMERA_GROUP_OBJ, GtkIpcamCameraGroupObjClass))
-#define GTK_FOSCAM_CAMERA_GROUP_OBJ(obj)                     (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_FOSCAM_CAMERA_GROUP_OBJ, GtkIpcamCameraGroupObj))
-#define GTK_FOSCAM_CAMERA_GROUP_OBJ_CLASS(klass)             (G_TYPE_CHECK_CLASS_CAST ((klass), GTK_FOSCAM_CAMERA_GROUP_OBJ, GtkIpcamCameraGroupObjClass))
-#define GTK_FOSCAM_CAMERA_GROUP_OBJ_CAST(obj)                ((GtkIpcamCameraGroupObj*)(obj))
+#define GTK_TYPE_IPCAM_CAMERA_GROUP_OBJ                     (gtk_ipcam_camera_group_obj_get_type ())
+#define GTK_IS_IPCAM_CAMERA_GROUP_OBJ(obj)                  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_IPCAM_CAMERA_GROUP_OBJ))
+#define GTK_IS_IPCAM_CAMERA_GROUP_OBJ_CLASS(klass)          (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_IPCAM_CAMERA_GROUP_OBJ))
+#define GTK_IPCAM_CAMERA_GROUP_OBJ_GET_CLASS(obj)           (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_IPCAM_CAMERA_GROUP_OBJ, GtkIpcamCameraGroupObjClass))
+#define GTK_IPCAM_CAMERA_GROUP_OBJ(obj)                     (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_IPCAM_CAMERA_GROUP_OBJ, GtkIpcamCameraGroupObj))
+#define GTK_IPCAM_CAMERA_GROUP_OBJ_CLASS(klass)             (G_TYPE_CHECK_CLASS_CAST ((klass), GTK_IPCAM_CAMERA_GROUP_OBJ, GtkIpcamCameraGroupObjClass))
+#define GTK_IPCAM_CAMERA_GROUP_OBJ_CAST(obj)                ((GtkIpcamCameraGroupObj*)(obj))
 
 
 GType gtk_ipcam_camera_group_obj_get_type(void);
@@ -37,4 +37,4 @@ gboolean gtk_ipcam_camera_group_obj_del_camera(GtkIpcamCameraGroupObj * self, Gt
 
 G_END_DECLS
 
-#endif //__GTK_FOSCAM_CAMERA_GROUP_OBJ_H__
+#endif //__GTK_IPCAM_CAMERA_GROUP_OBJ_H__

@@ -151,10 +151,10 @@ fonts_data_files = [
 install_data(fonts_data_files, install_dir : join_paths(get_option('datadir'),'gipcamviewer','fonts', 'material'))
 
 drivers_data_files = [
-               'resources/drivers/fi8918w.json',
-               'resources/drivers/fi8918w.lua',
-               'resources/drivers/fi9821p.json',
-               'resources/drivers/fi9821p.lua'
+               'resources/drivers/FOSCAM_FI8918W.json',
+               'resources/drivers/FOSCAM_FI8918W.lua',
+               'resources/drivers/FOSCAM_FI9821P.json',
+               'resources/drivers/FOSCAM_FI9821P.lua'
              ]
 
 install_data(drivers_data_files, install_dir : join_paths(get_option('datadir'),'gipcamviewer','drivers'))

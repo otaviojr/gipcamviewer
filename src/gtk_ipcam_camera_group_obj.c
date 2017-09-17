@@ -18,16 +18,16 @@ struct _GtkIpcamCameraGroupObjClass
 
 enum
 {
-  GTK_FOSCAM_CAMERA_GROUP_OBJ_PROP_0,
-  GTK_FOSCAM_CAMERA_GROUP_OBJ_PROP_GROUP_NAME,
-  GTK_FOSCAM_CAMERA_GROUP_OBJ_PROP_CAMERAS,
-  GTK_FOSCAM_CAMERA_GROUP_OBJ_PROP_LAST
+  GTK_IPCAM_CAMERA_GROUP_OBJ_PROP_0,
+  GTK_IPCAM_CAMERA_GROUP_OBJ_PROP_GROUP_NAME,
+  GTK_IPCAM_CAMERA_GROUP_OBJ_PROP_CAMERAS,
+  GTK_IPCAM_CAMERA_GROUP_OBJ_PROP_LAST
 };
 
 G_DEFINE_TYPE (GtkIpcamCameraGroupObj, gtk_ipcam_camera_group_obj, G_TYPE_OBJECT);
 
 static GParamSpec
-* gtk_ipcam_camera_group_obj_param_specs[GTK_FOSCAM_CAMERA_GROUP_OBJ_PROP_LAST] = { NULL, };
+* gtk_ipcam_camera_group_obj_param_specs[GTK_IPCAM_CAMERA_GROUP_OBJ_PROP_LAST] = { NULL, };
 
 static void
 gtk_ipcam_camera_group_obj_free_cameras(gpointer camera)
@@ -40,13 +40,13 @@ static void
 gtk_ipcam_camera_group_obj_get_property(GObject * object,
     guint prop_id, GValue * value, GParamSpec * pspec)
 {
-  GtkIpcamCameraGroupObj *self = GTK_FOSCAM_CAMERA_GROUP_OBJ(object);
+  GtkIpcamCameraGroupObj *self = GTK_IPCAM_CAMERA_GROUP_OBJ(object);
 
   switch (prop_id) {
-    case GTK_FOSCAM_CAMERA_GROUP_OBJ_PROP_GROUP_NAME:
+    case GTK_IPCAM_CAMERA_GROUP_OBJ_PROP_GROUP_NAME:
       g_value_set_string(value, g_value_get_string(&self->group_name));
       break;
-    case GTK_FOSCAM_CAMERA_GROUP_OBJ_PROP_CAMERAS:
+    case GTK_IPCAM_CAMERA_GROUP_OBJ_PROP_CAMERAS:
       g_value_set_boxed(value, g_value_get_boxed(&self->cameras));
       break;
     default:
@@ -59,13 +59,13 @@ static void
 gtk_ipcam_camera_group_obj_set_property(GObject * object, guint prop_id, const GValue * value,
     GParamSpec * pspec)
 {
-  GtkIpcamCameraGroupObj *self = GTK_FOSCAM_CAMERA_GROUP_OBJ(object);
+  GtkIpcamCameraGroupObj *self = GTK_IPCAM_CAMERA_GROUP_OBJ(object);
 
   switch (prop_id) {
-    case GTK_FOSCAM_CAMERA_GROUP_OBJ_PROP_GROUP_NAME:
+    case GTK_IPCAM_CAMERA_GROUP_OBJ_PROP_GROUP_NAME:
       g_value_set_string(&self->group_name, g_value_dup_string(value));
       break;
-    case GTK_FOSCAM_CAMERA_GROUP_OBJ_PROP_CAMERAS:
+    case GTK_IPCAM_CAMERA_GROUP_OBJ_PROP_CAMERAS:
       g_value_set_boxed(&self->cameras, g_value_get_boxed(value));
       g_ptr_array_set_free_func(g_value_get_boxed(value),gtk_ipcam_camera_group_obj_free_cameras);
       break;
@@ -78,7 +78,7 @@ gtk_ipcam_camera_group_obj_set_property(GObject * object, guint prop_id, const G
 static void
 gtk_ipcam_camera_group_obj_finalize(GObject * object)
 {
-  GtkIpcamCameraGroupObj *self = GTK_FOSCAM_CAMERA_GROUP_OBJ(object);
+  GtkIpcamCameraGroupObj *self = GTK_IPCAM_CAMERA_GROUP_OBJ(object);
 
   printf("gtk_ipcam_camera_group_obj_finalize\n");
 
@@ -103,19 +103,19 @@ gtk_ipcam_camera_group_obj_class_init(GtkIpcamCameraGroupObjClass * klass)
   gobject_class->finalize = gtk_ipcam_camera_group_obj_finalize;
 
   gtk_ipcam_camera_group_obj_param_specs
-      [GTK_FOSCAM_CAMERA_GROUP_OBJ_PROP_GROUP_NAME] =
+      [GTK_IPCAM_CAMERA_GROUP_OBJ_PROP_GROUP_NAME] =
       g_param_spec_string("group_name", "Group Name",
       "Name of this group.", NULL,
       G_PARAM_READWRITE);
 
   gtk_ipcam_camera_group_obj_param_specs
-      [GTK_FOSCAM_CAMERA_GROUP_OBJ_PROP_CAMERAS] =
+      [GTK_IPCAM_CAMERA_GROUP_OBJ_PROP_CAMERAS] =
       g_param_spec_boxed("cameras", "Cameras", "Cameras who belongs to this group",
       gtk_ipcam_camera_obj_get_boxed_type(),
       G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
   g_object_class_install_properties (gobject_class,
-      GTK_FOSCAM_CAMERA_GROUP_OBJ_PROP_LAST, gtk_ipcam_camera_group_obj_param_specs);
+      GTK_IPCAM_CAMERA_GROUP_OBJ_PROP_LAST, gtk_ipcam_camera_group_obj_param_specs);
 }
 
 static void
@@ -128,7 +128,7 @@ gtk_ipcam_camera_group_obj_init(GtkIpcamCameraGroupObj * self)
 GtkIpcamCameraGroupObj *
 gtk_ipcam_camera_group_obj_new(void)
 {
-  return g_object_new(GTK_TYPE_FOSCAM_CAMERA_GROUP_OBJ, NULL);
+  return g_object_new(GTK_TYPE_IPCAM_CAMERA_GROUP_OBJ, NULL);
 }
 
 void
@@ -203,7 +203,7 @@ static void
 gtk_ipcam_camera_group_obj_deserialize_item(JsonArray * json_array, guint index, JsonNode* element_node, gpointer user_data)
 {
     GPtrArray* array = user_data;
-    GObject* camera_group = json_gobject_deserialize(GTK_TYPE_FOSCAM_CAMERA_GROUP_OBJ,element_node);
+    GObject* camera_group = json_gobject_deserialize(GTK_TYPE_IPCAM_CAMERA_GROUP_OBJ,element_node);
     g_ptr_array_add(array,camera_group);
 }
 
@@ -249,7 +249,7 @@ gtk_ipcam_camera_group_obj_get_name(GtkIpcamCameraGroupObj * self)
 {
   gchar *ret;
 
-  g_return_val_if_fail (GTK_IS_FOSCAM_CAMERA_GROUP_OBJ(self), NULL);
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_GROUP_OBJ(self), NULL);
 
   g_object_get(self, "group_name", &ret, NULL);
 
@@ -259,7 +259,7 @@ gtk_ipcam_camera_group_obj_get_name(GtkIpcamCameraGroupObj * self)
 gboolean
 gtk_ipcam_camera_group_obj_set_name(GtkIpcamCameraGroupObj * self, const gchar* val)
 {
-  g_return_val_if_fail (GTK_IS_FOSCAM_CAMERA_GROUP_OBJ(self), FALSE);
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_GROUP_OBJ(self), FALSE);
 
   g_object_set(self, "group_name", val, NULL);
 

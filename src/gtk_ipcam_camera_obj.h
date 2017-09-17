@@ -1,5 +1,5 @@
-#ifndef __GTK_FOSCAM_CAMERA_OBJ_H__
-#define __GTK_FOSCAM_CAMERA_OBJ_H__
+#ifndef __GTK_IPCAM_CAMERA_OBJ_H__
+#define __GTK_IPCAM_CAMERA_OBJ_H__
 
 #include <gtk/gtk.h>
 
@@ -12,13 +12,13 @@ typedef struct _GtkIpcamCameraObj
 typedef struct _GtkIpcamCameraObjClass
     GtkIpcamCameraObjClass;
 
-#define GTK_TYPE_FOSCAM_CAMERA_OBJ                     (gtk_ipcam_camera_obj_get_type ())
-#define GTK_IS_FOSCAM_CAMERA_OBJ(obj)                  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_FOSCAM_CAMERA_OBJ))
-#define GTK_IS_FOSCAM_CAMERA_OBJ_CLASS(klass)          (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_FOSCAM_CAMERA_OBJ))
-#define GTK_FOSCAM_CAMERA_OBJ_GET_CLASS(obj)           (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_FOSCAM_CAMERA_OBJ, GtkIpcamCameraObjClass))
-#define GTK_FOSCAM_CAMERA_OBJ(obj)                     (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_FOSCAM_CAMERA_OBJ, GtkIpcamCameraObj))
-#define GTK_FOSCAM_CAMERA_OBJ_CLASS(klass)             (G_TYPE_CHECK_CLASS_CAST ((klass), GTK_FOSCAM_CAMERA_OBJ, GtkIpcamCameraObjClass))
-#define GTK_FOSCAM_CAMERA_OBJ_CAST(obj)                ((GtkIpcamCameraObj*)(obj))
+#define GTK_TYPE_IPCAM_CAMERA_OBJ                     (gtk_ipcam_camera_obj_get_type ())
+#define GTK_IS_IPCAM_CAMERA_OBJ(obj)                  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_IPCAM_CAMERA_OBJ))
+#define GTK_IS_IPCAM_CAMERA_OBJ_CLASS(klass)          (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_IPCAM_CAMERA_OBJ))
+#define GTK_IPCAM_CAMERA_OBJ_GET_CLASS(obj)           (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_IPCAM_CAMERA_OBJ, GtkIpcamCameraObjClass))
+#define GTK_IPCAM_CAMERA_OBJ(obj)                     (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_IPCAM_CAMERA_OBJ, GtkIpcamCameraObj))
+#define GTK_IPCAM_CAMERA_OBJ_CLASS(klass)             (G_TYPE_CHECK_CLASS_CAST ((klass), GTK_IPCAM_CAMERA_OBJ, GtkIpcamCameraObjClass))
+#define GTK_IPCAM_CAMERA_OBJ_CAST(obj)                ((GtkIpcamCameraObj*)(obj))
 
 
 GType gtk_ipcam_camera_obj_get_type(void);
@@ -59,9 +59,16 @@ gboolean gtk_ipcam_camera_obj_set_subchannel(GtkIpcamCameraObj * self, const gbo
 /* CAMERA PROPERTIES END */
 
 /* CAMERA METHODS */
+gboolean  gtk_ipcam_camera_obj_init_driver(GtkIpcamCameraObj* camera);
 gchar* gtk_ipcam_camera_obj_get_stream_url(GtkIpcamCameraObj* camera);
+gboolean gtk_ipcam_camera_obj_move_up(GtkIpcamCameraObj* camera);
+gboolean gtk_ipcam_camera_obj_move_down(GtkIpcamCameraObj* camera);
+gboolean gtk_ipcam_camera_obj_move_left(GtkIpcamCameraObj* camera);
+gboolean gtk_ipcam_camera_obj_move_right(GtkIpcamCameraObj* camera);
+gboolean gtk_ipcam_camera_obj_is_flipped(GtkIpcamCameraObj* camera);
+gboolean gtk_ipcam_camera_obj_is_mirrored(GtkIpcamCameraObj* camera);
 /* END CAMERA METHODS */
 
 G_END_DECLS
 
-#endif //__GTK_FOSCAM_CAMERA_OBJ_H__
+#endif //__GTK_IPCAM_CAMERA_OBJ_H__

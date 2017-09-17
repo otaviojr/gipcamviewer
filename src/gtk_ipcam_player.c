@@ -30,6 +30,9 @@ struct _GtkIpcamPlayer
   gint state;
 
   GThread* load_thread;
+
+  gboolean is_flipped;
+  gboolean is_mirrored;
 };
 
 struct _GtkIpcamPlayerClass
@@ -39,28 +42,28 @@ struct _GtkIpcamPlayerClass
 
 enum
 {
-  GTK_FOSCAM_PLAYER_PROP_0,
-  GTK_FOSCAM_PLAYER_PROP_WIDGET,
-  GTK_FOSCAM_PLAYER_PROP_CAMERA,
-  GTK_FOSCAM_PLAYER_PROP_LAST
+  GTK_IPCAM_PLAYER_PROP_0,
+  GTK_IPCAM_PLAYER_PROP_WIDGET,
+  GTK_IPCAM_PLAYER_PROP_CAMERA,
+  GTK_IPCAM_PLAYER_PROP_LAST
 };
 
 G_DEFINE_TYPE (GtkIpcamPlayer, gtk_ipcam_player, GTK_TYPE_EVENT_BOX);
 
 static GParamSpec
-* gtk_ipcam_player_param_specs[GTK_FOSCAM_PLAYER_PROP_LAST] = { NULL, };
+* gtk_ipcam_player_param_specs[GTK_IPCAM_PLAYER_PROP_LAST] = { NULL, };
 
 static void
 gtk_ipcam_player_get_property(GObject * object,
     guint prop_id, GValue * value, GParamSpec * pspec)
 {
-  GtkIpcamPlayer *self = GTK_FOSCAM_PLAYER(object);
+  GtkIpcamPlayer *self = GTK_IPCAM_PLAYER(object);
 
   switch (prop_id) {
-    //case GTK_FOSCAM_PLAYER_PROP_WIDGET:
+    //case GTK_IPCAM_PLAYER_PROP_WIDGET:
     //  g_value_set_object (value, self->frame);
     //  break;
-    case GTK_FOSCAM_PLAYER_PROP_CAMERA:
+    case GTK_IPCAM_PLAYER_PROP_CAMERA:
       g_value_set_object(value, self->camera);
       break;
     default:
@@ -73,10 +76,10 @@ static void
 gtk_ipcam_player_set_property(GObject * object, guint prop_id, const GValue * value,
     GParamSpec * pspec)
 {
-  GtkIpcamPlayer *self = GTK_FOSCAM_PLAYER(object);
+  GtkIpcamPlayer *self = GTK_IPCAM_PLAYER(object);
 
   switch (prop_id) {
-    case GTK_FOSCAM_PLAYER_PROP_CAMERA:
+    case GTK_IPCAM_PLAYER_PROP_CAMERA:
       printf("Setting up player camera\n");
       if(self->camera != NULL){
         g_object_unref(self->camera);
@@ -95,7 +98,7 @@ static void
 gtk_ipcam_player_finalize(GObject * object)
 {
   printf("gtk_ipcam_player_finalize\n");
-  GtkIpcamPlayer *self = GTK_FOSCAM_PLAYER(object);
+  GtkIpcamPlayer *self = GTK_IPCAM_PLAYER(object);
 
   if(self->load_thread)
   {
@@ -104,7 +107,7 @@ gtk_ipcam_player_finalize(GObject * object)
     self->load_thread = NULL;
   }
 
-  //if(self->state == GTK_FOSCAM_PLAYER_STATE_PLAYING)
+  //if(self->state == GTK_IPCAM_PLAYER_STATE_PLAYING)
   //{
   //  gtk_ipcam_player_stop_video(self);
   //  gtk_ipcam_player_stop_audio(self);
@@ -134,21 +137,134 @@ gtk_ipcam_player_finalize(GObject * object)
       (gtk_ipcam_player_parent_class)->finalize(object);
 }
 
-gpointer
+static gpointer
+gtk_ipcam_player_move_up_background(gpointer user_data)
+{
+  GtkIpcamPlayer *self = (GtkIpcamPlayer *)user_data;
+
+  gtk_ipcam_camera_obj_move_up(self->camera);
+  return NULL;
+}
+
+static gpointer
+gtk_ipcam_player_move_down_background(gpointer user_data)
+{
+  GtkIpcamPlayer *self = (GtkIpcamPlayer *)user_data;
+
+  gtk_ipcam_camera_obj_move_down(self->camera);
+  return NULL;
+}
+
+static gpointer
+gtk_ipcam_player_move_left_background(gpointer user_data)
+{
+  GtkIpcamPlayer *self = (GtkIpcamPlayer *)user_data;
+
+  gtk_ipcam_camera_obj_move_left(self->camera);
+  return NULL;
+}
+
+static gpointer
+gtk_ipcam_player_move_right_background(gpointer user_data)
+{
+  GtkIpcamPlayer *self = (GtkIpcamPlayer *)user_data;
+
+  gtk_ipcam_camera_obj_move_right(self->camera);
+  return NULL;
+}
+
+static void
+gtk_ipcam_player_run_backgroup(GtkIpcamPlayer *self, GThreadFunc func)
+{
+  if(self->load_thread)
+  {
+    g_thread_join(self->load_thread);
+    g_thread_unref(self->load_thread);
+  }
+  self->load_thread = g_thread_new("player_run_background", func, self);
+}
+
+static void
+gtk_ipcam_player_up_cb(GtkWidget* widget, gpointer user_data)
+{
+  printf("goind up\n");
+  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(user_data);
+  gtk_ipcam_player_run_backgroup(self,gtk_ipcam_player_move_up_background);
+}
+
+static void
+gtk_ipcam_player_down_cb(GtkWidget* widget, gpointer user_data)
+{
+  printf("goind down\n");
+  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(user_data);
+  gtk_ipcam_player_run_backgroup(self,gtk_ipcam_player_move_down_background);
+}
+
+static void
+gtk_ipcam_player_left_cb(GtkWidget* widget, gpointer user_data)
+{
+  printf("goind left\n");
+  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(user_data);
+  gtk_ipcam_player_run_backgroup(self,gtk_ipcam_player_move_left_background);
+}
+
+static void
+gtk_ipcam_player_right_cb(GtkWidget* widget, gpointer user_data)
+{
+  printf("goind right\n");
+  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(user_data);
+  gtk_ipcam_player_run_backgroup(self,gtk_ipcam_player_move_right_background);
+}
+
+static void
+gtk_ipcam_enable_controls(GtkIpcamPlayer* self)
+{
+  if(self->is_flipped)
+  {
+    g_signal_connect(G_OBJECT(self->btn_up), "clicked", G_CALLBACK (gtk_ipcam_player_down_cb), self);
+    g_signal_connect(G_OBJECT(self->btn_down), "clicked", G_CALLBACK (gtk_ipcam_player_up_cb), self);
+  }
+  else
+  {
+    g_signal_connect(G_OBJECT(self->btn_up), "clicked", G_CALLBACK (gtk_ipcam_player_up_cb), self);
+    g_signal_connect(G_OBJECT(self->btn_down), "clicked", G_CALLBACK (gtk_ipcam_player_down_cb), self);
+  }
+
+  if(!self->is_mirrored)
+  {
+    g_signal_connect(G_OBJECT(self->btn_left), "clicked", G_CALLBACK (gtk_ipcam_player_right_cb), self);
+    g_signal_connect(G_OBJECT(self->btn_right), "clicked", G_CALLBACK (gtk_ipcam_player_left_cb), self);
+  }
+  else
+  {
+    g_signal_connect(G_OBJECT(self->btn_left), "clicked", G_CALLBACK (gtk_ipcam_player_left_cb), self);
+    g_signal_connect(G_OBJECT(self->btn_right), "clicked", G_CALLBACK (gtk_ipcam_player_right_cb), self);
+  }
+}
+
+static gpointer
 gtk_ipcam_player_background_load(gpointer user_data)
 {
   GtkIpcamPlayer *self = (GtkIpcamPlayer *)user_data;
 
-  gchar* camera_url = gtk_ipcam_camera_obj_get_stream_url(self->camera);
-
-  if(camera_url != NULL)
+  if(gtk_ipcam_camera_obj_init_driver(self->camera))
   {
-    printf("Playing: %s\n",camera_url);
-    gtk_vlc_player_load_uri(GTK_VLC_PLAYER(self->video_area),camera_url);
+    self->state = GTK_IPCAM_PLAYER_STATE_LOADED;
+    self->is_flipped = gtk_ipcam_camera_obj_is_flipped(self->camera);
+    self->is_mirrored = gtk_ipcam_camera_obj_is_mirrored(self->camera);
 
-    g_free(camera_url);
+    gchar* camera_url = gtk_ipcam_camera_obj_get_stream_url(self->camera);
 
-    gtk_ipcam_player_start_video(self);
+    if(camera_url != NULL)
+    {
+      printf("Playing: %s\n",camera_url);
+      gtk_vlc_player_load_uri(GTK_VLC_PLAYER(self->video_area),camera_url);
+
+      g_free(camera_url);
+
+      gtk_ipcam_enable_controls(self);
+      gtk_ipcam_player_start_video(self);
+    }
   }
   return NULL;
 }
@@ -156,29 +272,27 @@ gtk_ipcam_player_background_load(gpointer user_data)
 void
 gtk_ipcam_player_load(GtkIpcamPlayer *self)
 {
-  if(self->load_thread)
-  {
-    g_thread_join(self->load_thread);
-    g_thread_unref(self->load_thread);
-  }
-  self->load_thread = g_thread_new("player_loader", gtk_ipcam_player_background_load, self);
+  gtk_ipcam_player_run_backgroup(self, gtk_ipcam_player_background_load);
 }
 
 static gboolean
 gtk_ipcam_player_pointer_enter_cb(GtkWidget* widget, GdkEvent* event, gpointer user_data)
 {
-  GtkIpcamPlayer* self = GTK_FOSCAM_PLAYER(widget);
-  gtk_widget_show(self->btn_up);
-  gtk_widget_show(self->btn_down);
-  gtk_widget_show(self->btn_left);
-  gtk_widget_show(self->btn_right);
+  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(widget);
+  if(self->state == GTK_IPCAM_PLAYER_STATE_PLAYING)
+  {
+    gtk_widget_show(self->btn_up);
+    gtk_widget_show(self->btn_down);
+    gtk_widget_show(self->btn_left);
+    gtk_widget_show(self->btn_right);
+  }
   return FALSE;
 }
 
 static gboolean
 gtk_ipcam_player_pointer_leave_cb(GtkWidget* widget, GdkEvent* event, gpointer user_data)
 {
-  GtkIpcamPlayer* self = GTK_FOSCAM_PLAYER(widget);
+  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(widget);
   gtk_widget_hide(self->btn_up);
   gtk_widget_hide(self->btn_down);
   gtk_widget_hide(self->btn_left);
@@ -190,7 +304,7 @@ static void
 gtk_ipcam_player_show_cb(GtkWidget* widget, gpointer user_data)
 {
   printf("showing player\n");
-  GtkIpcamPlayer* self = GTK_FOSCAM_PLAYER(widget);
+  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(widget);
   gtk_widget_hide(self->btn_up);
   gtk_widget_hide(self->btn_down);
   gtk_widget_hide(self->btn_left);
@@ -200,7 +314,7 @@ gtk_ipcam_player_show_cb(GtkWidget* widget, gpointer user_data)
 static void
 gtk_ipcam_player_constructed(GObject* object)
 {
-  GtkIpcamPlayer *self = GTK_FOSCAM_PLAYER(object);
+  GtkIpcamPlayer *self = GTK_IPCAM_PLAYER(object);
   //GtkWidget* dialog;
   //self->renderer = gst_player_gtk_video_renderer_new();
   //if(self->renderer){
@@ -317,19 +431,19 @@ gtk_ipcam_player_class_init(GtkIpcamPlayerClass * klass)
   gobject_class->constructed = gtk_ipcam_player_constructed;
 
   gtk_ipcam_player_param_specs
-      [GTK_FOSCAM_PLAYER_PROP_WIDGET] =
+      [GTK_IPCAM_PLAYER_PROP_WIDGET] =
       g_param_spec_object ("widget", "Widget",
       "Widget to render the video into", GTK_TYPE_WIDGET,
       G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
     gtk_ipcam_player_param_specs
-        [GTK_FOSCAM_PLAYER_PROP_CAMERA] =
+        [GTK_IPCAM_PLAYER_PROP_CAMERA] =
         g_param_spec_object ("camera", "Camera",
-        "Camera Object related to this player", GTK_TYPE_FOSCAM_CAMERA_OBJ,
+        "Camera Object related to this player", GTK_TYPE_IPCAM_CAMERA_OBJ,
         G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class,
-      GTK_FOSCAM_PLAYER_PROP_LAST, gtk_ipcam_player_param_specs);
+      GTK_IPCAM_PLAYER_PROP_LAST, gtk_ipcam_player_param_specs);
 }
 
 static void
@@ -337,13 +451,15 @@ gtk_ipcam_player_init(GtkIpcamPlayer * self)
 {
   printf("Initializing player\n");
   self->load_thread = NULL;
-  self->state = GTK_FOSCAM_PLAYER_STATE_STOPPED;
+  self->state = GTK_IPCAM_PLAYER_STATE_IDLE;
+  self->is_flipped = FALSE;
+  self->is_mirrored = FALSE;
 }
 
 GtkIpcamPlayer *
 gtk_ipcam_player_new(GtkIpcamCameraObj* camera)
 {
-  return g_object_new(GTK_TYPE_FOSCAM_PLAYER, "camera", camera, NULL);
+  return g_object_new(GTK_TYPE_IPCAM_PLAYER, "camera", camera, NULL);
 }
 
 /*GtkWidget *
@@ -351,7 +467,7 @@ gtk_ipcam_player_get_widget(GtkIpcamPlayer * self)
 {
   GtkWidget *widget;
 
-  g_return_val_if_fail (GTK_IS_FOSCAM_PLAYER(self), NULL);
+  g_return_val_if_fail (GTK_IS_IPCAM_PLAYER(self), NULL);
 
   g_object_get(self, "widget", &widget, NULL);
 
@@ -363,7 +479,7 @@ gtk_ipcam_player_get_camera(GtkIpcamPlayer * self)
 {
   GtkIpcamCameraObj *ret;
 
-  g_return_val_if_fail (GTK_IS_FOSCAM_PLAYER(self), NULL);
+  g_return_val_if_fail (GTK_IS_IPCAM_PLAYER(self), NULL);
 
   g_object_get(self, "camera", &ret, NULL);
 
@@ -374,7 +490,7 @@ gboolean
 gtk_ipcam_player_start_video(GtkIpcamPlayer* self)
 {
   gtk_vlc_player_play(GTK_VLC_PLAYER(self->video_area));
-  self->state = GTK_FOSCAM_PLAYER_STATE_PLAYING;
+  self->state = GTK_IPCAM_PLAYER_STATE_PLAYING;
   return TRUE;
 }
 
@@ -382,7 +498,7 @@ gboolean
 gtk_ipcam_player_stop_video(GtkIpcamPlayer* self)
 {
   gtk_vlc_player_stop(GTK_VLC_PLAYER(self->video_area));
-  self->state = GTK_FOSCAM_PLAYER_STATE_STOPPED;
+  self->state = GTK_IPCAM_PLAYER_STATE_STOPPED;
   return TRUE;
 }
 

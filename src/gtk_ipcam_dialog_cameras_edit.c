@@ -18,7 +18,7 @@ static GtkIpcamCameraGroupObj*
 get_current_camera_group(GtkIpcamDialogCameraEditInfo* info)
 {
   gint active_group = gtk_combo_box_get_active(GTK_COMBO_BOX(info->group_list_widget));
-  return GTK_FOSCAM_CAMERA_GROUP_OBJ(gtk_ipcam_preference_obj_get_camera_group_by_index(info->preference,active_group));
+  return GTK_IPCAM_CAMERA_GROUP_OBJ(gtk_ipcam_preference_obj_get_camera_group_by_index(info->preference,active_group));
 }
 
 static GtkIpcamCameraObj*
@@ -166,7 +166,7 @@ cameras_up_btn_callback(GtkButton* button, gpointer user_data)
 static void
 add_camera(gpointer data, gpointer user_data)
 {
-  GtkIpcamCameraObj* camera = GTK_FOSCAM_CAMERA_OBJ(data);
+  GtkIpcamCameraObj* camera = GTK_IPCAM_CAMERA_OBJ(data);
   GtkIpcamDialogCameraEditInfo* info = (GtkIpcamDialogCameraEditInfo*)user_data;
 
   GtkWidget* row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
@@ -224,15 +224,15 @@ add_driver(gpointer data, gpointer user_data)
 {
   GtkTreeIter iter;
   GtkListStore* drivers = GTK_LIST_STORE(user_data);
-  GtkIpcamCameraDriverObj* driver = GTK_FOSCAM_CAMERA_DRIVER_OBJ(data);
+  GtkIpcamCameraDriverObj* driver = GTK_IPCAM_CAMERA_DRIVER_OBJ(data);
 
   gtk_list_store_append (drivers, &iter);
 
   printf("Adding driver %s to list store\n", gtk_ipcam_camera_driver_obj_get_model(driver));
 
   gtk_list_store_set (drivers, &iter,
-                          GTK_FOSCAM_COLUMN_CAMERA_DRIVER_ID, gtk_ipcam_camera_driver_obj_get_driver_name(driver),
-                          GTK_FOSCAM_COLUMN_CAMERA_DRIVER_NAME, gtk_ipcam_camera_driver_obj_get_model(driver),
+                          GTK_IPCAM_COLUMN_CAMERA_DRIVER_ID, gtk_ipcam_camera_driver_obj_get_driver_name(driver),
+                          GTK_IPCAM_COLUMN_CAMERA_DRIVER_NAME, gtk_ipcam_camera_driver_obj_get_model(driver),
                           -1);
 }
 
@@ -241,12 +241,12 @@ create_drivers_list(GPtrArray* drivers)
 {
   GtkTreeIter iter;
 
-  GtkListStore* tmp_drivers = gtk_list_store_new(GTK_FOSCAM_COLUMN_CAMERA_DRIVER_LAST,G_TYPE_STRING, G_TYPE_STRING);
+  GtkListStore* tmp_drivers = gtk_list_store_new(GTK_IPCAM_COLUMN_CAMERA_DRIVER_LAST,G_TYPE_STRING, G_TYPE_STRING);
 
   gtk_list_store_append (tmp_drivers, &iter);
   gtk_list_store_set (tmp_drivers, &iter,
-                          GTK_FOSCAM_COLUMN_CAMERA_DRIVER_ID, "",
-                          GTK_FOSCAM_COLUMN_CAMERA_DRIVER_NAME, "",
+                          GTK_IPCAM_COLUMN_CAMERA_DRIVER_ID, "",
+                          GTK_IPCAM_COLUMN_CAMERA_DRIVER_NAME, "",
                           -1);
 
   g_ptr_array_foreach(drivers, add_driver, tmp_drivers);
@@ -266,8 +266,8 @@ refresh_drivers(GtkIpcamDialogCameraEditInfo* info, GPtrArray* drivers) {
   if(groups != NULL)
   {
     gtk_combo_box_set_model(GTK_COMBO_BOX(info->cameras_edit_model),GTK_TREE_MODEL(groups));
-    gtk_combo_box_set_entry_text_column(GTK_COMBO_BOX(info->cameras_edit_model),GTK_FOSCAM_COLUMN_CAMERA_DRIVER_NAME);
-    gtk_combo_box_set_id_column(GTK_COMBO_BOX(info->cameras_edit_model),GTK_FOSCAM_COLUMN_CAMERA_DRIVER_ID);
+    gtk_combo_box_set_entry_text_column(GTK_COMBO_BOX(info->cameras_edit_model),GTK_IPCAM_COLUMN_CAMERA_DRIVER_NAME);
+    gtk_combo_box_set_id_column(GTK_COMBO_BOX(info->cameras_edit_model),GTK_IPCAM_COLUMN_CAMERA_DRIVER_ID);
     gtk_combo_box_set_active(GTK_COMBO_BOX(info->cameras_edit_model),0);
   }
 }
@@ -302,7 +302,10 @@ refresh_form(gpointer data)
     block_signals(info);
 
     gchar* value = (gtk_ipcam_camera_obj_get_model(camera) ? gtk_ipcam_camera_obj_get_model(camera) : "");
-    gtk_combo_box_set_active_id(GTK_COMBO_BOX(info->cameras_edit_model), value);
+    if(gtk_combo_box_set_active_id(GTK_COMBO_BOX(info->cameras_edit_model), value) != TRUE)
+    {
+      gtk_combo_box_set_active(GTK_COMBO_BOX(info->cameras_edit_model), 0);
+    }
 
     value = (gtk_ipcam_camera_obj_get_name(camera) ? gtk_ipcam_camera_obj_get_name(camera) : "");
     gtk_entry_set_text(GTK_ENTRY(info->cameras_edit_name), value);
@@ -690,7 +693,7 @@ gtk_ipcam_dialog_cameras_edit_new(GtkIpcamPreferenceObj* preference)
    ****************************************************************************************/
   GtkCellRenderer *driver_list_cell = gtk_cell_renderer_text_new ();
   gtk_cell_layout_pack_start( GTK_CELL_LAYOUT(camera_edit_info.cameras_edit_model), driver_list_cell, TRUE );
-  gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(camera_edit_info.cameras_edit_model), driver_list_cell, "text", GTK_FOSCAM_COLUMN_CAMERA_DRIVER_NAME, NULL );
+  gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(camera_edit_info.cameras_edit_model), driver_list_cell, "text", GTK_IPCAM_COLUMN_CAMERA_DRIVER_NAME, NULL );
 
   GPtrArray* drivers = gtk_ipcam_camera_driver_obj_list();
   refresh_drivers(&camera_edit_info, drivers);
@@ -711,7 +714,7 @@ gtk_ipcam_dialog_cameras_edit_new(GtkIpcamPreferenceObj* preference)
   /* GOUP COMBO BOX */
   GtkCellRenderer *group_list_cell = gtk_cell_renderer_text_new ();
   gtk_cell_layout_pack_start( GTK_CELL_LAYOUT(camera_edit_info.group_list_widget), group_list_cell, TRUE );
-  gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(camera_edit_info.group_list_widget), group_list_cell, "text", GTK_FOSCAM_COLUMN_CAMERA_GROUP_NAME, NULL );
+  gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(camera_edit_info.group_list_widget), group_list_cell, "text", GTK_IPCAM_COLUMN_CAMERA_GROUP_NAME, NULL );
 
   g_signal_connect(camera_edit_info.group_list_widget, "changed", G_CALLBACK(refresh_camera_list),&camera_edit_info);
 

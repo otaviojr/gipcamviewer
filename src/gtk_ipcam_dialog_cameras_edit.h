@@ -1,5 +1,5 @@
-#ifndef __GTK_FOSCAM_DIALOG_CAMERAS_EDIT_H__
-#define __GTK_FOSCAM_DIALOG_CAMERAS_EDIT_H__
+#ifndef __GTK_IPCAM_DIALOG_CAMERAS_EDIT_H__
+#define __GTK_IPCAM_DIALOG_CAMERAS_EDIT_H__
 
 #include "gtk_ipcam_util.h"
 #include "gtk_ipcam_preference_obj.h"
@@ -7,9 +7,9 @@
 
 
 enum {
-  GTK_FOSCAM_COLUMN_CAMERA_DRIVER_ID,
-  GTK_FOSCAM_COLUMN_CAMERA_DRIVER_NAME,
-  GTK_FOSCAM_COLUMN_CAMERA_DRIVER_LAST
+  GTK_IPCAM_COLUMN_CAMERA_DRIVER_ID,
+  GTK_IPCAM_COLUMN_CAMERA_DRIVER_NAME,
+  GTK_IPCAM_COLUMN_CAMERA_DRIVER_LAST
 };
 
 typedef struct _GtkIpcamDialogCameraEditInfo {
@@ -55,4 +55,4 @@ typedef struct _GtkIpcamDialogCameraEditInfo {
 
 void gtk_ipcam_dialog_cameras_edit_new();
 
-#endif //__GTK_FOSCAM_DIALOG_CAMERAS_EDIT_H__
+#endif //__GTK_IPCAM_DIALOG_CAMERAS_EDIT_H__

@@ -99,13 +99,13 @@ static void
 create_camera(gpointer data, gpointer user_data)
 {
   GtkIpcamViewerWindow* win = (GtkIpcamViewerWindow*)user_data;
-  g_assert(GTK_IS_FOSCAM_CAMERA_OBJ(data));
-  GtkIpcamCameraObj* camera = GTK_FOSCAM_CAMERA_OBJ(data);
+  g_assert(GTK_IS_IPCAM_CAMERA_OBJ(data));
+  GtkIpcamCameraObj* camera = GTK_IPCAM_CAMERA_OBJ(data);
 
   if(gtk_ipcam_camera_obj_is_valid(camera))
   {
     GtkIpcamPlayer* player = gtk_ipcam_player_new(camera);
-    g_assert(GTK_IS_FOSCAM_PLAYER(player));
+    g_assert(GTK_IS_IPCAM_PLAYER(player));
     g_ptr_array_add(win->g_players, player);
   }
 }
@@ -113,8 +113,8 @@ create_camera(gpointer data, gpointer user_data)
 static void
 destroy_player(gpointer data)
 {
-  g_assert(GTK_IS_FOSCAM_PLAYER(data));
-  GtkIpcamPlayer * player = GTK_FOSCAM_PLAYER(data);
+  g_assert(GTK_IS_IPCAM_PLAYER(data));
+  GtkIpcamPlayer * player = GTK_IPCAM_PLAYER(data);
   gtk_widget_destroy(GTK_WIDGET(player));
   //g_object_unref(camera);
 }
@@ -123,9 +123,9 @@ static void
 create_cameras(GtkIpcamViewerWindow * win)
 {
   gint active_group = gtk_combo_box_get_active(GTK_COMBO_BOX(win->group_list_title_widget));
-  GtkIpcamCameraGroupObj* group = GTK_FOSCAM_CAMERA_GROUP_OBJ(gtk_ipcam_preference_obj_get_camera_group_by_index(win->preference,active_group));
+  GtkIpcamCameraGroupObj* group = GTK_IPCAM_CAMERA_GROUP_OBJ(gtk_ipcam_preference_obj_get_camera_group_by_index(win->preference,active_group));
 
-  g_assert(GTK_IS_FOSCAM_CAMERA_GROUP_OBJ(group));
+  g_assert(GTK_IS_IPCAM_CAMERA_GROUP_OBJ(group));
 
   win->g_players = g_ptr_array_new();
   g_ptr_array_set_free_func(win->g_players,destroy_player);
@@ -147,8 +147,8 @@ layout_remove_camera(gpointer data, gpointer user_data)
 {
   printf("removing cameras\n");
   GtkIpcamViewerWindow* win = (GtkIpcamViewerWindow*)user_data;
-  g_assert(GTK_IS_FOSCAM_PLAYER(data));
-  GtkIpcamPlayer * player = GTK_FOSCAM_PLAYER(data);
+  g_assert(GTK_IS_IPCAM_PLAYER(data));
+  GtkIpcamPlayer * player = GTK_IPCAM_PLAYER(data);
 
   gtk_ipcam_player_stop_video(player);
   gtk_ipcam_player_stop_audio(player);
@@ -165,8 +165,8 @@ static void
 layout_camera(gpointer data, gpointer user_data)
 {
   GtkIpcamViewerWindow* win = (GtkIpcamViewerWindow*)user_data;
-  g_assert(GTK_IS_FOSCAM_PLAYER(data));
-  GtkIpcamPlayer * player = GTK_FOSCAM_PLAYER(data);
+  g_assert(GTK_IS_IPCAM_PLAYER(data));
+  GtkIpcamPlayer * player = GTK_IPCAM_PLAYER(data);
 
   printf("layout_camera(%d)\n",win->cameras_count);
   /*
@@ -193,7 +193,7 @@ static void
 layout_cameras(GtkIpcamViewerWindow * win)
 {
   gint active_group = gtk_combo_box_get_active(GTK_COMBO_BOX(win->group_list_title_widget));
-  GtkIpcamCameraGroupObj* group = GTK_FOSCAM_CAMERA_GROUP_OBJ(gtk_ipcam_preference_obj_get_camera_group_by_index(win->preference,active_group));
+  GtkIpcamCameraGroupObj* group = GTK_IPCAM_CAMERA_GROUP_OBJ(gtk_ipcam_preference_obj_get_camera_group_by_index(win->preference,active_group));
 
   if(win->g_players == NULL) return;
 
@@ -300,7 +300,7 @@ create_ui(GtkIpcamViewerWindow * win)
   /* Title Group Combo */
   GtkCellRenderer *group_list_cell = gtk_cell_renderer_text_new ();
   gtk_cell_layout_pack_start( GTK_CELL_LAYOUT(win->group_list_title_widget), group_list_cell, TRUE );
-  gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(win->group_list_title_widget), group_list_cell, "text", GTK_FOSCAM_COLUMN_CAMERA_GROUP_NAME, NULL );
+  gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(win->group_list_title_widget), group_list_cell, "text", GTK_IPCAM_COLUMN_CAMERA_GROUP_NAME, NULL );
 
   g_signal_connect(win->group_list_title_widget, "changed", G_CALLBACK(refresh_cameras_area),win);
 
@@ -364,30 +364,30 @@ create_ui(GtkIpcamViewerWindow * win)
   //gst_player_play (player);
   //gst_player_set_rate(player,25);
 
-  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_FOSCAM_PLAYER(win->g_player))),"http://otacasa.getmyip.com:3002/videostream.cgi?user=admin&pwd=ota1808&rate=25");
+  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player))),"http://otacasa.getmyip.com:3002/videostream.cgi?user=admin&pwd=ota1808&rate=25");
 
   //player = gtk_ipcam_player_get_player(win->g_player1);
   //gst_player_set_uri (player, "http://otacasa.getmyip.com:3003/videostream.cgi?user=admin&pwd=ota1808&rate=25");
   //gst_player_play (player);
   //gst_player_set_rate(player,25);
-  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_FOSCAM_PLAYER(win->g_player1))),"http://otacasa.getmyip.com:3003/videostream.cgi?user=admin&pwd=ota1808&rate=25");
+  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player1))),"http://otacasa.getmyip.com:3003/videostream.cgi?user=admin&pwd=ota1808&rate=25");
 
   //player = gtk_ipcam_player_get_player(win->g_player2);
   //gst_player_set_uri (player, "http://otacasa.getmyip.com:3004/videostream.cgi?user=admin&pwd=ota1808&rate=25");
   //gst_player_play (player);
   //gst_player_set_rate(player,25);
-  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_FOSCAM_PLAYER(win->g_player2))),"http://otacasa.getmyip.com:3004/videostream.cgi?user=admin&pwd=ota1808&rate=25");
+  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player2))),"http://otacasa.getmyip.com:3004/videostream.cgi?user=admin&pwd=ota1808&rate=25");
 
   //player = gtk_ipcam_player_get_player(win->g_player3);
   //gst_player_set_uri (player, "rtsp://otaviojr:ota180879@otacasa.getmyip.com:3011/videoMain");
   //gst_player_play (player);
   //gst_player_set_rate(player,25);
-  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_FOSCAM_PLAYER(win->g_player3))),"rtsp://otaviojr:ota180879@otacasa.getmyip.com:3011/videoMain");
+  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player3))),"rtsp://otaviojr:ota180879@otacasa.getmyip.com:3011/videoMain");
 
-  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_FOSCAM_PLAYER(win->g_player))));
-  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_FOSCAM_PLAYER(win->g_player1))));
-  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_FOSCAM_PLAYER(win->g_player2))));
-  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_FOSCAM_PLAYER(win->g_player3))));
+  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player))));
+  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player1))));
+  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player2))));
+  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player3))));
 }
 
 static void

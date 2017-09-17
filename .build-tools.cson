@@ -1,0 +1,86 @@
+providers: [
+  {
+    key: "bt"
+    config:
+      commands: [
+        {
+          project: "/home/otaviojr/Google Drive/WorkFiles/Projetos/linux/GIPCamViewer"
+          source: "/home/otaviojr/Google Drive/WorkFiles/Projetos/linux/GIPCamViewer/.build-tools.cson"
+          name: "ninja-build"
+          command: "ninja"
+          wd: "./build/"
+          env: {}
+          modifier:
+            shell:
+              command: "bash -c"
+          environment:
+            name: "child_process"
+            config:
+              stdoe: "both"
+          stdout:
+            pipeline: []
+          stderr:
+            pipeline: []
+          output:
+            console:
+              close_success: true
+              queue_in_buffer: true
+              colors: true
+              stdin: false
+          version: 2
+        }
+        {
+          project: "/home/otaviojr/Google Drive/WorkFiles/Projetos/linux/GIPCamViewer"
+          source: "/home/otaviojr/Google Drive/WorkFiles/Projetos/linux/GIPCamViewer/.build-tools.cson"
+          name: "meson"
+          command: "meson"
+          wd: "./build"
+          env: {}
+          modifier:
+            shell:
+              command: "bash -c"
+          environment:
+            name: "child_process"
+            config:
+              stdoe: "both"
+          stdout:
+            pipeline: []
+          stderr:
+            pipeline: []
+          output:
+            console:
+              close_success: true
+              queue_in_buffer: true
+              colors: true
+              stdin: false
+          version: 2
+        }
+        {
+          project: "/home/otaviojr/Google Drive/WorkFiles/Projetos/linux/GIPCamViewer"
+          source: "/home/otaviojr/Google Drive/WorkFiles/Projetos/linux/GIPCamViewer/.build-tools.cson"
+          name: "ninja-install"
+          command: "sudo ninja install"
+          wd: "./build"
+          env: {}
+          modifier:
+            shell:
+              command: "bash -c"
+          environment:
+            name: "child_process"
+            config:
+              stdoe: "both"
+          stdout:
+            pipeline: []
+          stderr:
+            pipeline: []
+          output:
+            console:
+              close_success: true
+              queue_in_buffer: true
+              colors: true
+              stdin: true
+          version: 2
+        }
+      ]
+  }
+]

@@ -23,6 +23,9 @@ struct _GtkIpcamCameraDriverObj
   GValue protocol;
 
   GValue driver_name;
+
+  GValue base_url;
+  GValue base_media_url;
 };
 
 struct _GtkIpcamCameraDriverObjClass
@@ -32,32 +35,32 @@ struct _GtkIpcamCameraDriverObjClass
 
 enum
 {
-  GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_0,
-  GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_DRIVER_NAME,
-  GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_PROTOCOL,
-  GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_MODEL,
-  GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_LAST
+  GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_0,
+  GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_DRIVER_NAME,
+  GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_PROTOCOL,
+  GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_MODEL,
+  GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_LAST
 };
 
 G_DEFINE_TYPE (GtkIpcamCameraDriverObj, gtk_ipcam_camera_driver_obj, G_TYPE_OBJECT);
 
 static GParamSpec
-* gtk_ipcam_camera_driver_obj_param_specs[GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_LAST] = { NULL, };
+* gtk_ipcam_camera_driver_obj_param_specs[GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_LAST] = { NULL, };
 
 static void
 gtk_ipcam_camera_driver_obj_get_property(GObject * object,
     guint prop_id, GValue * value, GParamSpec * pspec)
 {
-  GtkIpcamCameraDriverObj *self = GTK_FOSCAM_CAMERA_DRIVER_OBJ(object);
+  GtkIpcamCameraDriverObj *self = GTK_IPCAM_CAMERA_DRIVER_OBJ(object);
 
   switch (prop_id) {
-    case GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_DRIVER_NAME:
+    case GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_DRIVER_NAME:
       g_value_set_string(value, g_value_get_string(&self->driver_name));
       break;
-    case GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_PROTOCOL:
+    case GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_PROTOCOL:
       g_value_set_string(value, g_value_get_string(&self->protocol));
       break;
-    case GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_MODEL:
+    case GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_MODEL:
       g_value_set_string(value, g_value_get_string(&self->model));
       break;
     default:
@@ -70,13 +73,13 @@ static void
 gtk_ipcam_camera_driver_obj_set_property(GObject * object, guint prop_id, const GValue * value,
     GParamSpec * pspec)
 {
-  GtkIpcamCameraDriverObj *self = GTK_FOSCAM_CAMERA_DRIVER_OBJ(object);
+  GtkIpcamCameraDriverObj *self = GTK_IPCAM_CAMERA_DRIVER_OBJ(object);
 
   switch (prop_id) {
-    case GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_MODEL:
+    case GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_MODEL:
       g_value_set_string(&self->model, g_value_dup_string(value));
       break;
-    case GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_PROTOCOL:
+    case GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_PROTOCOL:
       g_value_set_string(&self->protocol, g_value_dup_string(value));
       break;
     default:
@@ -88,13 +91,15 @@ gtk_ipcam_camera_driver_obj_set_property(GObject * object, guint prop_id, const 
 static void
 gtk_ipcam_camera_driver_obj_finalize(GObject * object)
 {
-  GtkIpcamCameraDriverObj *self = GTK_FOSCAM_CAMERA_DRIVER_OBJ(object);
+  GtkIpcamCameraDriverObj *self = GTK_IPCAM_CAMERA_DRIVER_OBJ(object);
 
   printf("gtk_ipcam_camera_driver_obj_finalize\n");
 
   g_value_unset(&self->driver_name);
   g_value_unset(&self->protocol);
   g_value_unset(&self->model);
+  g_value_unset(&self->base_url);
+  g_value_unset(&self->base_media_url);
 
   G_OBJECT_CLASS(gtk_ipcam_camera_driver_obj_parent_class)->finalize(object);
 }
@@ -109,25 +114,25 @@ gtk_ipcam_camera_driver_obj_class_init(GtkIpcamCameraDriverObjClass * klass)
   gobject_class->finalize = gtk_ipcam_camera_driver_obj_finalize;
 
   gtk_ipcam_camera_driver_obj_param_specs
-      [GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_DRIVER_NAME] =
+      [GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_DRIVER_NAME] =
       g_param_spec_string("driver_name", "Driver  Name",
       "Internal name of the driver", NULL,
       G_PARAM_READABLE);
 
   gtk_ipcam_camera_driver_obj_param_specs
-      [GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_PROTOCOL] =
+      [GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_PROTOCOL] =
       g_param_spec_string("protocol", "Protocol",
       "Driver primary protocol", NULL,
       G_PARAM_READWRITE);
 
   gtk_ipcam_camera_driver_obj_param_specs
-      [GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_MODEL] =
+      [GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_MODEL] =
       g_param_spec_string("model", "Driver Model",
       "Driver Model", NULL,
       G_PARAM_READWRITE);
 
   g_object_class_install_properties (gobject_class,
-      GTK_FOSCAM_CAMERA_DRIVER_OBJ_PROP_LAST, gtk_ipcam_camera_driver_obj_param_specs);
+      GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_LAST, gtk_ipcam_camera_driver_obj_param_specs);
 }
 
 static const gchar*
@@ -142,6 +147,8 @@ gtk_ipcam_camera_driver_obj_init(GtkIpcamCameraDriverObj * self)
   g_value_init(&self->driver_name, G_TYPE_STRING);
   g_value_init(&self->protocol, G_TYPE_STRING);
   g_value_init(&self->model, G_TYPE_STRING);
+  g_value_init(&self->base_url, G_TYPE_STRING);
+  g_value_init(&self->base_media_url, G_TYPE_STRING);
 }
 
 GtkIpcamCameraDriverObj *
@@ -158,7 +165,7 @@ gtk_ipcam_camera_driver_obj_new(const gchar* driver)
   {
     if(json_parser_load_from_file(parser, driver_path, &error) == TRUE){
       JsonNode* rootNode = json_parser_get_root(parser);
-      ret = GTK_FOSCAM_CAMERA_DRIVER_OBJ(json_gobject_deserialize(GTK_TYPE_FOSCAM_CAMERA_DRIVER_OBJ, rootNode));
+      ret = GTK_IPCAM_CAMERA_DRIVER_OBJ(json_gobject_deserialize(GTK_TYPE_IPCAM_CAMERA_DRIVER_OBJ, rootNode));
       if(ret != NULL)
       {
         g_value_set_string(&ret->driver_name,driver);
@@ -236,7 +243,7 @@ gtk_ipcam_camera_driver_obj_get_driver_name(GtkIpcamCameraDriverObj * self)
 {
   gchar* ret;
 
-  g_return_val_if_fail (GTK_IS_FOSCAM_CAMERA_DRIVER_OBJ(self), 0);
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_DRIVER_OBJ(self), 0);
 
   g_object_get(self, "driver_name", &ret, NULL);
 
@@ -248,7 +255,7 @@ gtk_ipcam_camera_driver_obj_get_protocol(GtkIpcamCameraDriverObj * self)
 {
   gchar* ret;
 
-  g_return_val_if_fail (GTK_IS_FOSCAM_CAMERA_DRIVER_OBJ(self), 0);
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_DRIVER_OBJ(self), 0);
 
   g_object_get(self, "protocol", &ret, NULL);
 
@@ -258,7 +265,7 @@ gtk_ipcam_camera_driver_obj_get_protocol(GtkIpcamCameraDriverObj * self)
 gboolean
 gtk_ipcam_camera_driver_obj_set_protocol(GtkIpcamCameraDriverObj * self, const guint val)
 {
-  g_return_val_if_fail (GTK_IS_FOSCAM_CAMERA_DRIVER_OBJ(self), FALSE);
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_DRIVER_OBJ(self), FALSE);
 
   g_object_set(self, "protocol", val, NULL);
 
@@ -270,7 +277,7 @@ gtk_ipcam_camera_driver_obj_get_model(GtkIpcamCameraDriverObj * self)
 {
   gchar* ret;
 
-  g_return_val_if_fail (GTK_IS_FOSCAM_CAMERA_DRIVER_OBJ(self), 0);
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_DRIVER_OBJ(self), 0);
 
   g_object_get(self, "model", &ret, NULL);
 
@@ -280,11 +287,47 @@ gtk_ipcam_camera_driver_obj_get_model(GtkIpcamCameraDriverObj * self)
 gboolean
 gtk_ipcam_camera_driver_obj_set_model(GtkIpcamCameraDriverObj * self, const guint val)
 {
-  g_return_val_if_fail (GTK_IS_FOSCAM_CAMERA_DRIVER_OBJ(self), FALSE);
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_DRIVER_OBJ(self), FALSE);
 
   g_object_set(self, "model", val, NULL);
 
   return TRUE;
+}
+
+gboolean
+gtk_ipcam_camera_driver_obj_init_driver(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera)
+{
+  lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
+  gboolean ret = FALSE;
+
+  if(l!= NULL)
+  {
+    lua_getglobal(l, "driver_get_base_url");
+    if(lua_pcall(l,0,2,0) != 0)
+    {
+      printf("error running function `driver_get_base_url': %s\n", lua_tostring(l, -1));
+      return ret;
+    }
+
+    if(lua_isstring(l, -1))
+    {
+      g_value_reset(&self->base_url);
+      g_value_set_string(&self->base_url, lua_tostring(l,-1));
+      printf("`driver_get_base_url' returned url %s\n", g_value_get_string(&self->base_url));
+      ret = TRUE;
+    }
+
+    if(lua_isstring(l, -2))
+    {
+      g_value_reset(&self->base_media_url);
+      g_value_set_string(&self->base_media_url, lua_tostring(l,-2));
+      printf("`driver_get_base_url' returned media url %s\n", g_value_get_string(&self->base_media_url));
+      ret = TRUE;
+    }
+    lua_pop(l,2);
+  }
+  lua_close(l);
+  return ret;
 }
 
 gchar*
@@ -296,7 +339,9 @@ gtk_ipcam_camera_driver_obj_get_stream_url(GtkIpcamCameraDriverObj * self, GtkIp
   if(l!= NULL)
   {
     lua_getglobal(l, "driver_get_stream_url");
-    if(lua_pcall(l,0,1,0) != 0)
+    lua_pushstring(l,g_value_get_string(&self->base_url));
+    lua_pushstring(l,g_value_get_string(&self->base_media_url));
+    if(lua_pcall(l,2,1,0) != 0)
     {
       printf("error running function `driver_get_stream_url': %s\n", lua_tostring(l, -1));
       return NULL;
@@ -306,6 +351,174 @@ gtk_ipcam_camera_driver_obj_get_stream_url(GtkIpcamCameraDriverObj * self, GtkIp
     {
       ret = g_strdup(lua_tostring(l,-1));
       printf("`driver_get_stream_url' returned %s\n", ret);
+    }
+    lua_pop(l,1);
+  }
+  lua_close(l);
+  return ret;
+}
+
+gboolean
+gtk_ipcam_camera_driver_obj_move_up(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera)
+{
+  lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
+  gboolean ret = FALSE;
+
+  if(l!= NULL)
+  {
+    lua_getglobal(l, "driver_move_up");
+    lua_pushstring(l,g_value_get_string(&self->base_url));
+    lua_pushstring(l,g_value_get_string(&self->base_media_url));
+    if(lua_pcall(l,2,1,0) != 0)
+    {
+      printf("error running function `driver_move_up': %s\n", lua_tostring(l, -1));
+      return ret;
+    }
+
+    if(lua_isboolean(l, -1))
+    {
+      ret = lua_toboolean(l,-1);
+      printf("`driver_move_up' returned %i\n", ret);
+    }
+    lua_pop(l,1);
+  }
+  lua_close(l);
+  return ret;
+}
+
+gboolean
+gtk_ipcam_camera_driver_obj_move_down(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera)
+{
+  lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
+  gboolean ret = FALSE;
+
+  if(l!= NULL)
+  {
+    lua_getglobal(l, "driver_move_down");
+    lua_pushstring(l,g_value_get_string(&self->base_url));
+    lua_pushstring(l,g_value_get_string(&self->base_media_url));
+    if(lua_pcall(l,2,1,0) != 0)
+    {
+      printf("error running function `driver_move_down': %s\n", lua_tostring(l, -1));
+      return ret;
+    }
+
+    if(lua_isboolean(l, -1))
+    {
+      ret = lua_toboolean(l,-1);
+      printf("`driver_move_down' returned %i\n", ret);
+    }
+    lua_pop(l,1);
+  }
+  lua_close(l);
+  return ret;
+}
+
+gboolean
+gtk_ipcam_camera_driver_obj_move_left(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera)
+{
+  lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
+  gboolean ret = FALSE;
+
+  if(l!= NULL)
+  {
+    lua_getglobal(l, "driver_move_left");
+    lua_pushstring(l,g_value_get_string(&self->base_url));
+    lua_pushstring(l,g_value_get_string(&self->base_media_url));
+    if(lua_pcall(l,2,1,0) != 0)
+    {
+      printf("error running function `driver_move_left': %s\n", lua_tostring(l, -1));
+      return ret;
+    }
+
+    if(lua_isboolean(l, -1))
+    {
+      ret = lua_toboolean(l,-1);
+      printf("`driver_move_left' returned %i\n", ret);
+    }
+    lua_pop(l,1);
+  }
+  lua_close(l);
+  return ret;
+}
+
+gboolean
+gtk_ipcam_camera_driver_obj_move_right(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera)
+{
+  lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
+  gboolean ret = FALSE;
+
+  if(l!= NULL)
+  {
+    lua_getglobal(l, "driver_move_right");
+    lua_pushstring(l,g_value_get_string(&self->base_url));
+    lua_pushstring(l,g_value_get_string(&self->base_media_url));
+    if(lua_pcall(l,2,1,0) != 0)
+    {
+      printf("error running function `driver_move_right': %s\n", lua_tostring(l, -1));
+      return ret;
+    }
+
+    if(lua_isboolean(l, -1))
+    {
+      ret = lua_toboolean(l,-1);
+      printf("`driver_move_right' returned %i\n", ret);
+    }
+    lua_pop(l,1);
+  }
+  lua_close(l);
+  return ret;
+}
+
+gboolean
+gtk_ipcam_camera_driver_obj_is_flipped(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera)
+{
+  lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
+  gboolean ret = FALSE;
+
+  if(l!= NULL)
+  {
+    lua_getglobal(l, "driver_is_flipped");
+    lua_pushstring(l,g_value_get_string(&self->base_url));
+    lua_pushstring(l,g_value_get_string(&self->base_media_url));
+    if(lua_pcall(l,2,1,0) != 0)
+    {
+      printf("error running function `driver_is_flipped': %s\n", lua_tostring(l, -1));
+      return ret;
+    }
+
+    if(lua_isboolean(l, -1))
+    {
+      ret = lua_toboolean(l,-1);
+      printf("`driver_is_flipped' returned %i\n", ret);
+    }
+    lua_pop(l,1);
+  }
+  lua_close(l);
+  return ret;
+}
+
+gboolean
+gtk_ipcam_camera_driver_obj_is_mirrored(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera)
+{
+  lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
+  gboolean ret = FALSE;
+
+  if(l!= NULL)
+  {
+    lua_getglobal(l, "driver_is_mirrored");
+    lua_pushstring(l,g_value_get_string(&self->base_url));
+    lua_pushstring(l,g_value_get_string(&self->base_media_url));
+    if(lua_pcall(l,2,1,0) != 0)
+    {
+      printf("error running function `driver_is_mirrored': %s\n", lua_tostring(l, -1));
+      return ret;
+    }
+
+    if(lua_isboolean(l, -1))
+    {
+      ret = lua_toboolean(l,-1);
+      printf("`driver_is_mirrored' returned %i\n", ret);
     }
     lua_pop(l,1);
   }
@@ -332,15 +545,18 @@ gtk_ipcam_camera_driver_obj_list()
   while ((filename = g_dir_read_name(dir))){
     token = g_strrstr(filename,".");
     *token = 0;
-    driver = gtk_ipcam_camera_driver_obj_new(filename);
-    if(driver != NULL)
+    if(g_strcmp0(++token,"json") == 0)
     {
-      printf("Adding driver: %s\n", filename);
-      g_ptr_array_add(ret,driver);
-    }
-    else
-    {
-      printf("Error adding driver: %s\n", filename);
+      driver = gtk_ipcam_camera_driver_obj_new(filename);
+      if(driver != NULL)
+      {
+        printf("Adding driver: %s\n", filename);
+        g_ptr_array_add(ret,driver);
+      }
+      else
+      {
+        printf("Error adding driver: %s\n", filename);
+      }
     }
   }
 

@@ -15,15 +15,15 @@ add_group(gpointer data, gpointer user_data)
 {
   GtkTreeIter iter;
   GtkListStore* groups = GTK_LIST_STORE(user_data);
-  GtkIpcamCameraGroupObj* camera_group = GTK_FOSCAM_CAMERA_GROUP_OBJ(data);
+  GtkIpcamCameraGroupObj* camera_group = GTK_IPCAM_CAMERA_GROUP_OBJ(data);
 
   gtk_list_store_append (groups, &iter);
 
   printf("Adding group %s\n", gtk_ipcam_camera_group_obj_get_name(camera_group));
 
   gtk_list_store_set (groups, &iter,
-                          GTK_FOSCAM_COLUMN_CAMERA_GROUP_ID, group_count++,
-                          GTK_FOSCAM_COLUMN_CAMERA_GROUP_NAME, gtk_ipcam_camera_group_obj_get_name(camera_group),
+                          GTK_IPCAM_COLUMN_CAMERA_GROUP_ID, group_count++,
+                          GTK_IPCAM_COLUMN_CAMERA_GROUP_NAME, gtk_ipcam_camera_group_obj_get_name(camera_group),
                           -1);
 }
 
@@ -34,7 +34,7 @@ create_camera_group_list(GtkIpcamPreferenceObj* preference)
 
   if(gtk_ipcam_preference_obj_get_camera_group_count(preference) > 0)
   {
-    tmp_groups = gtk_list_store_new(GTK_FOSCAM_COLUMN_CAMERA_GROUP_LAST,G_TYPE_INT, G_TYPE_STRING);
+    tmp_groups = gtk_list_store_new(GTK_IPCAM_COLUMN_CAMERA_GROUP_LAST,G_TYPE_INT, G_TYPE_STRING);
     group_count = 0;
     gtk_ipcam_preference_obj_foreach_camera_group(preference, add_group, tmp_groups);
   }
@@ -56,8 +56,8 @@ gtk_ipcam_camera_groups_refresh(GtkWidget* combo, GtkIpcamPreferenceObj* prefere
   if(groups != NULL)
   {
     gtk_combo_box_set_model(GTK_COMBO_BOX(combo),GTK_TREE_MODEL(groups));
-    gtk_combo_box_set_entry_text_column(GTK_COMBO_BOX(combo),GTK_FOSCAM_COLUMN_CAMERA_GROUP_NAME);
-    gtk_combo_box_set_id_column(GTK_COMBO_BOX(combo),GTK_FOSCAM_COLUMN_CAMERA_GROUP_NAME);
+    gtk_combo_box_set_entry_text_column(GTK_COMBO_BOX(combo),GTK_IPCAM_COLUMN_CAMERA_GROUP_NAME);
+    gtk_combo_box_set_id_column(GTK_COMBO_BOX(combo),GTK_IPCAM_COLUMN_CAMERA_GROUP_NAME);
     gtk_combo_box_set_active(GTK_COMBO_BOX(combo),0);
   }
 }
