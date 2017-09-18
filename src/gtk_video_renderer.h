@@ -1,5 +1,6 @@
 /* GStreamer
  *
+ * Copyright (C) 2017 Otávio Ribeiro <otavio.ribeiro@gmail.com>
  * Copyright (C) 2015 Sebastian Dröge <sebastian@centricular.com>
  *
  * This library is free software; you can redistribute it and/or

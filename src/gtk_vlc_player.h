@@ -7,6 +7,7 @@
 /*
  * Copyright (C) 2012-2013 Otto-von-Guericke-Universität Magdeburg
  * Copyright (C) 2013 Robin Haberkorn
+ * Copyright (C) 2017 Otávio Ribeiro <otavio.ribeiro@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
