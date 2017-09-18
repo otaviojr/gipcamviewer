@@ -33,6 +33,8 @@ struct _GtkIpcamPlayer
 
   gboolean is_flipped;
   gboolean is_mirrored;
+  gboolean can_pan;
+  gboolean can_tilt;
 };
 
 struct _GtkIpcamPlayerClass
@@ -252,6 +254,8 @@ gtk_ipcam_player_background_load(gpointer user_data)
     self->state = GTK_IPCAM_PLAYER_STATE_LOADED;
     self->is_flipped = gtk_ipcam_camera_obj_is_flipped(self->camera);
     self->is_mirrored = gtk_ipcam_camera_obj_is_mirrored(self->camera);
+    self->can_pan = gtk_ipcam_camera_obj_can_pan(self->camera);
+    self->can_tilt = gtk_ipcam_camera_obj_can_tilt(self->camera);
 
     gchar* camera_url = gtk_ipcam_camera_obj_get_stream_url(self->camera);
 
@@ -281,10 +285,17 @@ gtk_ipcam_player_pointer_enter_cb(GtkWidget* widget, GdkEvent* event, gpointer u
   GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(widget);
   if(self->state == GTK_IPCAM_PLAYER_STATE_PLAYING)
   {
-    gtk_widget_show(self->btn_up);
-    gtk_widget_show(self->btn_down);
-    gtk_widget_show(self->btn_left);
-    gtk_widget_show(self->btn_right);
+    if(self->can_tilt)
+    {
+      gtk_widget_show(self->btn_up);
+      gtk_widget_show(self->btn_down);
+    }
+
+    if(self->can_pan)
+    {
+      gtk_widget_show(self->btn_left);
+      gtk_widget_show(self->btn_right);
+    }
   }
   return FALSE;
 }
@@ -454,6 +465,8 @@ gtk_ipcam_player_init(GtkIpcamPlayer * self)
   self->state = GTK_IPCAM_PLAYER_STATE_IDLE;
   self->is_flipped = FALSE;
   self->is_mirrored = FALSE;
+  self->can_pan = FALSE;
+  self->can_tilt = FALSE;
 }
 
 GtkIpcamPlayer *

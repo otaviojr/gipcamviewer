@@ -526,6 +526,46 @@ gtk_ipcam_camera_driver_obj_is_mirrored(GtkIpcamCameraDriverObj * self, GtkIpcam
   return ret;
 }
 
+gboolean
+gtk_ipcam_camera_driver_obj_can_tilt(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera)
+{
+  lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
+  gboolean ret = FALSE;
+
+  if(l!= NULL)
+  {
+    lua_getglobal(l, "driver_move_down");
+    lua_getglobal(l, "driver_move_up");
+    if( lua_isfunction(l,-1) && lua_isfunction(l,-2))
+    {
+      ret=TRUE;
+    }
+  }
+
+  lua_close(l);
+  return ret;
+}
+
+gboolean
+gtk_ipcam_camera_driver_obj_can_pan(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera)
+{
+  lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
+  gboolean ret = FALSE;
+
+  if(l!= NULL)
+  {
+    lua_getglobal(l, "driver_move_left");
+    lua_getglobal(l, "driver_move_right");
+    if( lua_isfunction(l,-1) && lua_isfunction(l,-2))
+    {
+      ret=TRUE;
+    }
+  }
+
+  lua_close(l);
+  return ret;
+}
+
 GPtrArray*
 gtk_ipcam_camera_driver_obj_list()
 {

@@ -762,3 +762,15 @@ gtk_ipcam_camera_obj_is_mirrored(GtkIpcamCameraObj* camera)
 {
   return gtk_ipcam_camera_driver_obj_is_mirrored(camera->camera_driver, camera);
 }
+
+gboolean
+gtk_ipcam_camera_obj_can_pan(GtkIpcamCameraObj* camera)
+{
+  return gtk_ipcam_camera_driver_obj_can_pan(camera->camera_driver, camera);
+}
+
+gboolean
+gtk_ipcam_camera_obj_can_tilt(GtkIpcamCameraObj* camera)
+{
+  return gtk_ipcam_camera_driver_obj_can_tilt(camera->camera_driver, camera);
+}

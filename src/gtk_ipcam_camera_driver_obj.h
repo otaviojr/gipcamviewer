@@ -43,6 +43,8 @@ gboolean gtk_ipcam_camera_driver_obj_move_left(GtkIpcamCameraDriverObj * self, G
 gboolean gtk_ipcam_camera_driver_obj_move_right(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera);
 gboolean gtk_ipcam_camera_driver_obj_is_flipped(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera);
 gboolean gtk_ipcam_camera_driver_obj_is_mirrored(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera);
+gboolean gtk_ipcam_camera_driver_obj_can_tilt(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera);
+gboolean gtk_ipcam_camera_driver_obj_can_pan(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera);
 
 G_END_DECLS
 

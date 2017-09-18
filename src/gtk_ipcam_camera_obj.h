@@ -67,6 +67,8 @@ gboolean gtk_ipcam_camera_obj_move_left(GtkIpcamCameraObj* camera);
 gboolean gtk_ipcam_camera_obj_move_right(GtkIpcamCameraObj* camera);
 gboolean gtk_ipcam_camera_obj_is_flipped(GtkIpcamCameraObj* camera);
 gboolean gtk_ipcam_camera_obj_is_mirrored(GtkIpcamCameraObj* camera);
+gboolean gtk_ipcam_camera_obj_can_pan(GtkIpcamCameraObj* camera);
+gboolean gtk_ipcam_camera_obj_can_tilt(GtkIpcamCameraObj* camera);
 /* END CAMERA METHODS */
 
 G_END_DECLS
