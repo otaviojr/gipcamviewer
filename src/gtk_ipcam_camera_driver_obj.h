@@ -51,6 +51,8 @@ gchar* gtk_ipcam_camera_driver_obj_get_model(GtkIpcamCameraDriverObj * self);
 gboolean gtk_ipcam_camera_driver_obj_set_model(GtkIpcamCameraDriverObj * self, const guint val);
 gchar* gtk_ipcam_camera_driver_obj_get_protocol(GtkIpcamCameraDriverObj * self);
 gboolean gtk_ipcam_camera_driver_obj_set_protocol(GtkIpcamCameraDriverObj * self, const guint val);
+gboolean gtk_ipcam_camera_driver_obj_get_has_ptz(GtkIpcamCameraDriverObj * self);
+gboolean gtk_ipcam_camera_driver_obj_set_has_ptz(GtkIpcamCameraDriverObj * self, const gboolean val);
 
 gboolean gtk_ipcam_camera_driver_obj_init_driver(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera);
 gchar* gtk_ipcam_camera_driver_obj_get_stream_url(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera);

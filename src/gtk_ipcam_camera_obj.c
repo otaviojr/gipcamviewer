@@ -37,6 +37,8 @@ struct _GtkIpcamCameraObj
   GValue username;
   GValue password;
   GValue subchannel;
+  GValue flip_controls;
+  GValue mirror_controls;
 
   GtkIpcamCameraDriverObj* camera_driver;
 };
@@ -62,6 +64,8 @@ enum
   GTK_IPCAM_CAMERA_OBJ_PROP_USERNAME,
   GTK_IPCAM_CAMERA_OBJ_PROP_PASSWORD,
   GTK_IPCAM_CAMERA_OBJ_PROP_USE_SUB_CHANNEL,
+  GTK_IPCAM_CAMERA_OBJ_PROP_FLIP_CONTROLS,
+  GTK_IPCAM_CAMERA_OBJ_PROP_MIRROR_CONTROLS,
   GTK_IPCAM_CAMERA_OBJ_PROP_LAST
 };
 
@@ -115,6 +119,12 @@ gtk_ipcam_camera_obj_get_property(GObject * object,
       break;
     case GTK_IPCAM_CAMERA_OBJ_PROP_USE_SUB_CHANNEL:
       g_value_set_boolean(value, g_value_get_boolean(&self->subchannel));
+      break;
+    case GTK_IPCAM_CAMERA_OBJ_PROP_FLIP_CONTROLS:
+      g_value_set_boolean(value, g_value_get_boolean(&self->flip_controls));
+      break;
+    case GTK_IPCAM_CAMERA_OBJ_PROP_MIRROR_CONTROLS:
+      g_value_set_boolean(value, g_value_get_boolean(&self->mirror_controls));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -172,6 +182,12 @@ gtk_ipcam_camera_obj_set_property(GObject * object, guint prop_id, const GValue 
     case GTK_IPCAM_CAMERA_OBJ_PROP_USE_SUB_CHANNEL:
       g_value_set_boolean(&self->subchannel, g_value_get_boolean(value));
       break;
+    case GTK_IPCAM_CAMERA_OBJ_PROP_FLIP_CONTROLS:
+      g_value_set_boolean(&self->flip_controls, g_value_get_boolean(value));
+      break;
+    case GTK_IPCAM_CAMERA_OBJ_PROP_MIRROR_CONTROLS:
+      g_value_set_boolean(&self->mirror_controls, g_value_get_boolean(value));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -198,6 +214,8 @@ gtk_ipcam_camera_obj_finalize(GObject * object)
   g_value_unset(&self->username);
   g_value_unset(&self->password);
   g_value_unset(&self->subchannel);
+  g_value_unset(&self->flip_controls);
+  g_value_unset(&self->mirror_controls);
 
   if(self->camera_driver != NULL){
     g_object_unref(self->camera_driver);
@@ -294,6 +312,18 @@ gtk_ipcam_camera_obj_class_init(GtkIpcamCameraObjClass * klass)
       FALSE,
       G_PARAM_READWRITE);
 
+  gtk_ipcam_camera_obj_param_specs
+      [GTK_IPCAM_CAMERA_OBJ_PROP_FLIP_CONTROLS] =
+      g_param_spec_boolean("flip_controls", "Flip Controls", "If Vertical controls must be flipped",
+      FALSE,
+      G_PARAM_READWRITE);
+
+  gtk_ipcam_camera_obj_param_specs
+      [GTK_IPCAM_CAMERA_OBJ_PROP_MIRROR_CONTROLS] =
+      g_param_spec_boolean("mirror_controls", "Mirror Controls", "If Horizontal controls must be mirrored",
+      FALSE,
+      G_PARAM_READWRITE);
+
   g_object_class_install_properties (gobject_class,
       GTK_IPCAM_CAMERA_OBJ_PROP_LAST, gtk_ipcam_camera_obj_param_specs);
 }
@@ -316,10 +346,14 @@ gtk_ipcam_camera_obj_init(GtkIpcamCameraObj * self)
   g_value_init(&self->username, G_TYPE_STRING);
   g_value_init(&self->password, G_TYPE_STRING);
   g_value_init(&self->subchannel, G_TYPE_BOOLEAN);
+  g_value_init(&self->flip_controls, G_TYPE_BOOLEAN);
+  g_value_init(&self->mirror_controls, G_TYPE_BOOLEAN);
 
   g_value_set_boolean(&self->remote_https, TRUE);
   g_value_set_boolean(&self->local_https, TRUE);
   g_value_set_boolean(&self->subchannel, FALSE);
+  g_value_set_boolean(&self->flip_controls, FALSE);
+  g_value_set_boolean(&self->mirror_controls, FALSE);
   self->camera_driver = NULL;
 }
 
@@ -731,6 +765,53 @@ gtk_ipcam_camera_obj_set_subchannel(GtkIpcamCameraObj * self, const gboolean val
 
   return TRUE;
 }
+
+gboolean
+gtk_ipcam_camera_obj_get_flip_controls(GtkIpcamCameraObj * self)
+{
+  gboolean ret;
+
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_OBJ(self), TRUE);
+
+  g_object_get(self, "flip_controls", &ret, NULL);
+
+  return ret;
+}
+
+gboolean
+gtk_ipcam_camera_obj_set_flip_controls(GtkIpcamCameraObj * self, const gboolean val)
+{
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_OBJ(self), FALSE);
+
+  g_object_set(self, "flip_controls", val, NULL);
+
+  return TRUE;
+}
+
+gboolean
+gtk_ipcam_camera_obj_get_mirror_controls(GtkIpcamCameraObj * self)
+{
+  gboolean ret;
+
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_OBJ(self), TRUE);
+
+  g_object_get(self, "mirror_controls", &ret, NULL);
+
+  return ret;
+}
+
+gboolean
+gtk_ipcam_camera_obj_set_mirror_controls(GtkIpcamCameraObj * self, const gboolean val)
+{
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_OBJ(self), FALSE);
+
+  g_object_set(self, "mirror_controls", val, NULL);
+
+  return TRUE;
+}
+
+
+/* Drivers proxy methods */
 
 gboolean
 gtk_ipcam_camera_obj_init_driver(GtkIpcamCameraObj* camera)

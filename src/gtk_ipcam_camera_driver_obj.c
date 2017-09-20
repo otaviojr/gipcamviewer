@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -38,8 +38,8 @@ struct _GtkIpcamCameraDriverObj
 
   GValue model;
   GValue protocol;
-
   GValue driver_name;
+  GValue has_ptz;
 
   GValue base_url;
   GValue base_media_url;
@@ -56,6 +56,7 @@ enum
   GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_DRIVER_NAME,
   GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_PROTOCOL,
   GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_MODEL,
+  GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_HAS_PTZ,
   GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_LAST
 };
 
@@ -80,6 +81,9 @@ gtk_ipcam_camera_driver_obj_get_property(GObject * object,
     case GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_MODEL:
       g_value_set_string(value, g_value_get_string(&self->model));
       break;
+      case GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_HAS_PTZ:
+        g_value_set_boolean(value, g_value_get_boolean(&self->has_ptz));
+        break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
       break;
@@ -99,6 +103,9 @@ gtk_ipcam_camera_driver_obj_set_property(GObject * object, guint prop_id, const 
     case GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_PROTOCOL:
       g_value_set_string(&self->protocol, g_value_dup_string(value));
       break;
+      case GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_HAS_PTZ:
+        g_value_set_boolean(&self->has_ptz, g_value_get_boolean(value));
+        break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -115,6 +122,7 @@ gtk_ipcam_camera_driver_obj_finalize(GObject * object)
   g_value_unset(&self->driver_name);
   g_value_unset(&self->protocol);
   g_value_unset(&self->model);
+  g_value_unset(&self->has_ptz);
   g_value_unset(&self->base_url);
   g_value_unset(&self->base_media_url);
 
@@ -148,6 +156,12 @@ gtk_ipcam_camera_driver_obj_class_init(GtkIpcamCameraDriverObjClass * klass)
       "Driver Model", NULL,
       G_PARAM_READWRITE);
 
+  gtk_ipcam_camera_driver_obj_param_specs
+      [GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_HAS_PTZ] =
+      g_param_spec_boolean("has_ptz", "Has PTZ",
+      "If this cameras support ptz", FALSE,
+      G_PARAM_READWRITE);
+
   g_object_class_install_properties (gobject_class,
       GTK_IPCAM_CAMERA_DRIVER_OBJ_PROP_LAST, gtk_ipcam_camera_driver_obj_param_specs);
 }
@@ -164,8 +178,11 @@ gtk_ipcam_camera_driver_obj_init(GtkIpcamCameraDriverObj * self)
   g_value_init(&self->driver_name, G_TYPE_STRING);
   g_value_init(&self->protocol, G_TYPE_STRING);
   g_value_init(&self->model, G_TYPE_STRING);
+  g_value_init(&self->has_ptz, G_TYPE_BOOLEAN);
   g_value_init(&self->base_url, G_TYPE_STRING);
   g_value_init(&self->base_media_url, G_TYPE_STRING);
+
+  g_value_set_boolean(&self->has_ptz, FALSE);
 }
 
 GtkIpcamCameraDriverObj *
@@ -194,6 +211,13 @@ gtk_ipcam_camera_driver_obj_new(const gchar* driver)
   g_object_unref(parser);
 
   return ret;
+}
+
+static int lua_sleep(lua_State *l)
+{
+    int m = luaL_checknumber(l,1);
+    usleep(m * 1000);
+    return 0;
 }
 
 static lua_State*
@@ -251,6 +275,9 @@ gtk_ipcam_camera_driver_obj_init_lua(GtkIpcamCameraDriverObj* self, GtkIpcamCame
   lua_pushboolean(l,gtk_ipcam_camera_obj_get_subchannel(camera));
   lua_setglobal(l, "camera_subchannel");
 
+  /* exporting functions to lua */
+  lua_pushcfunction(l, lua_sleep);
+  lua_setglobal(l, "sleep");
   return l;
 }
 
@@ -307,6 +334,28 @@ gtk_ipcam_camera_driver_obj_set_model(GtkIpcamCameraDriverObj * self, const guin
   g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_DRIVER_OBJ(self), FALSE);
 
   g_object_set(self, "model", val, NULL);
+
+  return TRUE;
+}
+
+gboolean
+gtk_ipcam_camera_driver_obj_get_has_ptz(GtkIpcamCameraDriverObj * self)
+{
+  gboolean ret;
+
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_DRIVER_OBJ(self), 0);
+
+  g_object_get(self, "has_ptz", &ret, NULL);
+
+  return ret;
+}
+
+gboolean
+gtk_ipcam_camera_driver_obj_set_has_ptz(GtkIpcamCameraDriverObj * self, const gboolean val)
+{
+  g_return_val_if_fail (GTK_IS_IPCAM_CAMERA_DRIVER_OBJ(self), FALSE);
+
+  g_object_set(self, "has_ptz", val, NULL);
 
   return TRUE;
 }
@@ -546,40 +595,46 @@ gtk_ipcam_camera_driver_obj_is_mirrored(GtkIpcamCameraDriverObj * self, GtkIpcam
 gboolean
 gtk_ipcam_camera_driver_obj_can_tilt(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera)
 {
-  lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
   gboolean ret = FALSE;
-
-  if(l!= NULL)
+  if(g_value_get_boolean(&self->has_ptz))
   {
-    lua_getglobal(l, "driver_move_down");
-    lua_getglobal(l, "driver_move_up");
-    if( lua_isfunction(l,-1) && lua_isfunction(l,-2))
-    {
-      ret=TRUE;
-    }
-  }
+    lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
 
-  lua_close(l);
+    if(l!= NULL)
+    {
+      lua_getglobal(l, "driver_move_down");
+      lua_getglobal(l, "driver_move_up");
+      if( lua_isfunction(l,-1) && lua_isfunction(l,-2))
+      {
+        ret=TRUE;
+      }
+    }
+
+    lua_close(l);
+  }
   return ret;
 }
 
 gboolean
 gtk_ipcam_camera_driver_obj_can_pan(GtkIpcamCameraDriverObj * self, GtkIpcamCameraObj* camera)
 {
-  lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
   gboolean ret = FALSE;
-
-  if(l!= NULL)
+  if(g_value_get_boolean(&self->has_ptz))
   {
-    lua_getglobal(l, "driver_move_left");
-    lua_getglobal(l, "driver_move_right");
-    if( lua_isfunction(l,-1) && lua_isfunction(l,-2))
-    {
-      ret=TRUE;
-    }
-  }
+    lua_State* l = gtk_ipcam_camera_driver_obj_init_lua(self, camera);
 
-  lua_close(l);
+    if(l!= NULL)
+    {
+      lua_getglobal(l, "driver_move_left");
+      lua_getglobal(l, "driver_move_right");
+      if( lua_isfunction(l,-1) && lua_isfunction(l,-2))
+      {
+          ret=TRUE;
+      }
+    }
+
+    lua_close(l);
+  }
   return ret;
 }
 

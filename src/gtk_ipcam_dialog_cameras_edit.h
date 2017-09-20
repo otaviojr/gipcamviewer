@@ -59,6 +59,8 @@ typedef struct _GtkIpcamDialogCameraEditInfo {
   GtkWidget* cameras_edit_local_port;
   GtkWidget* cameras_edit_local_media_port;
   GtkWidget* cameras_edit_use_subchannel;
+  GtkWidget* cameras_edit_flip_controls;
+  GtkWidget* cameras_edit_mirror_controls;
 
   GtkWidget* cameras_edit_remote_media;
   GtkWidget* cameras_edit_local_media;

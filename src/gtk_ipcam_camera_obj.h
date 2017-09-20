@@ -73,6 +73,10 @@ gchar * gtk_ipcam_camera_obj_get_password(GtkIpcamCameraObj * self);
 gboolean gtk_ipcam_camera_obj_set_password(GtkIpcamCameraObj * self, const gchar* val);
 gboolean gtk_ipcam_camera_obj_get_subchannel(GtkIpcamCameraObj * self);
 gboolean gtk_ipcam_camera_obj_set_subchannel(GtkIpcamCameraObj * self, const gboolean val);
+gboolean gtk_ipcam_camera_obj_get_flip_controls(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_flip_controls(GtkIpcamCameraObj * self, const gboolean val);
+gboolean gtk_ipcam_camera_obj_get_mirror_controls(GtkIpcamCameraObj * self);
+gboolean gtk_ipcam_camera_obj_set_mirror_controls(GtkIpcamCameraObj * self, const gboolean val);
 /* CAMERA PROPERTIES END */
 
 /* CAMERA METHODS */

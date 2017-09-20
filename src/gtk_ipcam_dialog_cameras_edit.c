@@ -374,6 +374,8 @@ refresh_form(gpointer data)
     }
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(info->cameras_edit_use_subchannel), gtk_ipcam_camera_obj_get_subchannel(camera));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(info->cameras_edit_flip_controls), gtk_ipcam_camera_obj_get_flip_controls(camera));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(info->cameras_edit_mirror_controls), gtk_ipcam_camera_obj_get_mirror_controls(camera));
 
     GtkIpcamCameraDriverObj* driver = gtk_ipcam_camera_obj_get_camera_driver(camera);
     if(driver != NULL)
@@ -476,6 +478,29 @@ subchannel_toggled(GtkToggleButton* button, gpointer user_data)
   changed = TRUE;
   gtk_ipcam_camera_obj_set_subchannel(camera, gtk_toggle_button_get_active(button));
 }
+
+static void
+flip_controls_toggled(GtkToggleButton* button, gpointer user_data)
+{
+  GtkIpcamDialogCameraEditInfo* info = (GtkIpcamDialogCameraEditInfo*)user_data;
+  GtkIpcamCameraObj* camera = info->current_camera;
+
+  printf("flip_controls_toggled\n");
+  changed = TRUE;
+  gtk_ipcam_camera_obj_set_flip_controls(camera, gtk_toggle_button_get_active(button));
+}
+
+static void
+mirror_controls_toggled(GtkToggleButton* button, gpointer user_data)
+{
+  GtkIpcamDialogCameraEditInfo* info = (GtkIpcamDialogCameraEditInfo*)user_data;
+  GtkIpcamCameraObj* camera = info->current_camera;
+
+  printf("mirror_controls_toggled\n");
+  changed = TRUE;
+  gtk_ipcam_camera_obj_set_mirror_controls(camera, gtk_toggle_button_get_active(button));
+}
+
 /* TOGGLE BUTTONS FUNCTIONS END */
 
 static void
@@ -538,6 +563,8 @@ connect_signals(GtkIpcamDialogCameraEditInfo* info)
   g_signal_connect(info->cameras_edit_local_http, "toggled", G_CALLBACK(local_http_toggled), info);
   g_signal_connect(info->cameras_edit_local_https, "toggled", G_CALLBACK(local_http_toggled), info);
   g_signal_connect(info->cameras_edit_use_subchannel, "toggled", G_CALLBACK(subchannel_toggled), info);
+  g_signal_connect(info->cameras_edit_flip_controls, "toggled", G_CALLBACK(flip_controls_toggled), info);
+  g_signal_connect(info->cameras_edit_mirror_controls, "toggled", G_CALLBACK(mirror_controls_toggled), info);
   /* HTTP/HTTPS toggled button END*/
 
   /* Entry Signal */
@@ -567,6 +594,8 @@ block_signals(GtkIpcamDialogCameraEditInfo* info)
   g_signal_handlers_block_by_func(info->cameras_edit_local_http, local_http_toggled, info);
   g_signal_handlers_block_by_func(info->cameras_edit_local_https, local_http_toggled, info);
   g_signal_handlers_block_by_func(info->cameras_edit_use_subchannel, subchannel_toggled, info);
+  g_signal_handlers_block_by_func(info->cameras_edit_flip_controls, flip_controls_toggled, info);
+  g_signal_handlers_block_by_func(info->cameras_edit_mirror_controls, mirror_controls_toggled, info);
   /* HTTP/HTTPS toggled button END*/
 
   /* Entry Signal */
@@ -596,6 +625,8 @@ unblock_signals(GtkIpcamDialogCameraEditInfo* info)
   g_signal_handlers_unblock_by_func(info->cameras_edit_local_http, local_http_toggled, info);
   g_signal_handlers_unblock_by_func(info->cameras_edit_local_https, local_http_toggled, info);
   g_signal_handlers_unblock_by_func(info->cameras_edit_use_subchannel, subchannel_toggled, info);
+  g_signal_handlers_unblock_by_func(info->cameras_edit_flip_controls, flip_controls_toggled, info);
+  g_signal_handlers_unblock_by_func(info->cameras_edit_mirror_controls, mirror_controls_toggled, info);
   /* HTTP/HTTPS toggled button END*/
 
   /* Entry Signal */
@@ -656,6 +687,8 @@ gtk_ipcam_dialog_cameras_edit_new(GtkIpcamPreferenceObj* preference)
   camera_edit_info.cameras_edit_local_port = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_local_port"));
   camera_edit_info.cameras_edit_local_media_port = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_local_media_port"));
   camera_edit_info.cameras_edit_use_subchannel = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_use_subchannel"));
+  camera_edit_info.cameras_edit_flip_controls = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_flip_controls"));
+  camera_edit_info.cameras_edit_mirror_controls = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_mirror_controls"));
 
   camera_edit_info.cameras_edit_remote_media = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_remote_media"));
   camera_edit_info.cameras_edit_local_media = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_local_media"));

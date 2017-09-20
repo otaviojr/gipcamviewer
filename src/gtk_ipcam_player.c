@@ -238,7 +238,7 @@ gtk_ipcam_player_right_cb(GtkWidget* widget, gpointer user_data)
 static void
 gtk_ipcam_enable_controls(GtkIpcamPlayer* self)
 {
-  if(self->is_flipped)
+  if(gtk_ipcam_camera_obj_get_flip_controls(self->camera))
   {
     g_signal_connect(G_OBJECT(self->btn_up), "clicked", G_CALLBACK (gtk_ipcam_player_down_cb), self);
     g_signal_connect(G_OBJECT(self->btn_down), "clicked", G_CALLBACK (gtk_ipcam_player_up_cb), self);
@@ -249,7 +249,7 @@ gtk_ipcam_enable_controls(GtkIpcamPlayer* self)
     g_signal_connect(G_OBJECT(self->btn_down), "clicked", G_CALLBACK (gtk_ipcam_player_down_cb), self);
   }
 
-  if(!self->is_mirrored)
+  if(gtk_ipcam_camera_obj_get_mirror_controls(self->camera))
   {
     g_signal_connect(G_OBJECT(self->btn_left), "clicked", G_CALLBACK (gtk_ipcam_player_right_cb), self);
     g_signal_connect(G_OBJECT(self->btn_right), "clicked", G_CALLBACK (gtk_ipcam_player_left_cb), self);
