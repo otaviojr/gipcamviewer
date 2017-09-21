@@ -46,12 +46,13 @@ struct _GtkIpcamPlayer
 
   gint state;
 
-  GThread* load_thread;
+  GThread* background_thread;
 
   gboolean is_flipped;
   gboolean is_mirrored;
   gboolean can_pan;
   gboolean can_tilt;
+  gboolean is_unmapped;
 };
 
 struct _GtkIpcamPlayerClass
@@ -119,11 +120,11 @@ gtk_ipcam_player_finalize(GObject * object)
   printf("gtk_ipcam_player_finalize\n");
   GtkIpcamPlayer *self = GTK_IPCAM_PLAYER(object);
 
-  if(self->load_thread)
+  if(self->background_thread)
   {
-    g_thread_join(self->load_thread);
-    g_thread_unref(self->load_thread);
-    self->load_thread = NULL;
+    g_thread_join(self->background_thread);
+    g_thread_unref(self->background_thread);
+    self->background_thread = NULL;
   }
 
   //if(self->state == GTK_IPCAM_PLAYER_STATE_PLAYING)
@@ -195,12 +196,12 @@ gtk_ipcam_player_move_right_background(gpointer user_data)
 static void
 gtk_ipcam_player_run_backgroup(GtkIpcamPlayer *self, GThreadFunc func)
 {
-  if(self->load_thread)
+  if(self->background_thread)
   {
-    g_thread_join(self->load_thread);
-    g_thread_unref(self->load_thread);
+    g_thread_join(self->background_thread);
+    g_thread_unref(self->background_thread);
   }
-  self->load_thread = g_thread_new("player_run_background", func, self);
+  self->background_thread = g_thread_new("player_run_background", func, self);
 }
 
 static void
@@ -276,7 +277,7 @@ gtk_ipcam_player_background_load(gpointer user_data)
 
     gchar* camera_url = gtk_ipcam_camera_obj_get_stream_url(self->camera);
 
-    if(camera_url != NULL)
+    if(camera_url != NULL && !self->is_unmapped)
     {
       printf("Playing: %s\n",camera_url);
       gtk_vlc_player_load_uri(GTK_VLC_PLAYER(self->video_area),camera_url);
@@ -299,7 +300,7 @@ gtk_ipcam_player_load(GtkIpcamPlayer *self)
 static gboolean
 gtk_ipcam_player_pointer_enter_cb(GtkWidget* widget, GdkEvent* event, gpointer user_data)
 {
-  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(widget);
+  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(user_data);
   if(self->state == GTK_IPCAM_PLAYER_STATE_PLAYING)
   {
     if(self->can_tilt)
@@ -320,7 +321,7 @@ gtk_ipcam_player_pointer_enter_cb(GtkWidget* widget, GdkEvent* event, gpointer u
 static gboolean
 gtk_ipcam_player_pointer_leave_cb(GtkWidget* widget, GdkEvent* event, gpointer user_data)
 {
-  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(widget);
+  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(user_data);
   gtk_widget_hide(self->btn_up);
   gtk_widget_hide(self->btn_down);
   gtk_widget_hide(self->btn_left);
@@ -329,10 +330,19 @@ gtk_ipcam_player_pointer_leave_cb(GtkWidget* widget, GdkEvent* event, gpointer u
 }
 
 static void
+gtk_ipcam_player_unmap_cb(GtkWidget* widget, gpointer user_data)
+{
+  printf("unmap player\n");
+  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(widget);
+  self->is_unmapped = TRUE;
+}
+
+static void
 gtk_ipcam_player_show_cb(GtkWidget* widget, gpointer user_data)
 {
   printf("showing player\n");
   GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(widget);
+  self->is_unmapped = FALSE;
   gtk_widget_hide(self->btn_up);
   gtk_widget_hide(self->btn_down);
   gtk_widget_hide(self->btn_left);
@@ -368,13 +378,15 @@ gtk_ipcam_player_constructed(GObject* object)
 
   GtkStyleContext *context;
 	context = gtk_widget_get_style_context(GTK_WIDGET(self->video_area));
-	gtk_style_context_add_class(context,"vlc-player");
+	gtk_style_context_add_class(context,"ipcam-vlc-player");
 
   printf("gtk_ipcam_player for %s camera\n", gtk_ipcam_camera_obj_get_name(self->camera));
   GtkWidget* frame = gtk_frame_new(gtk_ipcam_camera_obj_get_name(self->camera));
   GtkWidget* overlay = gtk_overlay_new();
   context = gtk_widget_get_style_context(GTK_WIDGET(frame));
-  gtk_style_context_add_class(context,"foscam-player");
+  gtk_style_context_add_class(context,"ipcam-player");
+  context = gtk_widget_get_style_context(GTK_WIDGET(overlay));
+  gtk_style_context_add_class(context,"ipcam-player-overlay");
 
   gtk_container_add(GTK_CONTAINER(frame),overlay);
 
@@ -382,33 +394,51 @@ gtk_ipcam_player_constructed(GObject* object)
   gtk_widget_set_valign(GTK_WIDGET(self->video_area), GTK_ALIGN_FILL);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->video_area);
 
-  self->btn_up = gtk_button_new_with_label("up");
+  self->btn_up = gtk_button_new_with_label("\uE316");
+  context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_up));
+  gtk_widget_set_size_request(GTK_WIDGET(self->btn_up), 50, 30);
+  gtk_style_context_add_class(context,"ipcam-player-control-btn");
+	gtk_style_context_add_class(context,"ipcam-player-control-up");
   gtk_widget_set_halign(GTK_WIDGET(self->btn_up), GTK_ALIGN_CENTER);
   gtk_widget_set_valign(GTK_WIDGET(self->btn_up), GTK_ALIGN_START);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_up);
 
-  self->btn_down = gtk_button_new_with_label("down");
+  self->btn_down = gtk_button_new_with_label("\uE313");
+  context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_down));
+  gtk_widget_set_size_request(GTK_WIDGET(self->btn_down), 50, 30);
+  gtk_style_context_add_class(context,"ipcam-player-control-btn");
+	gtk_style_context_add_class(context,"ipcam-player-control-down");
   gtk_widget_set_halign(GTK_WIDGET(self->btn_down), GTK_ALIGN_CENTER);
   gtk_widget_set_valign(GTK_WIDGET(self->btn_down), GTK_ALIGN_END);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_down);
 
-  self->btn_left = gtk_button_new_with_label("left");
+  self->btn_left = gtk_button_new_with_label("\uE314");
+  context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_left));
+  gtk_widget_set_size_request(GTK_WIDGET(self->btn_left), 30, 50);
+  gtk_style_context_add_class(context,"ipcam-player-control-btn");
+	gtk_style_context_add_class(context,"ipcam-player-control-left");
   gtk_widget_set_halign(GTK_WIDGET(self->btn_left), GTK_ALIGN_START);
   gtk_widget_set_valign(GTK_WIDGET(self->btn_left), GTK_ALIGN_CENTER);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_left);
 
-  self->btn_right = gtk_button_new_with_label("right");
+  self->btn_right = gtk_button_new_with_label("\uE315");
+  context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_right));
+  gtk_widget_set_size_request(GTK_WIDGET(self->btn_right), 30, 50);
+  gtk_style_context_add_class(context,"ipcam-player-control-btn");
+	gtk_style_context_add_class(context,"ipcam-player-control-right");
   gtk_widget_set_halign(GTK_WIDGET(self->btn_right), GTK_ALIGN_END);
   gtk_widget_set_valign(GTK_WIDGET(self->btn_right), GTK_ALIGN_CENTER);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_right);
 
   gtk_container_add(GTK_CONTAINER(self),frame);
 
-  gtk_widget_set_events(GTK_WIDGET(self), GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK);
+  gtk_widget_set_events(GTK_WIDGET(self), GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_POINTER_MOTION_MASK);
 
-  g_signal_connect(self, "enter-notify-event", G_CALLBACK(gtk_ipcam_player_pointer_enter_cb), NULL);
-  g_signal_connect(self, "leave-notify-event", G_CALLBACK(gtk_ipcam_player_pointer_leave_cb), NULL);
+  g_signal_connect(self, "enter-notify-event", G_CALLBACK(gtk_ipcam_player_pointer_enter_cb), self);
+  g_signal_connect(self, "motion-notify-event", G_CALLBACK(gtk_ipcam_player_pointer_enter_cb), self);
+  g_signal_connect(self, "leave-notify-event", G_CALLBACK(gtk_ipcam_player_pointer_leave_cb), self);
 
+  g_signal_connect (G_OBJECT(self), "unmap", G_CALLBACK (gtk_ipcam_player_unmap_cb), NULL);
   g_signal_connect (G_OBJECT(self), "realize", G_CALLBACK (gtk_ipcam_player_show_cb), NULL);
   g_signal_connect (G_OBJECT(self), "show", G_CALLBACK (gtk_ipcam_player_show_cb), NULL);
 
@@ -478,12 +508,13 @@ static void
 gtk_ipcam_player_init(GtkIpcamPlayer * self)
 {
   printf("Initializing player\n");
-  self->load_thread = NULL;
+  self->background_thread = NULL;
   self->state = GTK_IPCAM_PLAYER_STATE_IDLE;
   self->is_flipped = FALSE;
   self->is_mirrored = FALSE;
   self->can_pan = FALSE;
   self->can_tilt = FALSE;
+  self->is_unmapped = TRUE;
 }
 
 GtkIpcamPlayer *

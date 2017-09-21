@@ -1285,7 +1285,7 @@
       </packing>
     </child>
     <style>
-      <class name="gtk-foscam-dialog-content-area"/>
+      <class name="gtk-ipcam-dialog-content-area"/>
       <class name="cameras-edit"/>
     </style>
   </object>

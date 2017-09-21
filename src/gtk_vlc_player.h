@@ -102,6 +102,7 @@ GType gtk_vlc_player_get_type(void);
  */
 GtkWidget *gtk_vlc_player_new(void);
 
+GtkWidget * gtk_vlc_player_get_drawing_area(GtkVlcPlayer *player);
 gboolean gtk_vlc_player_load_filename(GtkVlcPlayer *player, const gchar *file);
 gboolean gtk_vlc_player_load_uri(GtkVlcPlayer *player, const gchar *uri);
 

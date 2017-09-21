@@ -93,6 +93,8 @@ struct _GtkVlcPlayerPrivate {
 
 	libvlc_instance_t	*vlc_inst;
 	libvlc_media_player_t	*media_player;
+
+	GtkWidget* drawing_area;
 };
 
 /** @private */
@@ -205,25 +207,24 @@ draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data)
 static void
 gtk_vlc_player_init(GtkVlcPlayer *klass)
 {
-	GtkWidget		*drawing_area;
 	libvlc_event_manager_t	*evman;
 
 	klass->priv = GTK_VLC_PLAYER_GET_PRIVATE(klass);
 
-	drawing_area = gtk_drawing_area_new();
+	klass->priv->drawing_area = gtk_drawing_area_new();
 
   GtkStyleContext *context;
-  context = gtk_widget_get_style_context(GTK_WIDGET(drawing_area));
-  gtk_style_context_add_class(context,"vlc-player-drawing");
+  context = gtk_widget_get_style_context(GTK_WIDGET(klass->priv->drawing_area));
+  gtk_style_context_add_class(context,"ipcam-vlc-player-drawing");
 
-	g_signal_connect(G_OBJECT(drawing_area), "realize",
+	g_signal_connect(G_OBJECT(klass->priv->drawing_area), "realize",
 			 G_CALLBACK(widget_on_realize), klass);
 
-	g_signal_connect (G_OBJECT (drawing_area), "draw",
+	g_signal_connect (G_OBJECT (klass->priv->drawing_area), "draw",
 			 G_CALLBACK (draw_callback), NULL);
 
-	gtk_container_add(GTK_CONTAINER(klass), drawing_area);
-	gtk_widget_show(drawing_area);
+	gtk_container_add(GTK_CONTAINER(klass), klass->priv->drawing_area);
+	gtk_widget_show(klass->priv->drawing_area);
 	/*
 	 * drawing area will be destroyed automatically with the
 	 * GtkContainer/GtkVlcPlayer
@@ -774,4 +775,10 @@ gtk_vlc_player_set_volume_adjustment(GtkVlcPlayer *player, GtkAdjustment *adj)
 		g_signal_connect(G_OBJECT(player->priv->volume_adjustment),
 				 "value-changed",
 				 G_CALLBACK(vol_adj_on_value_changed), player);
+}
+
+GtkWidget *
+gtk_vlc_player_get_drawing_area(GtkVlcPlayer *player)
+{
+	return player->priv->drawing_area;
 }

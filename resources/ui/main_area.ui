@@ -6,7 +6,7 @@
     <property name="name">main_area</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="events">GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_STRUCTURE_MASK</property>
+    <property name="events">GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_STRUCTURE_MASK | GDK_POINTER_MOTION_MASK</property>
     <child>
       <object class="GtkBox" id="cameras_properties">
         <property name="visible">True</property>

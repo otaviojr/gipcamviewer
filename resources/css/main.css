@@ -106,12 +106,12 @@
   border: 10px solid #33393b;
 }
 
-.foscam-player {
+.ipcam-player {
   background-color: #33393b;
   border: 5px solid #33393b;
 }
 
-.foscam-player border {
+.ipcam-player border {
   padding: 10px;
   border-style: dashed;
   border-radius: 5px;
@@ -119,7 +119,7 @@
   border-color: #FFFFFF;
 }
 
-.foscam-player label {
+.ipcam-player label {
   color: red;
   margin: 0px;
   background-color: #000000;
@@ -133,7 +133,33 @@
   border-right-width: 1px;
 }
 
-.vlc-player-drawing {
+.ipcam-player-control-btn {
+  background-image: none;
+  background-color: #000000;
+  border: 0px;
+  border-color: none;
+  box-shadow: none;
+  color: transparent;
+  /* border-radius: 100%; */
+  margin: 0px;
+  padding: 0px;
+}
+
+.ipcam-player-control-btn label {
+  font-family: 'MaterialIcons';
+  font-size: 26px;
+  background: none transparent;
+  color: #FFFFFF;
+  border: 0px;
+  margin: 0px;
+  padding: 0px;
+}
+
+.ipcam-vlc-player {
+
+}
+
+.ipcam-vlc-player-drawing {
   background-color: #000000;
 }
 
