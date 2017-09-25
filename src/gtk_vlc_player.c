@@ -155,7 +155,6 @@ create_vlc_instance(void)
 	vlc_argv[vlc_argc++] = g_strdup("--quiet");
 	vlc_argv[vlc_argc++] = g_strdup("--no-xlib");
 	vlc_argv[vlc_argc++] = g_strdup("--no-mouse-events");
-	vlc_argv[vlc_argc++] = g_strdup("--mouse-hide-timeout=-1");
 	//vlc_argv[vlc_argc++] = g_strdup("--no-skip-frames");
 	vlc_argv[vlc_argc++] = g_strdup("--network-caching=1000");
 	//vlc_argv[vlc_argc++] = g_strdup("--no-mouse-events");
