@@ -43,7 +43,7 @@ end
 
 function driver_get_stream_url(base_url, base_media_url)
   print("FOSCAM_FI8918W: get stream url for " .. camera_name .. " camera")
-  return base_url .. "/videostream.cgi?user=" .. camera_username .. "&pwd=" .. camera_password
+  return base_url .. "/videostream.asf?user=" .. camera_username .. "&pwd=" .. camera_password
 end
 
 function driver_move_up(base_url, base_media_url)

@@ -76,7 +76,8 @@ vlc_dep = dependency('libvlc', version: '>=2.0')
 #Lua deps
 lua_dep = dependency('lua-5.3')
 
-deps = [x11_dep,
+deps = [
+        #x11_dep,
         glib_dep,
         gobject_dep,
         gmodule_dep,

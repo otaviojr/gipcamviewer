@@ -40,6 +40,7 @@ struct _GtkIpcamPlayer
   GtkWidget* btn_up;
   GtkWidget* btn_left;
   GtkWidget* btn_right;
+  GtkWidget* btn_mute;
 
   GtkWidget* video_area;
   GtkIpcamCameraObj* camera;
@@ -207,7 +208,7 @@ gtk_ipcam_player_run_backgroup(GtkIpcamPlayer *self, GThreadFunc func)
 static void
 gtk_ipcam_player_up_cb(GtkWidget* widget, gpointer user_data)
 {
-  printf("goind up\n");
+  printf("going up\n");
   GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(user_data);
   gtk_ipcam_player_run_backgroup(self,gtk_ipcam_player_move_up_background);
 }
@@ -215,7 +216,7 @@ gtk_ipcam_player_up_cb(GtkWidget* widget, gpointer user_data)
 static void
 gtk_ipcam_player_down_cb(GtkWidget* widget, gpointer user_data)
 {
-  printf("goind down\n");
+  printf("going down\n");
   GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(user_data);
   gtk_ipcam_player_run_backgroup(self,gtk_ipcam_player_move_down_background);
 }
@@ -223,7 +224,7 @@ gtk_ipcam_player_down_cb(GtkWidget* widget, gpointer user_data)
 static void
 gtk_ipcam_player_left_cb(GtkWidget* widget, gpointer user_data)
 {
-  printf("goind left\n");
+  printf("going left\n");
   GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(user_data);
   gtk_ipcam_player_run_backgroup(self,gtk_ipcam_player_move_left_background);
 }
@@ -231,9 +232,27 @@ gtk_ipcam_player_left_cb(GtkWidget* widget, gpointer user_data)
 static void
 gtk_ipcam_player_right_cb(GtkWidget* widget, gpointer user_data)
 {
-  printf("goind right\n");
+  printf("going right\n");
   GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(user_data);
   gtk_ipcam_player_run_backgroup(self,gtk_ipcam_player_move_right_background);
+}
+
+static void
+gtk_ipcam_player_mute_cb(GtkWidget* widget, gpointer user_data)
+{
+  GtkIpcamPlayer* self = GTK_IPCAM_PLAYER(user_data);
+  if(gtk_ipcam_player_is_audio_playing(self))
+  {
+    printf("mute\n");
+    gtk_ipcam_player_stop_audio(self);
+    gtk_button_set_label(GTK_BUTTON(self->btn_mute),"\ue04f");
+  }
+  else
+  {
+    printf("unmute\n");
+    gtk_ipcam_player_start_audio(self);
+    gtk_button_set_label(GTK_BUTTON(self->btn_mute),"\ue04e");
+  }
 }
 
 static void
@@ -260,6 +279,7 @@ gtk_ipcam_enable_controls(GtkIpcamPlayer* self)
     g_signal_connect(G_OBJECT(self->btn_left), "clicked", G_CALLBACK (gtk_ipcam_player_left_cb), self);
     g_signal_connect(G_OBJECT(self->btn_right), "clicked", G_CALLBACK (gtk_ipcam_player_right_cb), self);
   }
+  g_signal_connect(G_OBJECT(self->btn_mute), "clicked", G_CALLBACK (gtk_ipcam_player_mute_cb), self);
 }
 
 static gpointer
@@ -285,6 +305,7 @@ gtk_ipcam_player_background_load(gpointer user_data)
       g_free(camera_url);
 
       gtk_ipcam_enable_controls(self);
+      gtk_ipcam_player_stop_audio(self);
       gtk_ipcam_player_start_video(self);
     }
   }
@@ -314,6 +335,15 @@ gtk_ipcam_player_pointer_enter_cb(GtkWidget* widget, GdkEvent* event, gpointer u
       gtk_widget_show(self->btn_left);
       gtk_widget_show(self->btn_right);
     }
+    gtk_widget_show(self->btn_mute);
+    if(gtk_ipcam_player_is_audio_playing(self))
+    {
+      gtk_button_set_label(GTK_BUTTON(self->btn_mute),"\ue04e");
+    }
+    else
+    {
+      gtk_button_set_label(GTK_BUTTON(self->btn_mute),"\ue04f");
+    }
   }
   return FALSE;
 }
@@ -326,6 +356,7 @@ gtk_ipcam_player_pointer_leave_cb(GtkWidget* widget, GdkEvent* event, gpointer u
   gtk_widget_hide(self->btn_down);
   gtk_widget_hide(self->btn_left);
   gtk_widget_hide(self->btn_right);
+  gtk_widget_hide(self->btn_mute);
   return FALSE;
 }
 
@@ -347,6 +378,7 @@ gtk_ipcam_player_show_cb(GtkWidget* widget, gpointer user_data)
   gtk_widget_hide(self->btn_down);
   gtk_widget_hide(self->btn_left);
   gtk_widget_hide(self->btn_right);
+  gtk_widget_hide(self->btn_mute);
 }
 
 static void
@@ -393,6 +425,7 @@ gtk_ipcam_player_constructed(GObject* object)
   gtk_widget_set_halign(GTK_WIDGET(self->video_area), GTK_ALIGN_FILL);
   gtk_widget_set_valign(GTK_WIDGET(self->video_area), GTK_ALIGN_FILL);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->video_area);
+  gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay),self->video_area,TRUE);
 
   self->btn_up = gtk_button_new_with_label("\uE316");
   context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_up));
@@ -430,9 +463,19 @@ gtk_ipcam_player_constructed(GObject* object)
   gtk_widget_set_valign(GTK_WIDGET(self->btn_right), GTK_ALIGN_CENTER);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_right);
 
+  self->btn_mute = gtk_button_new_with_label("\uE04F");
+  context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_mute));
+  gtk_widget_set_size_request(GTK_WIDGET(self->btn_mute), 30, 50);
+  gtk_style_context_add_class(context,"ipcam-player-control-btn");
+	gtk_style_context_add_class(context,"ipcam-player-control-right");
+  gtk_widget_set_halign(GTK_WIDGET(self->btn_mute), GTK_ALIGN_END);
+  gtk_widget_set_valign(GTK_WIDGET(self->btn_mute), GTK_ALIGN_END);
+  gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_mute);
+
   gtk_container_add(GTK_CONTAINER(self),frame);
 
   gtk_widget_set_events(GTK_WIDGET(self), GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_POINTER_MOTION_MASK);
+  //gtk_widget_set_events(gtk_vlc_player_get_drawing_area(GTK_VLC_PLAYER(self->video_area)), gtk_widget_get_events(gtk_vlc_player_get_drawing_area(GTK_VLC_PLAYER(self->video_area))) & ~GDK_POINTER_MOTION_MASK);
 
   g_signal_connect(self, "enter-notify-event", G_CALLBACK(gtk_ipcam_player_pointer_enter_cb), self);
   g_signal_connect(self, "motion-notify-event", G_CALLBACK(gtk_ipcam_player_pointer_enter_cb), self);
@@ -566,11 +609,19 @@ gtk_ipcam_player_stop_video(GtkIpcamPlayer* self)
 gboolean
 gtk_ipcam_player_start_audio(GtkIpcamPlayer* self)
 {
-  return FALSE;
+  gtk_vlc_player_set_volume(GTK_VLC_PLAYER(self->video_area), 1.0);
+  return TRUE;
 }
 
 gboolean
 gtk_ipcam_player_stop_audio(GtkIpcamPlayer* self)
 {
-  return FALSE;
+  gtk_vlc_player_set_volume(GTK_VLC_PLAYER(self->video_area), 0.0);
+  return TRUE;
+}
+
+gboolean
+gtk_ipcam_player_is_audio_playing(GtkIpcamPlayer* self)
+{
+  return gtk_vlc_player_get_volume(GTK_VLC_PLAYER(self->video_area)) > 0;
 }

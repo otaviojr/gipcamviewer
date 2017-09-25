@@ -14,12 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <libintl.h>
-#include <X11/Xlib.h>
 #include <gtk/gtk.h>
 
 #include <gst/gst.h>
@@ -167,8 +166,8 @@ layout_remove_camera(gpointer data, gpointer user_data)
   g_assert(GTK_IS_IPCAM_PLAYER(data));
   GtkIpcamPlayer * player = GTK_IPCAM_PLAYER(data);
 
+  //gtk_ipcam_player_stop_audio(player);
   gtk_ipcam_player_stop_video(player);
-  gtk_ipcam_player_stop_audio(player);
 
   if(GTK_IS_GRID(win->cameras_area))
   {
@@ -552,8 +551,6 @@ int main(int argc, char *argv[])
 {
   GtkIpcamViewerApp *app;
   gint status;
-
-  XInitThreads();
 
   app = gtk_ipcam_viewer_app_new ();
   status = g_application_run (G_APPLICATION (app), argc, argv);

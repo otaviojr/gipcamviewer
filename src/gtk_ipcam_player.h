@@ -62,6 +62,7 @@ gboolean gtk_ipcam_player_start_video(GtkIpcamPlayer* self);
 gboolean gtk_ipcam_player_stop_video(GtkIpcamPlayer* self);
 gboolean gtk_ipcam_player_start_audio(GtkIpcamPlayer* self);
 gboolean gtk_ipcam_player_stop_audio(GtkIpcamPlayer* self);
+gboolean gtk_ipcam_player_is_audio_playing(GtkIpcamPlayer* self);
 
 G_END_DECLS
 

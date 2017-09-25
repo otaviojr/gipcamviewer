@@ -152,8 +152,8 @@ create_vlc_instance(void)
 	vlc_argv = g_malloc_n(18, sizeof(vlc_argv[0]));
 	vlc_argv[vlc_argc++] = g_strdup(g_get_prgname());
 	vlc_argv[vlc_argc++] = g_strdup("--quiet");
-	//vlc_argv[vlc_argc++] = g_strdup("--live");
-	//vlc_argv[vlc_argc++] = g_strdup("--live-caching=1000");
+	vlc_argv[vlc_argc++] = g_strdup("--no-xlib");
+	//vlc_argv[vlc_argc++] = g_strdup("--gain=0");
 	//vlc_argv[vlc_argc++] = g_strdup("--no-drop-late-frames");
 	//vlc_argv[vlc_argc++] = g_strdup("--no-skip-frames");
 	vlc_argv[vlc_argc++] = g_strdup("--network-caching=1000");
@@ -629,6 +629,18 @@ void
 gtk_vlc_player_set_volume(GtkVlcPlayer *player, gdouble volume)
 {
 	libvlc_audio_set_volume(player->priv->media_player, (int)(volume*100.));
+}
+
+/**
+ * @brief Get audio volume of playback
+ *
+ * @param player \e GtkVlcPlayer instance
+ *
+ */
+gint
+gtk_vlc_player_get_volume(GtkVlcPlayer *player)
+{
+	return libvlc_audio_get_volume(player->priv->media_player);
 }
 
 /**
