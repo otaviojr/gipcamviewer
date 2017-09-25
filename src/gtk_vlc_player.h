@@ -114,6 +114,8 @@ void gtk_vlc_player_stop(GtkVlcPlayer *player);
 void gtk_vlc_player_seek(GtkVlcPlayer *player, gint64 time);
 void gtk_vlc_player_set_volume(GtkVlcPlayer *player, gdouble volume);
 gint gtk_vlc_player_get_volume(GtkVlcPlayer *player);
+void gtk_vlc_player_set_mute(GtkVlcPlayer *player, gint mute);
+gint gtk_vlc_player_get_mute(GtkVlcPlayer *player);
 
 gint64 gtk_vlc_player_get_length(GtkVlcPlayer *player);
 

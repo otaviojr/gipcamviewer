@@ -95,6 +95,7 @@ struct _GtkVlcPlayerPrivate {
 	libvlc_media_player_t	*media_player;
 
 	GtkWidget* drawing_area;
+	gboolean is_muted;
 };
 
 /** @private */
@@ -153,8 +154,8 @@ create_vlc_instance(void)
 	vlc_argv[vlc_argc++] = g_strdup(g_get_prgname());
 	vlc_argv[vlc_argc++] = g_strdup("--quiet");
 	vlc_argv[vlc_argc++] = g_strdup("--no-xlib");
-	//vlc_argv[vlc_argc++] = g_strdup("--gain=0");
-	//vlc_argv[vlc_argc++] = g_strdup("--no-drop-late-frames");
+	vlc_argv[vlc_argc++] = g_strdup("--no-mouse-events");
+	vlc_argv[vlc_argc++] = g_strdup("--mouse-hide-timeout=-1");
 	//vlc_argv[vlc_argc++] = g_strdup("--no-skip-frames");
 	vlc_argv[vlc_argc++] = g_strdup("--network-caching=1000");
 	//vlc_argv[vlc_argc++] = g_strdup("--no-mouse-events");
@@ -211,6 +212,7 @@ gtk_vlc_player_init(GtkVlcPlayer *klass)
 
 	klass->priv = GTK_VLC_PLAYER_GET_PRIVATE(klass);
 
+	klass->priv->is_muted = TRUE;
 	klass->priv->drawing_area = gtk_drawing_area_new();
 
   GtkStyleContext *context;
@@ -328,6 +330,7 @@ widget_on_realize(GtkWidget *widget, gpointer user_data)
 
 	libvlc_media_player_set_xwindow(player->priv->media_player,
 					GDK_WINDOW_XID(window));
+	libvlc_set_fullscreen(player->priv->media_player, false);
 }
 
 static void
@@ -415,10 +418,22 @@ vlc_time_changed(const struct libvlc_event_t *event, void *user_data)
 static void
 vlc_length_changed(const struct libvlc_event_t *event, void *user_data)
 {
+	printf("vlc_length_changed\n");
 	assert(event->type == libvlc_MediaPlayerLengthChanged);
 
 	update_length(GTK_VLC_PLAYER(user_data),
 		      (gint64)event->u.media_player_length_changed.new_length);
+
+  if(GTK_VLC_PLAYER(user_data)->priv->is_muted)
+	{
+		gtk_vlc_player_set_volume(GTK_VLC_PLAYER(user_data),0.0);
+		gtk_vlc_player_set_mute(GTK_VLC_PLAYER(user_data),1);
+	}
+	else
+	{
+		gtk_vlc_player_set_volume(GTK_VLC_PLAYER(user_data),2.0);
+		gtk_vlc_player_set_mute(GTK_VLC_PLAYER(user_data),0);
+	}
 }
 
 static void
@@ -432,6 +447,8 @@ static void
 vlc_media_player_playing(const struct libvlc_event_t *event, void *user_data)
 {
 	assert(event->type == libvlc_MediaPlayerPlaying);
+	gtk_vlc_player_set_volume(GTK_VLC_PLAYER(user_data),0.0);
+	gtk_vlc_player_set_mute(GTK_VLC_PLAYER(user_data),1);
 	printf("vlc_media_player_playing\n");
 }
 
@@ -641,6 +658,31 @@ gint
 gtk_vlc_player_get_volume(GtkVlcPlayer *player)
 {
 	return libvlc_audio_get_volume(player->priv->media_player);
+}
+
+/**
+ * @brief Mute audio volume of playback
+ *
+ * @param player \e GtkVlcPlayer instance
+ * @param volume 1 to mute and 0 to unmute
+ */
+void
+gtk_vlc_player_set_mute(GtkVlcPlayer *player, gint mute)
+{
+	player->priv->is_muted = (mute == 1);
+	libvlc_audio_set_mute(player->priv->media_player, mute);
+}
+
+/**
+ * @brief Get mute status
+ *
+ * @param player \e GtkVlcPlayer instance
+ *
+ */
+gint
+gtk_vlc_player_get_mute(GtkVlcPlayer *player)
+{
+	return libvlc_audio_get_mute(player->priv->media_player);
 }
 
 /**
