@@ -1,0 +1,15 @@
+name: gipcamviewer
+version: 0.1
+summary: GTK IP Camera Viewer
+description: |
+        GTK viewer for IP cameras
+confinement: strict
+
+build-packages: [gcc, libc6-dev]
+
+parts:
+        meson-project:
+                meson-parameters:
+                        - --prefix=/use/local
+                plugin: meson
+                source: .
