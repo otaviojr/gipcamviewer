@@ -178,3 +178,111 @@
 .selection-list {
 }
 /* CAMERAS MANAGER END */
+
+/* DIALOGS */
+dialog {
+  background-color: #33393b;
+}
+
+dialog label {
+  color: #FFFFFF;
+  text-shadow: none;
+  box-shadow: none;
+}
+
+dialog button {
+  background: linear-gradient(#323538,#1f2326);
+  border: 1px solid #282828;
+  text-shadow: none;
+  color: #FFFFFF;
+  box-shadow: none;
+}
+
+dialog button.start-button {
+  border:0px;
+  border-left: 1px solid #282828;
+  border-right: 1px solid #282828;
+}
+
+dialog button.middle-button {
+  border:0px;
+  border-right: 1px solid #282828;
+}
+
+dialog button.end-button {
+  border:0px;
+  border-right: 1px solid #282828;
+}
+
+dialog button:active,
+dialog button:checked {
+  background: none #33393b;
+}
+
+dialog combobox.flat button {
+  background: none #33393b;
+  border: 1px solid #555555;
+}
+
+dialog entry {
+  background: none #33393b;
+  color: #FFFFFF;
+  caret-color: #FFFFFF;
+  border: 1px solid #555555;
+}
+
+window.popup {
+  box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.8);
+  border-radius: 0px;
+  border-collapse: collapse;
+}
+
+window.popup * {
+  background: none #2c3133;
+  color: #FFFFFF;
+  border: 0px;
+}
+
+window.popup *:hover {
+  background: none #33393b;
+  color: #FFFFFF;
+}
+
+window.popup *:hover * {
+  background: none #33393b;
+  color: #FFFFFF;
+}
+
+
+dialog scrolledwindow {
+  border: 0px;
+}
+
+dialog list {
+  background: none #2c3133;
+  color: #FFFFFF;
+  border: 0px;
+  box-shadow: none;
+}
+
+dialog list row {
+  padding: 3px;
+}
+
+dialog check {
+  background: none #33393b;
+  color: #0000FF;
+  border: 1px solid #555555;
+  text-shadow: none;
+  box-shadow: none;
+  outline: none;
+}
+
+.group-edit-dialog list {
+  border: 0px;
+}
+
+.group-edit-dialog list row {
+}
+
+/* DIALOGS END */

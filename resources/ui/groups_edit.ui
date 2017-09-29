@@ -20,7 +20,9 @@
             <child>
               <object class="GtkListBox" id="groups_list_widget">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can_focus">True</property>
+                <property name="has_focus">True</property>
+                <property name="is_focus">True</property>
               </object>
             </child>
           </object>
@@ -36,7 +38,7 @@
       <object class="GtkButtonBox">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="layout_style">start</property>
+        <property name="layout_style">expand</property>
         <child>
           <object class="GtkButton" id="add_group_btn_widget">
             <property name="label" translatable="yes"></property>
@@ -78,5 +80,9 @@
         <property name="position">1</property>
       </packing>
     </child>
+    <style>
+      <class name="gtk-ipcam-dialog-content-area"/>
+      <class name="group-edit-dialog"/>
+    </style>
   </object>
 </interface>
