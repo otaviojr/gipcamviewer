@@ -27,13 +27,17 @@
 .main-header .menu-button,
 .dialog-header button,
 .dialog-header .menu-button {
-  background: none #2c3133;
-  border: 1px solid transparent;
+  background: linear-gradient(#323538,#1f2326);
+  border: 1px solid #222222;
   box-shadow: none;
   color: #F0F0F0;
   font-size: 18px;
   text-shadow: none;
   padding: 2px 8px;
+}
+
+button.titlebutton.close {
+  padding: 5px 8px;
 }
 
 .main-header button.default,
@@ -58,7 +62,6 @@
 .main-header .custom-button,
 .dialog-header .custom-button,
 .dialog-header button {
-  border: 1px solid #1c2123;
 }
 
 .main-header button:hover,
@@ -70,7 +73,7 @@
 .dialog-header .menu-button:hover,
 .dialog-header .menu-button:active {
   background: linear-gradient(#3c4143,#1c2123);
-  border: 1px solid #000000;
+  border: 1px solid #222222;
   border-radius: 5px;
   box-shadow: none;
   color: #FFFFFF;
@@ -93,11 +96,25 @@
 .dialog-header:backdrop .menu-button:hover,
 .dialog-header:backdrop .menu-button:active {
   background: none #3c4143;
-  border: 1px solid #2c3133;
+  border: 1px solid #333333;
   border-radius: 5px;
   box-shadow: none;
   color: #FFFFFF;
 }
+
+popover {
+  color: #FFFFFF;
+  background: none #2c3133;
+}
+
+popover modelbutton:hover {
+  background: none #3c4143;
+}
+
+popover modelbutton:focus {
+  border: 0px;
+}
+
 /* END HEADER */
 
 /* CAMERAS */
