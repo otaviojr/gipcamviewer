@@ -15,8 +15,13 @@ Camera support is done through lua drivers. At the present moment only foscam ca
 Meson/ninja are needed in order to compile GIpCamViewer.
 
 ```bash
+apt-get update
+apt-get install git meson build-essential autotools-dev autoconf pkg-config libgtk-3-dev libgstreamer1.0-dev libjson-glib-dev libvlc-dev liblua5.3-dev
+mkdir gipcamviewer
+cd gipcamviewer
 git clone https://github.com/otaviojr/gipcamviewer.git .
-cd gipcamviewer/build
+mkdir build
+cd build
 meson --prefix=<your prefix>
 ninja build install
 ```

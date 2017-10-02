@@ -21,8 +21,8 @@ closure_marshaller_h = marshallers[1]
 sources = ['src/main.c',
             'src/gtk_ipcam_util.h',
             'src/gtk_ipcam_util.c',
-            'src/gtk_video_renderer.h',
-            'src/gtk_video_renderer.c',
+#            'src/gtk_video_renderer.h',
+#            'src/gtk_video_renderer.c',
             'src/gtk_vlc_player.h',
             'src/gtk_vlc_player.c',
             'src/gtk_ipcam_player.h',
@@ -65,8 +65,8 @@ gstnet_dep = dependency('gstreamer-net-1.0', version : gst_req,
 gstcontroller_dep = dependency('gstreamer-controller-1.0', version : gst_req,
   fallback : ['gstreamer', 'gst_controller_dep'])
 
-gstplayer_dep = dependency('gstreamer-player-1.0', version : gst_req)
-gsttag_dep = dependency('gstreamer-tag-1.0', version : gst_req)
+#gstplayer_dep = dependency('gstreamer-player-1.0', version : gst_req)
+#gsttag_dep = dependency('gstreamer-tag-1.0', version : gst_req)
 
 glib_dep = dependency('glib-2.0', version: '>= 2.38')
 gobject_dep = dependency('gobject-2.0', version: '>= 2.38')
@@ -90,8 +90,8 @@ deps = [
         gstbase_dep,
         gstnet_dep,
         gstcontroller_dep,
-        gstplayer_dep,
-        gsttag_dep,
+#        gstplayer_dep,
+#        gsttag_dep,
         vlc_dep,
         lua_dep]
 

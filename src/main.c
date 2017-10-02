@@ -27,7 +27,6 @@
 #include <gdk/gdk.h>
 #include<pango/pangocairo.h>
 
-#include <gst/player/player.h>
 #include "gtk_vlc_player.h"
 #include "gtk_ipcam_player.h"
 
