@@ -13,7 +13,7 @@ Meson/ninja is nedded in order to compile GIpCamViewer
 
 ```
 git clone https://github.com/otaviojr/gipcamviewer.git .
-cd build
+cd gipcamviewer/build
 meson
 ninja build
 ```
