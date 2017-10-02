@@ -149,7 +149,7 @@ fonts_data_files = [
                'resources/fonts/material/MaterialIcons-Regular.ttf'
              ]
 
-install_data(fonts_data_files, install_dir : join_paths(get_option('datadir'),'gipcamviewer','fonts', 'material'))
+install_data(fonts_data_files, install_dir : join_paths('/usr','share','fonts', 'truetype', 'material'))
 
 drivers_data_files = [
                'resources/drivers/FOSCAM_FI8918W.json',
