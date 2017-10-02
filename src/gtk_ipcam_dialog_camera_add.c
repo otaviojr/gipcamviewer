@@ -61,8 +61,11 @@ gtk_ipcam_dialog_cameras_add_new(GtkWidget* parent, GValue* ret)
   switch (result)
   {
     case GTK_RESPONSE_OK:
-      g_value_init(ret,G_TYPE_STRING);
-      g_value_set_string(ret,gtk_entry_get_text(GTK_ENTRY(cameras_add_input_widget)));
+      if(gtk_entry_get_text_length(GTK_ENTRY(cameras_add_input_widget)) > 0)
+      {
+        g_value_init(ret,G_TYPE_STRING);
+        g_value_set_string(ret,gtk_entry_get_text(GTK_ENTRY(cameras_add_input_widget)));
+      }
       break;
 
     default:

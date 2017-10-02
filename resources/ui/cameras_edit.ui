@@ -92,7 +92,7 @@
                                     <child>
                                       <object class="GtkComboBox" id="cameras_edit_model">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can_focus">True</property>
                                         <property name="events">GDK_FOCUS_CHANGE_MASK | GDK_STRUCTURE_MASK</property>
                                         <style>
                                           <class name="flat"/>
@@ -1138,6 +1138,7 @@
               <object class="GtkComboBox" id="group_list">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Camera  Group</property>
               </object>
               <packing>

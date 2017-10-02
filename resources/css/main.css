@@ -36,6 +36,10 @@
   padding: 2px 8px;
 }
 
+.dialog-header button {
+  padding: 5px 8px;
+}
+
 button.titlebutton.close {
   padding: 5px 8px;
 }
@@ -44,7 +48,16 @@ button.titlebutton.close {
 .main-header .menu-button.default,
 .dialog-header button.default,
 .dialog-header .menu-button.default {
-  background: none blue;
+  background: linear-gradient(#2A4E6E,#133453);
+  border-radius: 0px;
+}
+
+.main-header button.default:hover,
+.main-header .menu-button.default:hover,
+.dialog-header button.default:hover,
+.dialog-header .menu-button.default:hover {
+  background: linear-gradient(#4A6BFA,#2A4E6E);
+  border-radius: 0px;
 }
 
 .main-header:backdrop button,
@@ -52,11 +65,12 @@ button.titlebutton.close {
 .dialog-header:backdrop button,
 .dialog-header:backdrop .menu-button {
   background: none #3c4143;
+  border: 1px solid #333333;
+  color: rgba(255,255,255,0.5);
 }
 
-.main-header:backdrop .menu-button,
-.dialog-header:backdrop .menu-button {
-  border: 1px solid #2c3133;
+.dialog-header:backdrop button.titlebutton.close {
+  color: rgba(255,255,255,0.5);
 }
 
 .main-header .custom-button,
@@ -65,13 +79,9 @@ button.titlebutton.close {
 }
 
 .main-header button:hover,
-.main-header button:active,
 .main-header .menu-button:hover,
-.main-header .menu-button:active,
 .dialog-header button:hover,
-.dialog-header button:active,
-.dialog-header .menu-button:hover,
-.dialog-header .menu-button:active {
+.dialog-header .menu-button:hover {
   background: linear-gradient(#3c4143,#1c2123);
   border: 1px solid #222222;
   border-radius: 5px;
@@ -79,18 +89,17 @@ button.titlebutton.close {
   color: #FFFFFF;
 }
 
+.main-header button:active,
+.main-header .menu-button:active,
+.dialog-header button:active,
+.dialog-header .menu-button:active {
+  background: none #33393b;
+}
+
 .main-header:backdrop button:hover,
 .main-header:backdrop button:active,
 .dialog-header:backdrop button:hover,
-.dialog-header:backdrop button:active
-{
-  background: none #3c4143;
-  border: 1px solid transparent;
-  border-radius: 5px;
-  box-shadow: none;
-  color: #FFFFFF;
-}
-
+.dialog-header:backdrop button:active,
 .main-header:backdrop .menu-button:hover,
 .main-header:backdrop .menu-button:active,
 .dialog-header:backdrop .menu-button:hover,
@@ -99,7 +108,7 @@ button.titlebutton.close {
   border: 1px solid #333333;
   border-radius: 5px;
   box-shadow: none;
-  color: #FFFFFF;
+  color: rgba(255,255,255,0.5);
 }
 
 popover {
@@ -288,11 +297,13 @@ dialog list row {
 
 dialog check {
   background: none #33393b;
-  color: #0000FF;
+  color: #4A8EFE;
   border: 1px solid #555555;
   text-shadow: none;
   box-shadow: none;
   outline: none;
+  -gtk-icon-shadow: none;
+  -gtk-icon-transform: scale(1.2);
 }
 
 .group-edit-dialog list {
