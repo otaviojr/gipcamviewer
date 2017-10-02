@@ -11,7 +11,7 @@ Camera support is done trough lua drivers. At the present moment only foscam cam
 # Compiling
 Meson/ninja is nedded in order to compile GIpCamViewer
 
-```
+```bash
 git clone https://github.com/otaviojr/gipcamviewer.git .
 cd gipcamviewer/build
 meson
