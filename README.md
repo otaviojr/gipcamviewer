@@ -1,6 +1,7 @@
 # GIpCamViewer
-A simple Gnome Gtk3 IP camera viewer for linux
+A simple Gnome Gtk3 IP camera viewer for linux.
 ![screenshot](./screenshot.png?raw=true "Screenshot")
+![screenshot](./screenshot1.png?raw=true "Screenshot")
 
 # Cameras Support
 Camera support is done through lua drivers. At the present moment only foscam cameras are supported.
