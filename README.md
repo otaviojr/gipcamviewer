@@ -14,6 +14,6 @@ Meson/ninja are needed in order to compile GIpCamViewer.
 ```bash
 git clone https://github.com/otaviojr/gipcamviewer.git .
 cd gipcamviewer/build
-meson
-ninja build
+meson --prefix=<your prefix>
+ninja build install
 ```
