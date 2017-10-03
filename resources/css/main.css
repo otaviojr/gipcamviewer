@@ -139,6 +139,10 @@ dialog {
   padding: 5px 15px;
 }
 
+.dialog-content button label {
+  margin: 5px;
+}
+
 .dialog-content button:active,
 .dialog-content button:checked {
   background: none #33393b;
@@ -172,14 +176,20 @@ window.popup {
 }
 
 window.popup * {
+  border: 1px solid #2c3133;
   background: none #2c3133;
   color: #FFFFFF;
   border: 0px;
 }
 
 window.popup *:hover {
+  border: 1px solid #33393b;
   background: none #33393b;
   color: #FFFFFF;
+  outline: none;
+  box-shadow: none;
+  text-shadow: none;
+  color: #f0f0f0;
 }
 
 window.popup * * {
@@ -190,6 +200,9 @@ window.popup *:hover * {
   border: 1px solid #33393b;
   background: none #33393b;
   color: #FFFFFF;
+  box-shadow: none;
+  text-shadow: none;
+  color: #f0f0f0;
 }
 
 
@@ -277,6 +290,10 @@ window.popup *:hover * {
   padding: 10px 10px;
 }
 
+.dialog-header button label {
+  margin: 0px;
+}
+
 .main-header button.titlebutton *,
 .dialog-header button * {
   padding: 10px 10px;
@@ -284,7 +301,6 @@ window.popup *:hover * {
 
 .main-header combobox {
     margin: 5px;
-
 }
 
 .main-header combobox button {

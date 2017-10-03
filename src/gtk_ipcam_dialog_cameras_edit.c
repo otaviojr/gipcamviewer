@@ -776,6 +776,8 @@ gtk_ipcam_dialog_cameras_edit_new(GtkIpcamPreferenceObj* preference)
 
   changed = FALSE;
 
+  refresh_form(&camera_edit_info);
+
   gint result = gtk_dialog_run(GTK_DIALOG (camera_edit_info.cameras_edit_dialog));
   switch (result)
   {
