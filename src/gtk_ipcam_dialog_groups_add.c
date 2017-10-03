@@ -52,6 +52,9 @@ gtk_ipcam_dialog_groups_add_new(GtkWidget* parent, GValue* ret)
   context = gtk_widget_get_style_context(GTK_WIDGET(ok_button));
   gtk_style_context_add_class(context,"icon-button");
 
+  context = gtk_widget_get_style_context(GTK_WIDGET(groups_add_widget));
+  gtk_style_context_add_class(context,"dialog-content");
+
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(groups_add_dialog))), GTK_WIDGET(groups_add_widget), TRUE, TRUE, 0);
 
   gtk_dialog_set_default_response(GTK_DIALOG(groups_add_dialog),GTK_RESPONSE_OK);

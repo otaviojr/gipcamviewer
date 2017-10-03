@@ -370,6 +370,9 @@
                                             <property name="position">1</property>
                                           </packing>
                                         </child>
+                                        <style>
+                                          <class name="form-list-option-buttons"/>
+                                        </style>
                                       </object>
                                     </child>
                                   </object>
@@ -641,6 +644,9 @@
                                             <property name="position">1</property>
                                           </packing>
                                         </child>
+                                        <style>
+                                          <class name="form-list-option-buttons"/>
+                                        </style>
                                       </object>
                                     </child>
                                   </object>
@@ -1216,7 +1222,6 @@
                 <property name="tooltip_text" translatable="yes">Add a new camera</property>
                 <style>
                   <class name="icon-button"/>
-                  <class name="start-button"/>
                 </style>
               </object>
               <packing>
@@ -1234,7 +1239,6 @@
                 <property name="tooltip_text" translatable="yes">Remove the selected camera</property>
                 <style>
                   <class name="icon-button"/>
-                  <class name="middle-button"/>
                 </style>
               </object>
               <packing>
@@ -1270,7 +1274,6 @@
                 <property name="tooltip_text" translatable="yes">Move selected camera down</property>
                 <style>
                   <class name="icon-button"/>
-                  <class name="end-button"/>
                 </style>
               </object>
               <packing>
@@ -1279,6 +1282,9 @@
                 <property name="position">3</property>
               </packing>
             </child>
+            <style>
+              <class name="list-option-buttons"/>
+            </style>
           </object>
           <packing>
             <property name="expand">False</property>

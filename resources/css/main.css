@@ -12,6 +12,7 @@
   color: #FAFAFA;
   outline: none;
   box-shadow: none;
+  text-shadow: none;
 }
 
 .main-header:backdrop,
@@ -23,65 +24,54 @@
   box-shadow: none;
 }
 
-.main-header button,
-.main-header .menu-button,
+.main-header .custom-button,
+.dialog-header .custom-button,
+.main-header button.titlebutton,
 .dialog-header button,
-.dialog-header .menu-button {
+combobox button {
   background: linear-gradient(#323538,#1f2326);
   border: 1px solid #222222;
   box-shadow: none;
-  color: #F0F0F0;
-  font-size: 18px;
   text-shadow: none;
-  padding: 2px 8px;
+  color: #F0F0F0;
+  font-size: 16px;
+  border-radius: 5px;
 }
 
-.dialog-header button {
-  padding: 5px 8px;
+combobox button label {
+  font-size: 16px;
 }
 
-button.titlebutton.close {
-  padding: 5px 8px;
-}
-
-.main-header button.default,
-.main-header .menu-button.default,
-.dialog-header button.default,
-.dialog-header .menu-button.default {
+/*.main-header .custom-button.default,
+.dialog-header .custom-button.default {
   background: linear-gradient(#2A4E6E,#133453);
   border-radius: 0px;
 }
 
-.main-header button.default:hover,
-.main-header .menu-button.default:hover,
-.dialog-header button.default:hover,
-.dialog-header .menu-button.default:hover {
+.main-header .custom-button.default:hover,
+.dialog-header .custom-button.default:hover {
   background: linear-gradient(#4A6BFA,#2A4E6E);
   border-radius: 0px;
-}
+}*/
 
-.main-header:backdrop button,
-.main-header:backdrop .menu-button,
-.dialog-header:backdrop button,
-.dialog-header:backdrop .menu-button {
+.main-header:backdrop .custom-button,
+.dialog-header:backdrop .custom-button,
+.main-header:backdrop combobox button
+ {
   background: none #3c4143;
   border: 1px solid #333333;
   color: rgba(255,255,255,0.5);
 }
 
 .dialog-header:backdrop button.titlebutton.close {
-  color: rgba(255,255,255,0.5);
 }
 
 .main-header .custom-button,
-.dialog-header .custom-button,
-.dialog-header button {
+.dialog-header .custom-button{
 }
 
-.main-header button:hover,
-.main-header .menu-button:hover,
-.dialog-header button:hover,
-.dialog-header .menu-button:hover {
+.main-header .custom-button:hover,
+.dialog-header .custom-button:hover {
   background: linear-gradient(#3c4143,#1c2123);
   border: 1px solid #222222;
   border-radius: 5px;
@@ -89,21 +79,17 @@ button.titlebutton.close {
   color: #FFFFFF;
 }
 
-.main-header button:active,
-.main-header .menu-button:active,
-.dialog-header button:active,
-.dialog-header .menu-button:active {
+.main-header .custom-button:active,
+.dialog-header .custom-button:active,
+.main-header button.titlebutton:active,
+.dialog-header button:active {
   background: none #33393b;
 }
 
-.main-header:backdrop button:hover,
-.main-header:backdrop button:active,
-.dialog-header:backdrop button:hover,
-.dialog-header:backdrop button:active,
-.main-header:backdrop .menu-button:hover,
-.main-header:backdrop .menu-button:active,
-.dialog-header:backdrop .menu-button:hover,
-.dialog-header:backdrop .menu-button:active {
+.main-header:backdrop .custom-button:hover,
+.main-header:backdrop .custom-button:active,
+.dialog-header:backdrop .custom-button:hover,
+.dialog-header:backdrop .custom-button:active {
   background: none #3c4143;
   border: 1px solid #333333;
   border-radius: 5px;
@@ -216,41 +202,53 @@ dialog label {
   box-shadow: none;
 }
 
-dialog button {
+.dialog-content button {
   background: linear-gradient(#323538,#1f2326);
   border: 1px solid #282828;
   text-shadow: none;
   color: #FFFFFF;
   box-shadow: none;
+  font-size: 16px;
 }
 
-dialog button.start-button {
+.dialog-content .form-list-option-buttons button {
+  background: linear-gradient(#323538,#1f2326);
+  border: 1px solid #282828;
+  text-shadow: none;
+  color: #FFFFFF;
+  box-shadow: none;
+  font-size: 16px;
+  border-radius: 0px;
+}
+
+.dialog-content .list-option-buttons button {
+  border:0px;
+  border-right: 1px solid #282828;
+  border-radius: 0px;
+}
+
+.dialog-content .list-option-buttons button:first {
   border:0px;
   border-left: 1px solid #282828;
   border-right: 1px solid #282828;
 }
 
-dialog button.middle-button {
+.dialog-content .list-option-buttons button:last {
   border:0px;
   border-right: 1px solid #282828;
 }
 
-dialog button.end-button {
-  border:0px;
-  border-right: 1px solid #282828;
-}
-
-dialog button:active,
-dialog button:checked {
+.dialog-content button:active,
+.dialog-content button:checked {
   background: none #33393b;
 }
 
-dialog combobox.flat button {
+.dialog-content combobox.flat button {
   background: none #33393b;
   border: 1px solid #555555;
 }
 
-dialog entry {
+.dialog-content entry {
   background: none #33393b;
   color: #FFFFFF;
   caret-color: #FFFFFF;
@@ -280,22 +278,22 @@ window.popup *:hover * {
 }
 
 
-dialog scrolledwindow {
+.dialog-content scrolledwindow {
   border: 0px;
 }
 
-dialog list {
+.dialog-content list {
   background: none #2c3133;
   color: #FFFFFF;
   border: 0px;
   box-shadow: none;
 }
 
-dialog list row {
+.dialog-content list row {
   padding: 3px;
 }
 
-dialog check {
+.dialog-content check {
   background: none #33393b;
   color: #4A8EFE;
   border: 1px solid #555555;

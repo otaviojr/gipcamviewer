@@ -728,8 +728,10 @@ gtk_ipcam_dialog_cameras_edit_new(GtkIpcamPreferenceObj* preference)
   context = gtk_widget_get_style_context(GTK_WIDGET(ok_button));
   gtk_style_context_add_class(context,"icon-button");
 
-  gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(camera_edit_info.cameras_edit_dialog))), camera_edit_info.cameras_edit_widget, TRUE, TRUE, 0);
+  context = gtk_widget_get_style_context(GTK_WIDGET(camera_edit_info.cameras_edit_widget));
+  gtk_style_context_add_class(context,"dialog-content");
 
+  gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(camera_edit_info.cameras_edit_dialog))), camera_edit_info.cameras_edit_widget, TRUE, TRUE, 0);
   gtk_window_set_resizable(GTK_WINDOW(camera_edit_info.cameras_edit_dialog), FALSE);
 
   gtk_widget_show_all(camera_edit_info.cameras_edit_widget);

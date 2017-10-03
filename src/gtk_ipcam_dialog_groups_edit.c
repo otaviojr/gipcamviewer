@@ -179,6 +179,9 @@ gtk_ipcam_dialog_groups_edit_new(GtkIpcamDialogCameraEditInfo* info)
   context = gtk_widget_get_style_context(GTK_WIDGET(ok_button));
   gtk_style_context_add_class(context,"icon-button");
 
+  context = gtk_widget_get_style_context(GTK_WIDGET(group_edit_info.groups_dialog));
+  gtk_style_context_add_class(context,"dialog-content");
+
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(group_edit_info.groups_dialog))), group_edit_info.groups_edit_widget, TRUE, TRUE, 0);
   gtk_dialog_set_default_response(GTK_DIALOG(group_edit_info.groups_dialog),GTK_RESPONSE_OK);
 
