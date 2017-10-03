@@ -6,12 +6,14 @@
     <property name="visible">True</property>
     <property name="can_focus">True</property>
     <property name="title">GIpcamViewer</property>
+    <property name="has_subtitle">False</property>
     <property name="show_close_button">True</property>
     <child>
       <object class="GtkComboBox" id="group_list_title">
         <property name="name">title-group</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="valign">center</property>
       </object>
       <packing>
         <property name="position">1</property>
@@ -22,6 +24,7 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="halign">end</property>
+        <property name="valign">center</property>
         <property name="hexpand">True</property>
         <property name="homogeneous">True</property>
         <property name="layout_style">expand</property>
@@ -33,8 +36,6 @@
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="halign">end</property>
-            <property name="margin_left">2</property>
-            <property name="margin_right">2</property>
             <property name="hexpand">False</property>
             <style>
               <class name="custom-button"/>

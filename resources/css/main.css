@@ -45,8 +45,22 @@
   color: #F0F0F0;
   font-size: 16px;
   border-radius: 5px;
-  padding: 7px 7px;
-  margin: 5px 0px;
+  padding: 0px 0px;
+}
+
+.main-header .custom-button label,
+.dialog-header .custom-button label {
+  padding: 10px 10px;
+}
+
+.main-header button.titlebutton *,
+.dialog-header button * {
+  padding: 10px 10px;
+}
+
+.main-header combobox {
+    margin: 5px;
+
 }
 
 .main-header combobox button {
@@ -57,7 +71,7 @@
   color: #F0F0F0;
   font-size: 14px;
   border-radius: 5px;
-  padding: 0px 10px;
+  padding: 5px 10px;
   margin: 0px 5px;
 }
 
