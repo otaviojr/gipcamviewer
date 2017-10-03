@@ -40,8 +40,7 @@
 .ipcam-player-control-btn {
   background-image: none;
   background-color: #000000;
-  border: 0px;
-  border-color: none;
+  border: 0px solid transparent;
   box-shadow: none;
   color: transparent;
   /* border-radius: 100%; */
@@ -120,7 +119,7 @@ dialog {
 }
 
 .dialog-content .list-option-buttons button:first {
-  border:0px;
+  border: 0px solid transparent;
   border-left: 1px solid #282828;
   border-right: 1px solid #282828;
 }
@@ -177,7 +176,6 @@ dialog {
 window.popup {
   box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.8);
   border-radius: 0px;
-  border-collapse: collapse;
 }
 
 window.popup * {
