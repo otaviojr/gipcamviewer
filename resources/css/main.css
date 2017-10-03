@@ -4,6 +4,225 @@
 }
 /* END GLOBALS */
 
+/* CAMERAS */
+.cameras-area {
+  background-color: #33393b;
+  border: 10px solid #33393b;
+}
+
+.ipcam-player {
+  background-color: #33393b;
+  border: 5px solid #33393b;
+}
+
+.ipcam-player border {
+  padding: 10px;
+  border-style: dashed;
+  border-radius: 5px;
+  background-color: #000000;
+  border-color: #FFFFFF;
+}
+
+.ipcam-player label {
+  color: red;
+  margin: 0px;
+  background-color: #000000;
+  padding: 10px 10px 0px 10px;
+  border-top-style: dashed;
+  border-left-style: dashed;
+  border-right-style: dashed;
+  border-color: #FFFFFF;
+  border-top-width: 1px;
+  border-left-width: 1px;
+  border-right-width: 1px;
+}
+
+.ipcam-player-control-btn {
+  background-image: none;
+  background-color: #000000;
+  border: 0px;
+  border-color: none;
+  box-shadow: none;
+  color: transparent;
+  /* border-radius: 100%; */
+  margin: 0px;
+  padding: 0px;
+}
+
+.ipcam-player-control-btn label {
+  font-family: 'MaterialIcons';
+  font-size: 26px;
+  background: none transparent;
+  color: #FFFFFF;
+  border: 0px;
+  margin: 0px;
+  padding: 0px;
+}
+
+.ipcam-vlc-player {
+
+}
+
+.ipcam-vlc-player-drawing {
+  background-color: #000000;
+}
+
+.null-layer {
+  color: #FFFFFF;
+}
+/* END CAMERAS */
+
+/* CAMERAS MANAGER */
+.properties-area {
+}
+
+.properties-area .property-label {
+}
+
+.selection-list {
+}
+/* CAMERAS MANAGER END */
+
+/* DIALOGS */
+dialog {
+  background-color: #33393b;
+}
+
+.dialog-content label {
+  color: #FFFFFF;
+  text-shadow: none;
+  box-shadow: none;
+}
+
+.dialog-content button {
+  background: linear-gradient(#323538,#1f2326);
+  border: 1px solid #282828;
+  text-shadow: none;
+  color: #FFFFFF;
+  box-shadow: none;
+  font-size: 16px;
+}
+
+.dialog-content .form-list-option-buttons button {
+  background: linear-gradient(#323538,#1f2326);
+  border: 1px solid #282828;
+  text-shadow: none;
+  color: #FFFFFF;
+  box-shadow: none;
+  font-size: 16px;
+  border-radius: 0px;
+}
+
+.dialog-content .list-option-buttons button {
+  border:0px;
+  border-right: 1px solid #282828;
+  border-radius: 0px;
+}
+
+.dialog-content .list-option-buttons button:first {
+  border:0px;
+  border-left: 1px solid #282828;
+  border-right: 1px solid #282828;
+}
+
+.dialog-content .list-option-buttons button:last {
+  border:0px;
+  border-right: 1px solid #282828;
+}
+
+.dialog-content .filter-options * {
+  border-radius: 0px;
+}
+
+.dialog-content button {
+  border-radius: 5px;
+  padding: 5px 15px;
+}
+
+.dialog-content button:active,
+.dialog-content button:checked {
+  background: none #33393b;
+}
+
+.dialog-content combobox button {
+  border-radius: 5px;
+}
+
+.dialog-content combobox button * {
+  color: #f0f0f0;
+}
+
+.dialog-content combobox.flat button {
+  background: none #33393b;
+  border: 1px solid #555555;
+}
+
+.dialog-content entry {
+  background: none #33393b;
+  color: #FFFFFF;
+  caret-color: #FFFFFF;
+  border: 1px solid #555555;
+  border-radius: 5px;
+}
+
+window.popup {
+  box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.8);
+  border-radius: 0px;
+  border-collapse: collapse;
+}
+
+window.popup * {
+  background: none #2c3133;
+  color: #FFFFFF;
+  border: 0px;
+}
+
+window.popup *:hover {
+  background: none #33393b;
+  color: #FFFFFF;
+}
+
+window.popup *:hover * {
+  background: none #33393b;
+  color: #FFFFFF;
+}
+
+
+.dialog-content scrolledwindow {
+  border: 0px;
+}
+
+.dialog-content list {
+  background: none #2c3133;
+  color: #FFFFFF;
+  border: 0px;
+  box-shadow: none;
+}
+
+.dialog-content list row {
+  padding: 3px;
+}
+
+.dialog-content check {
+  background: none #33393b;
+  color: #4A8EFE;
+  border: 1px solid #555555;
+  text-shadow: none;
+  box-shadow: none;
+  outline: none;
+  -gtk-icon-shadow: none;
+  -gtk-icon-transform: scale(1.2);
+}
+
+.group-edit-dialog list {
+  border: 0px;
+}
+
+.group-edit-dialog list row {
+}
+
+/* DIALOGS END */
+
 /* HEADER */
 .main-header,
 .dialog-header {
@@ -151,217 +370,3 @@ popover modelbutton:focus {
 }
 
 /* END HEADER */
-
-/* CAMERAS */
-.cameras-area {
-  background-color: #33393b;
-  border: 10px solid #33393b;
-}
-
-.ipcam-player {
-  background-color: #33393b;
-  border: 5px solid #33393b;
-}
-
-.ipcam-player border {
-  padding: 10px;
-  border-style: dashed;
-  border-radius: 5px;
-  background-color: #000000;
-  border-color: #FFFFFF;
-}
-
-.ipcam-player label {
-  color: red;
-  margin: 0px;
-  background-color: #000000;
-  padding: 10px 10px 0px 10px;
-  border-top-style: dashed;
-  border-left-style: dashed;
-  border-right-style: dashed;
-  border-color: #FFFFFF;
-  border-top-width: 1px;
-  border-left-width: 1px;
-  border-right-width: 1px;
-}
-
-.ipcam-player-control-btn {
-  background-image: none;
-  background-color: #000000;
-  border: 0px;
-  border-color: none;
-  box-shadow: none;
-  color: transparent;
-  /* border-radius: 100%; */
-  margin: 0px;
-  padding: 0px;
-}
-
-.ipcam-player-control-btn label {
-  font-family: 'MaterialIcons';
-  font-size: 26px;
-  background: none transparent;
-  color: #FFFFFF;
-  border: 0px;
-  margin: 0px;
-  padding: 0px;
-}
-
-.ipcam-vlc-player {
-
-}
-
-.ipcam-vlc-player-drawing {
-  background-color: #000000;
-}
-
-.null-layer {
-  color: #FFFFFF;
-}
-/* END CAMERAS */
-
-/* CAMERAS MANAGER */
-.properties-area {
-}
-
-.properties-area .property-label {
-}
-
-.selection-list {
-}
-/* CAMERAS MANAGER END */
-
-/* DIALOGS */
-dialog {
-  background-color: #33393b;
-}
-
-.dialog-content label {
-  color: #FFFFFF;
-  text-shadow: none;
-  box-shadow: none;
-}
-
-.dialog-content button {
-  background: linear-gradient(#323538,#1f2326);
-  border: 1px solid #282828;
-  text-shadow: none;
-  color: #FFFFFF;
-  box-shadow: none;
-  font-size: 16px;
-}
-
-.dialog-content .form-list-option-buttons button {
-  background: linear-gradient(#323538,#1f2326);
-  border: 1px solid #282828;
-  text-shadow: none;
-  color: #FFFFFF;
-  box-shadow: none;
-  font-size: 16px;
-  border-radius: 0px;
-}
-
-.dialog-content .list-option-buttons button {
-  border:0px;
-  border-right: 1px solid #282828;
-  border-radius: 0px;
-}
-
-.dialog-content .list-option-buttons button:first {
-  border:0px;
-  border-left: 1px solid #282828;
-  border-right: 1px solid #282828;
-}
-
-.dialog-content .list-option-buttons button:last {
-  border:0px;
-  border-right: 1px solid #282828;
-}
-
-.dialog-content button {
-  border-radius: 5px;
-}
-
-.dialog-content button:active,
-.dialog-content button:checked {
-  background: none #33393b;
-}
-
-.dialog-content combobox button {
-  border-radius: 5px;
-}
-
-.dialog-content combobox button * {
-  color: #f0f0f0;
-}
-
-.dialog-content combobox.flat button {
-  background: none #33393b;
-  border: 1px solid #555555;
-}
-
-.dialog-content entry {
-  background: none #33393b;
-  color: #FFFFFF;
-  caret-color: #FFFFFF;
-  border: 1px solid #555555;
-  border-radius: 5px;
-}
-
-window.popup {
-  box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.8);
-  border-radius: 0px;
-  border-collapse: collapse;
-}
-
-window.popup * {
-  background: none #2c3133;
-  color: #FFFFFF;
-  border: 0px;
-}
-
-window.popup *:hover {
-  background: none #33393b;
-  color: #FFFFFF;
-}
-
-window.popup *:hover * {
-  background: none #33393b;
-  color: #FFFFFF;
-}
-
-
-.dialog-content scrolledwindow {
-  border: 0px;
-}
-
-.dialog-content list {
-  background: none #2c3133;
-  color: #FFFFFF;
-  border: 0px;
-  box-shadow: none;
-}
-
-.dialog-content list row {
-  padding: 3px;
-}
-
-.dialog-content check {
-  background: none #33393b;
-  color: #4A8EFE;
-  border: 1px solid #555555;
-  text-shadow: none;
-  box-shadow: none;
-  outline: none;
-  -gtk-icon-shadow: none;
-  -gtk-icon-transform: scale(1.2);
-}
-
-.group-edit-dialog list {
-  border: 0px;
-}
-
-.group-edit-dialog list row {
-}
-
-/* DIALOGS END */

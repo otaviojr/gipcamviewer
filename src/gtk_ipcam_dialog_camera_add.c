@@ -58,7 +58,9 @@ gtk_ipcam_dialog_cameras_add_new(GtkWidget* parent, GValue* ret)
 
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(cameras_add_dialog))), GTK_WIDGET(cameras_add_widget), TRUE, TRUE, 0);
   gtk_dialog_set_default_response(GTK_DIALOG(cameras_add_dialog),GTK_RESPONSE_OK);
+  gtk_window_set_resizable(GTK_WINDOW(cameras_add_dialog), FALSE);
   gtk_entry_set_activates_default (GTK_ENTRY(cameras_add_input_widget), TRUE);
+
   gint result = gtk_dialog_run(GTK_DIALOG (cameras_add_dialog));
   switch (result)
   {
