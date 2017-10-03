@@ -226,6 +226,11 @@ window.popup *:hover * {
   box-shadow: none;
   border: 1px solid rgba(57,104,212,1);
   background: none rgba(57,104,212,0.8);
+  min-width: 3px;
+}
+
+.dialog-content scrolledwindow slider:hover {
+  min-width: 6px;
 }
 
 .dialog-content list {
