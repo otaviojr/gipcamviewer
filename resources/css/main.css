@@ -334,7 +334,7 @@ window.popup *:hover * {
 .main-header:backdrop .custom-button label,
 .dialog-header:backdrop .custom-button label,
 .main-header:backdrop button.titlebutton,
-.dialog-header:backdrop button
+.dialog-header:backdrop button,
 .main-header:backdrop combobox button
  {
   background: none #3c4143;
@@ -379,11 +379,15 @@ window.popup *:hover * {
 
 popover {
   color: #FFFFFF;
+  border: 0px;
   background: none #2c3133;
 }
 
 popover modelbutton:hover {
+  border: 0px;
   background: none #3c4143;
+  box-shadow: none;
+  text-shadow: none;
 }
 
 popover modelbutton:focus {
