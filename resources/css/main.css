@@ -25,10 +25,19 @@
 }
 
 .main-header .custom-button,
-.dialog-header .custom-button,
+.dialog-header .custom-button {
+  background: none transparent;
+  border: 0px;
+  box-shadow: none;
+  text-shadow: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+.main-header .custom-button label,
+.dialog-header .custom-button label,
 .main-header button.titlebutton,
-.dialog-header button,
-combobox button {
+.dialog-header button {
   background: linear-gradient(#323538,#1f2326);
   border: 1px solid #222222;
   box-shadow: none;
@@ -36,10 +45,24 @@ combobox button {
   color: #F0F0F0;
   font-size: 16px;
   border-radius: 5px;
+  padding: 7px 7px;
+  margin: 5px 0px;
 }
 
-combobox button label {
-  font-size: 16px;
+.main-header combobox button {
+  background: linear-gradient(#323538,#1f2326);
+  border: 1px solid #222222;
+  box-shadow: none;
+  text-shadow: none;
+  color: #F0F0F0;
+  font-size: 14px;
+  border-radius: 5px;
+  padding: 0px 10px;
+  margin: 0px 5px;
+}
+
+.main-header combobox button * {
+  color: #f0f0f0;
 }
 
 /*.main-header .custom-button.default,
@@ -54,8 +77,10 @@ combobox button label {
   border-radius: 0px;
 }*/
 
-.main-header:backdrop .custom-button,
-.dialog-header:backdrop .custom-button,
+.main-header:backdrop .custom-button label,
+.dialog-header:backdrop .custom-button label,
+.main-header:backdrop button.titlebutton,
+.dialog-header:backdrop button
 .main-header:backdrop combobox button
  {
   background: none #3c4143;
@@ -63,15 +88,14 @@ combobox button label {
   color: rgba(255,255,255,0.5);
 }
 
-.dialog-header:backdrop button.titlebutton.close {
-}
-
 .main-header .custom-button,
 .dialog-header .custom-button{
 }
 
-.main-header .custom-button:hover,
-.dialog-header .custom-button:hover {
+.main-header .custom-button:hover label,
+.dialog-header .custom-button:hover label,
+.main-header button.titlebutton:hover,
+.dialog-header button:hover {
   background: linear-gradient(#3c4143,#1c2123);
   border: 1px solid #222222;
   border-radius: 5px;
@@ -79,17 +103,19 @@ combobox button label {
   color: #FFFFFF;
 }
 
-.main-header .custom-button:active,
-.dialog-header .custom-button:active,
+.main-header .custom-button:active label,
+.dialog-header .custom-button:active label,
 .main-header button.titlebutton:active,
 .dialog-header button:active {
   background: none #33393b;
 }
 
-.main-header:backdrop .custom-button:hover,
-.main-header:backdrop .custom-button:active,
-.dialog-header:backdrop .custom-button:hover,
-.dialog-header:backdrop .custom-button:active {
+.main-header:backdrop .custom-button:hover label,
+.main-header:backdrop .custom-button:active label,
+.dialog-header:backdrop .custom-button:hover label,
+.dialog-header:backdrop .custom-button:active label,
+.main-header:backdrop button.titlebutton,
+.dialog-header:backdrop button {
   background: none #3c4143;
   border: 1px solid #333333;
   border-radius: 5px;
@@ -196,7 +222,7 @@ dialog {
   background-color: #33393b;
 }
 
-dialog label {
+.dialog-content label {
   color: #FFFFFF;
   text-shadow: none;
   box-shadow: none;
@@ -238,9 +264,21 @@ dialog label {
   border-right: 1px solid #282828;
 }
 
+.dialog-content button {
+  border-radius: 5px;
+}
+
 .dialog-content button:active,
 .dialog-content button:checked {
   background: none #33393b;
+}
+
+.dialog-content combobox button {
+  border-radius: 5px;
+}
+
+.dialog-content combobox button * {
+  color: #f0f0f0;
 }
 
 .dialog-content combobox.flat button {
@@ -253,6 +291,7 @@ dialog label {
   color: #FFFFFF;
   caret-color: #FFFFFF;
   border: 1px solid #555555;
+  border-radius: 5px;
 }
 
 window.popup {
