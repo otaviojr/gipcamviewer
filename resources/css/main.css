@@ -182,7 +182,12 @@ window.popup *:hover {
   color: #FFFFFF;
 }
 
+window.popup * * {
+  border: 1px solid #2c3133;
+}
+
 window.popup *:hover * {
+  border: 1px solid #33393b;
   background: none #33393b;
   color: #FFFFFF;
 }
