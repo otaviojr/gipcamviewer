@@ -77,7 +77,7 @@ glibjson_dep = dependency('json-glib-1.0')
 vlc_dep = dependency('libvlc', version: '>=2.0')
 
 #Lua deps
-lua_dep = dependency('lua-5.3')
+lua_dep = dependency('lua-5.2')
 
 deps = [
         #x11_dep,
@@ -126,6 +126,39 @@ cdata.set('LIBDIR', '"@0@"'.format(get_option('libdir')))
 cdata.set('DATADIR', '"@0@"'.format(get_option('datadir')))
 
 configure_file(output : 'config.h', configuration : cdata)
+
+compiler = meson.get_compiler('c')
+
+code = '''
+  #include <stdio.h>
+  #include <lua.h>
+  #include <lualib.h>
+  #include <lauxlib.h>
+
+  int main(int argc, char **argv)
+  {
+    lua_State* l;
+    l = luaL_newstate();
+    luaL_openlibs(l);
+    if(luaL_dostring(l, "local http = require \"http.request\""))
+    {
+      printf("Couldn't load file: %s\n", lua_tostring(l, -1));
+      lua_close(l);
+      return -1;
+    }
+    lua_close(l);
+    printf("SUCCESS");
+    return 0;
+  }
+'''
+
+flags = run_command('pkg-config','--cflags','--libs','lua5.2')
+a_flags = flags.stdout().strip().split(' ')
+
+result = compiler.run(code, args : a_flags, name : 'lua has http plugin')
+if result.returncode() != 0 or result.compiled() == false
+  error('Lua HTTP support not installed: ' + result.stdout())
+endif
 
 exe = executable('gipcamviewer', sources, dependencies : deps, install : true)
 
