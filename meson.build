@@ -77,7 +77,7 @@ glibjson_dep = dependency('json-glib-1.0')
 vlc_dep = dependency('libvlc', version: '>=2.0')
 
 #Lua deps
-lua_dep = dependency('lua-5.2')
+lua_dep = dependency('lua-5.3')
 
 deps = [
         #x11_dep,
@@ -152,10 +152,10 @@ code = '''
   }
 '''
 
-flags = run_command('pkg-config','--cflags','--libs','lua5.2')
+flags = run_command('pkg-config','--cflags','--libs','lua5.3')
 a_flags = flags.stdout().strip().split(' ')
 
-result = compiler.run(code, args : a_flags, name : 'lua has http plugin')
+result = compiler.run(code, args : a_flags, name : 'lua5.3 has http plugin')
 if result.returncode() != 0 or result.compiled() == false
   error('Lua HTTP support not installed: ' + result.stdout())
 endif
