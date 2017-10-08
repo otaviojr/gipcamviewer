@@ -345,6 +345,11 @@ window.popup *:hover * {
   margin: 0px 5px;
 }
 
+.main-header combobox button:focus {
+  border: 1px solid #222222;
+  outline: none;
+}
+
 .main-header combobox button * {
   color: #f0f0f0;
 }
@@ -373,8 +378,15 @@ window.popup *:hover * {
 }
 
 .main-header .custom-button,
-.dialog-header .custom-button{
+.dialog-header .custom-button {
 }
+
+.main-header .custom-button:focus,
+.dialog-header .custom-button:focus,
+.dialog-header button:focus {
+  outline: none;
+}
+
 
 .main-header .custom-button:hover label,
 .dialog-header .custom-button:hover label,
@@ -421,6 +433,7 @@ popover modelbutton:hover {
 
 popover modelbutton:focus {
   border: 0px;
+  outline: none;
 }
 
 /* END HEADER */
