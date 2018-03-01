@@ -155,9 +155,9 @@ create_vlc_instance(void)
 	vlc_argv[vlc_argc++] = g_strdup("--quiet");
 	vlc_argv[vlc_argc++] = g_strdup("--no-xlib");
 	vlc_argv[vlc_argc++] = g_strdup("--no-mouse-events");
-	//vlc_argv[vlc_argc++] = g_strdup("--no-skip-frames");
+	vlc_argv[vlc_argc++] = g_strdup("--live-caching=0");
 	vlc_argv[vlc_argc++] = g_strdup("--network-caching=2000");
-	//vlc_argv[vlc_argc++] = g_strdup("--no-mouse-events");
+	vlc_argv[vlc_argc++] = g_strdup("--sout-mux-caching=1500");
 	//vlc_argv[vlc_argc++] = g_strdup("--rtsp-tcp");
 	//vlc_argv[vlc_argc++] = g_strdup("--avcodec-hw=any");
 	//vlc_argv[vlc_argc++] = g_strdup("--rtsp-caching=1000");

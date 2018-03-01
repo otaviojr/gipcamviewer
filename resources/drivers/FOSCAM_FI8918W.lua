@@ -3,8 +3,18 @@ local http = require "http.request"
 function driver_get_base_url()
   print("FOSCAM_FI8918W: get base url for " .. camera_name .. " camera")
 
+  local local_protocol = "http://"
+  if camera_local_https == true then
+    local_protocol = "https://"
+  end
+
+  local remote_protocol = "http://"
+  if camera_remote_https == true then
+    remote_protocol = "https://"
+  end
+
   --[[Test local URI]]
-  local uri = "http://" .. camera_local_url .. ":" .. camera_local_port .. "/get_status.cgi?user=" .. camera_username .. "&pwd=" .. camera_password
+  local uri = local_protocol .. camera_local_url .. ":" .. camera_local_port .. "/get_status.cgi?user=" .. camera_username .. "&pwd=" .. camera_password
   print("FOSCAM_FI8918W: Testing local URI: " .. uri)
   local req = http.new_from_uri(uri)
   req.headers:upsert(":method", "GET")
@@ -13,7 +23,7 @@ function driver_get_base_url()
     local body, err = stream:get_body_as_string()
     if body ~= nil then
       print("FOSCAM_FI8918W: Local URI success..")
-      return "", "http://" .. camera_local_url .. ":" .. camera_local_port
+      return "", local_protocol .. camera_local_url .. ":" .. camera_local_port
     else
       print("FOSCAM_FI8918W: Local URI failed..")
     end
@@ -22,7 +32,7 @@ function driver_get_base_url()
   end
 
   --[[Test remote URI]]
-  local uri = "http://" .. camera_remote_url .. ":" .. camera_remote_port .. "/get_status.cgi?user=" .. camera_username .. "&pwd=" .. camera_password
+  local uri = remote_protocol .. camera_remote_url .. ":" .. camera_remote_port .. "/get_status.cgi?user=" .. camera_username .. "&pwd=" .. camera_password
   print("FOSCAM_FI8918W: Testing remote URI: " .. uri)
   local req = http.new_from_uri(uri)
   req.headers:upsert(":method", "GET")
@@ -31,7 +41,7 @@ function driver_get_base_url()
     local body, err = stream:get_body_as_string()
     if body ~= nil then
       print("FOSCAM_FI8918W: Remote URI success..")
-      return "","http://" .. camera_remote_url .. ":" .. camera_remote_port
+      return "",remote_protocol .. camera_remote_url .. ":" .. camera_remote_port
     else
       print("FOSCAM_FI8918W: Remote URI failed..")
     end

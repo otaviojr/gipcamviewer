@@ -45,7 +45,7 @@
                           <object class="GtkBox">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="margin_right">10</property>
+                            <property name="margin_right">5</property>
                             <property name="hexpand">True</property>
                             <property name="orientation">vertical</property>
                             <child>
@@ -370,9 +370,6 @@
                                             <property name="position">1</property>
                                           </packing>
                                         </child>
-                                        <style>
-                                          <class name="form-list-option-buttons"/>
-                                        </style>
                                       </object>
                                     </child>
                                   </object>
@@ -644,9 +641,6 @@
                                             <property name="position">1</property>
                                           </packing>
                                         </child>
-                                        <style>
-                                          <class name="form-list-option-buttons"/>
-                                        </style>
                                       </object>
                                     </child>
                                   </object>
@@ -1172,9 +1166,6 @@
                 <property name="position">1</property>
               </packing>
             </child>
-            <style>
-              <class name="filter-options"/>
-            </style>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -1225,6 +1216,7 @@
                 <property name="tooltip_text" translatable="yes">Add a new camera</property>
                 <style>
                   <class name="icon-button"/>
+                  <class name="start-button"/>
                 </style>
               </object>
               <packing>
@@ -1242,6 +1234,7 @@
                 <property name="tooltip_text" translatable="yes">Remove the selected camera</property>
                 <style>
                   <class name="icon-button"/>
+                  <class name="middle-button"/>
                 </style>
               </object>
               <packing>
@@ -1277,6 +1270,7 @@
                 <property name="tooltip_text" translatable="yes">Move selected camera down</property>
                 <style>
                   <class name="icon-button"/>
+                  <class name="end-button"/>
                 </style>
               </object>
               <packing>
@@ -1285,9 +1279,6 @@
                 <property name="position">3</property>
               </packing>
             </child>
-            <style>
-              <class name="list-option-buttons"/>
-            </style>
           </object>
           <packing>
             <property name="expand">False</property>

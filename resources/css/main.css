@@ -4,102 +4,6 @@
 }
 /* END GLOBALS */
 
-/* HEADER */
-.main-header,
-.dialog-header {
-  background: none #2c3133;
-  border: 1px solid #2c3133;
-  color: #FAFAFA;
-  outline: none;
-  box-shadow: none;
-}
-
-.main-header:backdrop,
-.dialog-header:backdrop {
-  background: none #3c4143;
-  border: 1px solid #2c3133;
-  color: #FAFAFA;
-  outline: none;
-  box-shadow: none;
-}
-
-.main-header button,
-.main-header .menu-button,
-.dialog-header button,
-.dialog-header .menu-button {
-  background: none #2c3133;
-  border: 1px solid transparent;
-  box-shadow: none;
-  color: #F0F0F0;
-  font-size: 18px;
-  text-shadow: none;
-  padding: 2px 8px;
-}
-
-.main-header button.default,
-.main-header .menu-button.default,
-.dialog-header button.default,
-.dialog-header .menu-button.default {
-  background: none blue;
-}
-
-.main-header:backdrop button,
-.main-header:backdrop .menu-button,
-.dialog-header:backdrop button,
-.dialog-header:backdrop .menu-button {
-  background: none #3c4143;
-}
-
-.main-header:backdrop .menu-button,
-.dialog-header:backdrop .menu-button {
-  border: 1px solid #2c3133;
-}
-
-.main-header .custom-button,
-.dialog-header .custom-button,
-.dialog-header button {
-  border: 1px solid #1c2123;
-}
-
-.main-header button:hover,
-.main-header button:active,
-.main-header .menu-button:hover,
-.main-header .menu-button:active,
-.dialog-header button:hover,
-.dialog-header button:active,
-.dialog-header .menu-button:hover,
-.dialog-header .menu-button:active {
-  background: linear-gradient(#3c4143,#1c2123);
-  border: 1px solid #000000;
-  border-radius: 5px;
-  box-shadow: none;
-  color: #FFFFFF;
-}
-
-.main-header:backdrop button:hover,
-.main-header:backdrop button:active,
-.dialog-header:backdrop button:hover,
-.dialog-header:backdrop button:active
-{
-  background: none #3c4143;
-  border: 1px solid transparent;
-  border-radius: 5px;
-  box-shadow: none;
-  color: #FFFFFF;
-}
-
-.main-header:backdrop .menu-button:hover,
-.main-header:backdrop .menu-button:active,
-.dialog-header:backdrop .menu-button:hover,
-.dialog-header:backdrop .menu-button:active {
-  background: none #3c4143;
-  border: 1px solid #2c3133;
-  border-radius: 5px;
-  box-shadow: none;
-  color: #FFFFFF;
-}
-/* END HEADER */
-
 /* CAMERAS */
 .cameras-area {
   background-color: #33393b;
@@ -136,8 +40,7 @@
 .ipcam-player-control-btn {
   background-image: none;
   background-color: #000000;
-  border: 0px;
-  border-color: none;
+  border: 0px solid transparent;
   box-shadow: none;
   color: transparent;
   /* border-radius: 100%; */
@@ -178,3 +81,359 @@
 .selection-list {
 }
 /* CAMERAS MANAGER END */
+
+/* DIALOGS */
+dialog {
+  background-color: #33393b;
+}
+
+.dialog-content label {
+  color: #FFFFFF;
+  text-shadow: none;
+  box-shadow: none;
+}
+
+.dialog-content button {
+  background: linear-gradient(#323538,#1f2326);
+  border: 1px solid #282828;
+  text-shadow: none;
+  color: #FFFFFF;
+  box-shadow: none;
+  font-size: 16px;
+}
+
+.dialog-content .form-list-option-buttons button {
+  background: linear-gradient(#323538,#1f2326);
+  border: 1px solid #282828;
+  text-shadow: none;
+  color: #FFFFFF;
+  box-shadow: none;
+  font-size: 16px;
+  border-radius: 0px;
+}
+
+.dialog-content .list-option-buttons button {
+  border:0px;
+  border-right: 1px solid #282828;
+  border-radius: 0px;
+}
+
+.dialog-content .list-option-buttons button:first {
+  border: 0px solid transparent;
+  border-left: 1px solid #282828;
+  border-right: 1px solid #282828;
+}
+
+.dialog-content .list-option-buttons button:last {
+  border:0px;
+  border-right: 1px solid #282828;
+}
+
+.dialog-content .filter-options * {
+  border-radius: 0px;
+}
+
+.dialog-content button {
+  border-radius: 5px;
+  padding: 5px 15px;
+}
+
+.dialog-content button label {
+  margin: 5px;
+}
+
+.dialog-content button:active,
+.dialog-content button:checked {
+  background: none #33393b;
+}
+
+.dialog-content combobox button {
+  border-radius: 5px;
+}
+
+.dialog-content combobox button * {
+  color: #f0f0f0;
+}
+
+.dialog-content combobox.flat button {
+  background: none #33393b;
+  border: 1px solid #555555;
+}
+
+.dialog-content entry {
+  background: none #33393b;
+  color: #FFFFFF;
+  caret-color: #FFFFFF;
+  border: 1px solid #555555;
+  border-radius: 5px;
+}
+
+.dialog-content entry:focus {
+  border: 1px solid rgba(57,104,212,0.5);
+  box-shadow: 0px 0px 1px 1px rgba(57,104,212,0.8);
+}
+
+window.popup {
+  box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.8);
+  border-radius: 0px;
+}
+
+window.popup * {
+  border: 1px solid #2c3133;
+  background: none #2c3133;
+  color: #FFFFFF;
+  border: 0px;
+}
+
+window.popup *:hover {
+  border: 1px solid #33393b;
+  background: none #33393b;
+  color: #FFFFFF;
+  outline: none;
+  box-shadow: none;
+  text-shadow: none;
+  color: #f0f0f0;
+}
+
+window.popup * * {
+  border: 1px solid #2c3133;
+}
+
+window.popup *:hover * {
+  border: 1px solid #33393b;
+  background: none #33393b;
+  color: #FFFFFF;
+  box-shadow: none;
+  text-shadow: none;
+  color: #f0f0f0;
+}
+
+
+.dialog-content scrolledwindow {
+  border: 0px;
+}
+
+.dialog-content scrolledwindow scrollbar,
+.dialog-content scrolledwindow scrollbar * {
+  background: none transparent;
+  box-shadow: none;
+  border: 1px solid transparent;
+  border-radius: 0px;
+}
+
+.dialog-content scrolledwindow slider {
+  box-shadow: none;
+  border: 1px solid rgba(57,104,212,1);
+  background: none rgba(57,104,212,0.8);
+  min-width: 3px;
+  border-radius: 0px;
+}
+
+.dialog-content scrolledwindow slider:hover {
+  min-width: 6px;
+}
+
+.dialog-content list {
+  background: none #2c3133;
+  color: #FFFFFF;
+  border: 0px;
+  box-shadow: none;
+}
+
+.dialog-content list row {
+  padding: 3px;
+  border: 1px solid transparent;
+}
+
+.dialog-content list row:selected {
+  box-shadow: 0px 0px 1px 1px rgba(57,104,212,1);
+  border: 1px solid rgba(57,104,212,0.8);
+  background: none rgba(57,104,212,0.8);
+}
+
+.dialog-content check {
+  background: none #33393b;
+  color: #4A8EFE;
+  border: 1px solid #555555;
+  text-shadow: none;
+  box-shadow: none;
+  outline: none;
+  -gtk-icon-shadow: none;
+  -gtk-icon-transform: scale(1.2);
+}
+
+.group-edit-dialog list {
+  border: 0px;
+}
+
+.group-edit-dialog list row {
+}
+
+/* DIALOGS END */
+
+/* HEADER */
+.main-header,
+.dialog-header {
+  background: none #2c3133;
+  border: 1px solid #2c3133;
+  color: #FAFAFA;
+  outline: none;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.main-header:backdrop,
+.dialog-header:backdrop {
+  background: none #3c4143;
+  border: 1px solid #2c3133;
+  color: #FAFAFA;
+  outline: none;
+  box-shadow: none;
+}
+
+.main-header .custom-button,
+.dialog-header .custom-button {
+  background: none transparent;
+  border: 0px;
+  box-shadow: none;
+  text-shadow: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+.main-header .custom-button label,
+.dialog-header .custom-button label,
+.main-header button.titlebutton,
+.dialog-header button {
+  background: linear-gradient(#323538,#1f2326);
+  border: 1px solid #222222;
+  box-shadow: none;
+  text-shadow: none;
+  color: #F0F0F0;
+  font-size: 16px;
+  border-radius: 5px;
+  padding: 0px 0px;
+}
+
+.main-header .custom-button label,
+.dialog-header .custom-button label {
+  padding: 10px 10px;
+}
+
+.dialog-header button label {
+  margin: 0px;
+}
+
+.main-header button.titlebutton *,
+.dialog-header button * {
+  padding: 10px 10px;
+}
+
+.main-header combobox {
+    margin: 5px;
+}
+
+.main-header combobox button {
+  background: linear-gradient(#323538,#1f2326);
+  border: 1px solid #222222;
+  box-shadow: none;
+  text-shadow: none;
+  color: #F0F0F0;
+  font-size: 14px;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin: 0px 5px;
+}
+
+.main-header combobox button:focus {
+  border: 1px solid #222222;
+  outline: none;
+}
+
+.main-header combobox button * {
+  color: #f0f0f0;
+}
+
+/*.main-header .custom-button.default,
+.dialog-header .custom-button.default {
+  background: linear-gradient(#2A4E6E,#133453);
+  border-radius: 0px;
+}
+
+.main-header .custom-button.default:hover,
+.dialog-header .custom-button.default:hover {
+  background: linear-gradient(#4A6BFA,#2A4E6E);
+  border-radius: 0px;
+}*/
+
+.main-header:backdrop .custom-button label,
+.dialog-header:backdrop .custom-button label,
+.main-header:backdrop button.titlebutton,
+.dialog-header:backdrop button,
+.main-header:backdrop combobox button
+ {
+  background: none #3c4143;
+  border: 1px solid #333333;
+  color: rgba(255,255,255,0.5);
+}
+
+.main-header .custom-button,
+.dialog-header .custom-button {
+}
+
+.main-header .custom-button:focus,
+.dialog-header .custom-button:focus,
+.dialog-header button:focus {
+  outline: none;
+}
+
+
+.main-header .custom-button:hover label,
+.dialog-header .custom-button:hover label,
+.main-header button.titlebutton:hover,
+.dialog-header button:hover {
+  background: linear-gradient(#3c4143,#1c2123);
+  border: 1px solid #222222;
+  border-radius: 5px;
+  box-shadow: none;
+  color: #FFFFFF;
+}
+
+.main-header .custom-button:active label,
+.dialog-header .custom-button:active label,
+.main-header button.titlebutton:active,
+.dialog-header button:active {
+  background: none #33393b;
+}
+
+.main-header:backdrop .custom-button:hover label,
+.main-header:backdrop .custom-button:active label,
+.dialog-header:backdrop .custom-button:hover label,
+.dialog-header:backdrop .custom-button:active label,
+.main-header:backdrop button.titlebutton,
+.dialog-header:backdrop button {
+  background: none #3c4143;
+  border: 1px solid #333333;
+  border-radius: 5px;
+  box-shadow: none;
+  color: rgba(255,255,255,0.5);
+}
+
+popover {
+  color: #FFFFFF;
+  background: none #2c3133;
+}
+
+popover modelbutton:hover {
+  border: 0px;
+  background: none #3c4143;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+popover modelbutton:focus {
+  border: 0px;
+  outline: none;
+}
+
+/* END HEADER */

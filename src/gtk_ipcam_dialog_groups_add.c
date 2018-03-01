@@ -52,7 +52,11 @@ gtk_ipcam_dialog_groups_add_new(GtkWidget* parent, GValue* ret)
   context = gtk_widget_get_style_context(GTK_WIDGET(ok_button));
   gtk_style_context_add_class(context,"icon-button");
 
+  context = gtk_widget_get_style_context(GTK_WIDGET(groups_add_widget));
+  gtk_style_context_add_class(context,"dialog-content");
+
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(groups_add_dialog))), GTK_WIDGET(groups_add_widget), TRUE, TRUE, 0);
+  gtk_window_set_resizable(GTK_WINDOW(groups_add_dialog), FALSE);
 
   gtk_dialog_set_default_response(GTK_DIALOG(groups_add_dialog),GTK_RESPONSE_OK);
   gtk_entry_set_activates_default (GTK_ENTRY(groups_add_input_widget), TRUE);
@@ -60,8 +64,11 @@ gtk_ipcam_dialog_groups_add_new(GtkWidget* parent, GValue* ret)
   switch (result)
   {
     case GTK_RESPONSE_OK:
-      g_value_init(ret,G_TYPE_STRING);
-      g_value_set_string(ret,gtk_entry_get_text(GTK_ENTRY(groups_add_input_widget)));
+      if(gtk_entry_get_text_length(GTK_ENTRY(groups_add_input_widget)) > 0)
+      {
+        g_value_init(ret,G_TYPE_STRING);
+        g_value_set_string(ret,gtk_entry_get_text(GTK_ENTRY(groups_add_input_widget)));
+      }
       break;
 
     default:

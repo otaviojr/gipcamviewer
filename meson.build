@@ -1,5 +1,8 @@
-project('gipcamviewer', 'c',
+project('gipcamviewer', ['c'],
   version: '0.1',
+  license: [
+        'GPL-2.0',
+  ],
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
 
@@ -18,8 +21,8 @@ closure_marshaller_h = marshallers[1]
 sources = ['src/main.c',
             'src/gtk_ipcam_util.h',
             'src/gtk_ipcam_util.c',
-            'src/gtk_video_renderer.h',
-            'src/gtk_video_renderer.c',
+#            'src/gtk_video_renderer.h',
+#            'src/gtk_video_renderer.c',
             'src/gtk_vlc_player.h',
             'src/gtk_vlc_player.c',
             'src/gtk_ipcam_player.h',
@@ -62,8 +65,8 @@ gstnet_dep = dependency('gstreamer-net-1.0', version : gst_req,
 gstcontroller_dep = dependency('gstreamer-controller-1.0', version : gst_req,
   fallback : ['gstreamer', 'gst_controller_dep'])
 
-gstplayer_dep = dependency('gstreamer-player-1.0', version : gst_req)
-gsttag_dep = dependency('gstreamer-tag-1.0', version : gst_req)
+#gstplayer_dep = dependency('gstreamer-player-1.0', version : gst_req)
+#gsttag_dep = dependency('gstreamer-tag-1.0', version : gst_req)
 
 glib_dep = dependency('glib-2.0', version: '>= 2.38')
 gobject_dep = dependency('gobject-2.0', version: '>= 2.38')
@@ -87,8 +90,8 @@ deps = [
         gstbase_dep,
         gstnet_dep,
         gstcontroller_dep,
-        gstplayer_dep,
-        gsttag_dep,
+#        gstplayer_dep,
+#        gsttag_dep,
         vlc_dep,
         lua_dep]
 
@@ -124,6 +127,39 @@ cdata.set('DATADIR', '"@0@"'.format(get_option('datadir')))
 
 configure_file(output : 'config.h', configuration : cdata)
 
+compiler = meson.get_compiler('c')
+
+code = '''
+  #include <stdio.h>
+  #include <lua.h>
+  #include <lualib.h>
+  #include <lauxlib.h>
+
+  int main(int argc, char **argv)
+  {
+    lua_State* l;
+    l = luaL_newstate();
+    luaL_openlibs(l);
+    if(luaL_dostring(l, "local http = require \"http.request\""))
+    {
+      printf("Couldn't load file: %s\n", lua_tostring(l, -1));
+      lua_close(l);
+      return -1;
+    }
+    lua_close(l);
+    printf("SUCCESS");
+    return 0;
+  }
+'''
+
+flags = run_command('pkg-config','--cflags','--libs','lua5.3')
+a_flags = flags.stdout().strip().split(' ')
+
+result = compiler.run(code, args : a_flags, name : 'lua5.3 has http plugin')
+if result.returncode() != 0 or result.compiled() == false
+  error('Lua HTTP support not installed: ' + result.stdout())
+endif
+
 exe = executable('gipcamviewer', sources, dependencies : deps, install : true)
 
 ui_data_files = [
@@ -149,7 +185,7 @@ fonts_data_files = [
                'resources/fonts/material/MaterialIcons-Regular.ttf'
              ]
 
-install_data(fonts_data_files, install_dir : join_paths(get_option('datadir'),'gipcamviewer','fonts', 'material'))
+install_data(fonts_data_files, install_dir : join_paths('/usr','share','fonts', 'truetype', 'material'))
 
 drivers_data_files = [
                'resources/drivers/FOSCAM_FI8918W.json',

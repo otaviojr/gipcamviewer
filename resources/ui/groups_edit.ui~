@@ -20,9 +20,7 @@
             <child>
               <object class="GtkListBox" id="groups_list_widget">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="has_focus">True</property>
-                <property name="is_focus">True</property>
+                <property name="can_focus">False</property>
               </object>
             </child>
           </object>
@@ -73,9 +71,6 @@
             <property name="position">1</property>
           </packing>
         </child>
-        <style>
-          <class name="list-option-buttons"/>
-        </style>
       </object>
       <packing>
         <property name="expand">False</property>

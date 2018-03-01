@@ -372,27 +372,28 @@ gtk_ipcam_camera_driver_obj_init_driver(GtkIpcamCameraDriverObj * self, GtkIpcam
     if(lua_pcall(l,0,2,0) != 0)
     {
       printf("error running function `driver_get_base_url': %s\n", lua_tostring(l, -1));
-      return ret;
     }
-
-    if(lua_isstring(l, -1))
+    else
     {
-      g_value_reset(&self->base_url);
-      g_value_set_string(&self->base_url, lua_tostring(l,-1));
-      printf("`driver_get_base_url' returned url %s\n", g_value_get_string(&self->base_url));
-      ret = TRUE;
-    }
+      if(lua_isstring(l, -1))
+      {
+        g_value_reset(&self->base_url);
+        g_value_set_string(&self->base_url, lua_tostring(l,-1));
+        printf("`driver_get_base_url' returned url %s\n", g_value_get_string(&self->base_url));
+        ret = TRUE;
+      }
 
-    if(lua_isstring(l, -2))
-    {
-      g_value_reset(&self->base_media_url);
-      g_value_set_string(&self->base_media_url, lua_tostring(l,-2));
-      printf("`driver_get_base_url' returned media url %s\n", g_value_get_string(&self->base_media_url));
-      ret = TRUE;
+      if(lua_isstring(l, -2))
+      {
+        g_value_reset(&self->base_media_url);
+        g_value_set_string(&self->base_media_url, lua_tostring(l,-2));
+        printf("`driver_get_base_url' returned media url %s\n", g_value_get_string(&self->base_media_url));
+        ret = TRUE;
+      }
+      lua_pop(l,2);
     }
-    lua_pop(l,2);
+    lua_close(l);
   }
-  lua_close(l);
   return ret;
 }
 
@@ -419,8 +420,8 @@ gtk_ipcam_camera_driver_obj_get_stream_url(GtkIpcamCameraDriverObj * self, GtkIp
       printf("`driver_get_stream_url' returned %s\n", ret);
     }
     lua_pop(l,1);
+    lua_close(l);
   }
-  lua_close(l);
   return ret;
 }
 
@@ -447,8 +448,8 @@ gtk_ipcam_camera_driver_obj_move_up(GtkIpcamCameraDriverObj * self, GtkIpcamCame
       printf("`driver_move_up' returned %i\n", ret);
     }
     lua_pop(l,1);
+    lua_close(l);
   }
-  lua_close(l);
   return ret;
 }
 
@@ -475,8 +476,8 @@ gtk_ipcam_camera_driver_obj_move_down(GtkIpcamCameraDriverObj * self, GtkIpcamCa
       printf("`driver_move_down' returned %i\n", ret);
     }
     lua_pop(l,1);
+    lua_close(l);
   }
-  lua_close(l);
   return ret;
 }
 
@@ -503,8 +504,8 @@ gtk_ipcam_camera_driver_obj_move_left(GtkIpcamCameraDriverObj * self, GtkIpcamCa
       printf("`driver_move_left' returned %i\n", ret);
     }
     lua_pop(l,1);
+    lua_close(l);
   }
-  lua_close(l);
   return ret;
 }
 
@@ -531,8 +532,8 @@ gtk_ipcam_camera_driver_obj_move_right(GtkIpcamCameraDriverObj * self, GtkIpcamC
       printf("`driver_move_right' returned %i\n", ret);
     }
     lua_pop(l,1);
+    lua_close(l);
   }
-  lua_close(l);
   return ret;
 }
 
@@ -559,8 +560,8 @@ gtk_ipcam_camera_driver_obj_is_flipped(GtkIpcamCameraDriverObj * self, GtkIpcamC
       printf("`driver_is_flipped' returned %i\n", ret);
     }
     lua_pop(l,1);
+    lua_close(l);
   }
-  lua_close(l);
   return ret;
 }
 
@@ -587,8 +588,8 @@ gtk_ipcam_camera_driver_obj_is_mirrored(GtkIpcamCameraDriverObj * self, GtkIpcam
       printf("`driver_is_mirrored' returned %i\n", ret);
     }
     lua_pop(l,1);
+    lua_close(l);
   }
-  lua_close(l);
   return ret;
 }
 
@@ -608,9 +609,8 @@ gtk_ipcam_camera_driver_obj_can_tilt(GtkIpcamCameraDriverObj * self, GtkIpcamCam
       {
         ret=TRUE;
       }
+      lua_close(l);
     }
-
-    lua_close(l);
   }
   return ret;
 }
@@ -631,9 +631,8 @@ gtk_ipcam_camera_driver_obj_can_pan(GtkIpcamCameraDriverObj * self, GtkIpcamCame
       {
           ret=TRUE;
       }
+      lua_close(l);
     }
-
-    lua_close(l);
   }
   return ret;
 }

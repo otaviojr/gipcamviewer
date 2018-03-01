@@ -27,7 +27,6 @@
 #include <gdk/gdk.h>
 #include<pango/pangocairo.h>
 
-#include <gst/player/player.h>
 #include "gtk_vlc_player.h"
 #include "gtk_ipcam_player.h"
 
@@ -57,6 +56,7 @@ typedef struct
   GtkWidget* group_list_title_widget;
   GtkWidget* main_popover_mennu_widget;
   guint cameras_count;
+  guint cameras_total_group;
 
   GtkIpcamPreferenceObj* preference;
 
@@ -141,6 +141,8 @@ create_cameras(GtkIpcamViewerWindow * win)
   gint active_group = gtk_combo_box_get_active(GTK_COMBO_BOX(win->group_list_title_widget));
   GtkIpcamCameraGroupObj* group = GTK_IPCAM_CAMERA_GROUP_OBJ(gtk_ipcam_preference_obj_get_camera_group_by_index(win->preference,active_group));
 
+  win->cameras_total_group = gtk_ipcam_camera_group_obj_get_cameras_count(group);
+
   g_assert(GTK_IS_IPCAM_CAMERA_GROUP_OBJ(group));
 
   win->g_players = g_ptr_array_new();
@@ -189,6 +191,11 @@ layout_camera(gpointer data, gpointer user_data)
    * TODO: improve layout with not even configurations, maybe, pagination, etc..
    */
   guint grid_width=2;
+
+  if(win->cameras_total_group > 4){
+    grid_width = 3;
+  }
+
   guint row = 0, col = 0, width = 1, height = 1;
 
   row = floor(win->cameras_count/grid_width);
