@@ -156,7 +156,7 @@ create_vlc_instance(void)
 	vlc_argv[vlc_argc++] = g_strdup("--no-xlib");
 	vlc_argv[vlc_argc++] = g_strdup("--no-mouse-events");
 	//vlc_argv[vlc_argc++] = g_strdup("--no-skip-frames");
-	vlc_argv[vlc_argc++] = g_strdup("--network-caching=1000");
+	vlc_argv[vlc_argc++] = g_strdup("--network-caching=2000");
 	//vlc_argv[vlc_argc++] = g_strdup("--no-mouse-events");
 	//vlc_argv[vlc_argc++] = g_strdup("--rtsp-tcp");
 	//vlc_argv[vlc_argc++] = g_strdup("--avcodec-hw=any");
@@ -475,7 +475,7 @@ vlc_media_player_error(const struct libvlc_event_t *event, void *user_data)
 static void
 vlc_player_load_media(GtkVlcPlayer *player, libvlc_media_t *media)
 {
-	libvlc_media_parse(media);
+	libvlc_media_parse_with_options(media, libvlc_media_parse_network | libvlc_media_fetch_network, 60);
 	libvlc_media_player_set_media(player->priv->media_player, media);
 
 	/* NOTE: media was parsed so get_duration works */

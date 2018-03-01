@@ -71,7 +71,7 @@ gmodule_dep = dependency('gmodule-2.0')
 glibjson_dep = dependency('json-glib-1.0')
 
 #VLC Dependencies
-vlc_dep = dependency('libvlc', version: '>=2.0')
+vlc_dep = dependency('libvlc', version: '>=3.0')
 
 #Lua deps
 lua_dep = dependency('lua-5.3')
