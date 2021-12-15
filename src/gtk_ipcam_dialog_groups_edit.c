@@ -23,7 +23,6 @@
 
 #include "gtk_ipcam_dialog_cameras_edit.h"
 #include "gtk_ipcam_dialog_groups_edit.h"
-#include "gtk_ipcam_dialog_groups_add.h"
 
 static GtkIpcamCameraGroupObj*
 get_current_group(GtkIpcamDialogGroupEditInfo* info)
@@ -49,20 +48,21 @@ add_group(gpointer data, gpointer user_data)
   GtkWidget* label = gtk_label_new(gtk_ipcam_camera_group_obj_get_name(group));
   gtk_widget_set_hexpand(label, TRUE);
   gtk_label_set_xalign(GTK_LABEL(label), 0.0);
-  gtk_container_add(GTK_CONTAINER(row),label);
-  gtk_widget_show_all(row);
+  gtk_box_append(GTK_BOX(row),label);
+  gtk_widget_show(row);
   gtk_list_box_insert(GTK_LIST_BOX(info->groups_list_widget),row,-1);
 }
 
 static void
 empty_groups_list(GtkIpcamDialogGroupEditInfo* info)
 {
-  GList *children, *iter;
+  GtkWidget *iter;
 
-  children = gtk_container_get_children(GTK_CONTAINER(info->groups_list_widget));
-  for(iter = children; iter != NULL; iter = g_list_next(iter))
-    gtk_container_remove(GTK_CONTAINER(info->groups_list_widget),GTK_WIDGET(iter->data));
-  g_list_free(children);
+  for(iter = gtk_widget_get_first_child(GTK_WIDGET(info->groups_list_widget));
+      iter != NULL;
+      iter = gtk_widget_get_next_sibling(iter))
+
+    gtk_list_box_remove(GTK_LIST_BOX(info->groups_list_widget),GTK_WIDGET(iter));
 }
 
 static void
@@ -85,25 +85,46 @@ rebuild_group_list(GtkIpcamDialogGroupEditInfo* info)
 /* GROUP LIST END */
 
 static void
-add_group_btn_callback(GtkButton* button, gpointer user_data)
+add_new_group_callback(GtkIpcamDialogGroupAdd* group_add_dialog, GValue* name, gpointer user_data)
 {
-  GValue name = G_VALUE_INIT;
   GtkIpcamDialogGroupEditInfo* info = (GtkIpcamDialogGroupEditInfo*)user_data;
 
-  gtk_ipcam_dialog_groups_add_new(info->groups_dialog, &name);
-  if(G_VALUE_TYPE(&name) == G_TYPE_STRING)
+  if(G_VALUE_TYPE(name) == G_TYPE_STRING)
   {
-    printf("Adding group with name %s\n",g_value_get_string(&name));
-    gint pos = gtk_ipcam_preference_obj_add_camera_group(info->preference, g_value_get_string(&name));
-    g_value_unset(&name);
+    printf("Adding group with name %s\n",g_value_get_string(name));
+    gint pos = gtk_ipcam_preference_obj_add_camera_group(info->preference, g_value_get_string(name));
+    g_value_unset(name);
     rebuild_group_list(info);
     GtkListBoxRow* row = gtk_list_box_get_row_at_index(GTK_LIST_BOX(info->groups_list_widget),pos);
     if(row != NULL)
     {
       gtk_list_box_select_row(GTK_LIST_BOX(info->groups_list_widget),row);
     }
-    printf("add_group_btn_callback\n");
+    printf("add_new_camera_callback\n");
   }
+}
+
+static void
+add_group_btn_callback(GtkButton* button, gpointer user_data)
+{
+  GtkIpcamDialogGroupEditInfo* info = (GtkIpcamDialogGroupEditInfo*)user_data;
+  gtk_ipcam_dialog_group_add_show(info->group_add_dialog, info->groups_dialog);
+}
+
+static void
+del_group_btn_callback_response(GtkDialog *dialog,
+                    int        response,
+                    gpointer   user_data)
+{
+  switch (response)
+  {
+    case GTK_RESPONSE_OK:
+       break;
+    default:
+       break;
+  }
+
+  gtk_window_destroy (GTK_WINDOW (dialog));
 }
 
 static void
@@ -125,74 +146,17 @@ del_group_btn_callback(GtkButton* button, gpointer user_data)
   context = gtk_widget_get_style_context(GTK_WIDGET(dialog));
   gtk_style_context_add_class(context,"message-dialog");
 
-  gint result = gtk_dialog_run(GTK_DIALOG(dialog));
-  switch (result)
-  {
-    case GTK_RESPONSE_YES:
-      gtk_ipcam_preference_obj_del_group(info->preference, group);
-      rebuild_group_list(info);
-      break;
-
-    default:
-      break;
-  }
-  gtk_widget_destroy(dialog);
+  g_signal_connect(GTK_DIALOG(dialog), "response", G_CALLBACK (del_group_btn_callback_response), NULL);
+  gtk_widget_show(GTK_DIALOG(dialog));
 }
 
-void
-gtk_ipcam_dialog_groups_edit_new(GtkIpcamDialogCameraEditInfo* info)
+static void
+gtk_ipcam_dialog_groups_edit_new_response(GtkDialog *dialog,
+                    int        response,
+                    gpointer   user_data)
 {
-  GtkIpcamDialogGroupEditInfo group_edit_info;
-  group_edit_info.preference = info->preference;
-
-  GtkStyleContext *context;
-  group_edit_info.builder = gtk_builder_new();
-  gchar* filename = g_build_filename(PREFIX,DATADIR,"gipcamviewer","resources","ui","groups_edit.ui",NULL);
-  gtk_builder_add_from_file(group_edit_info.builder,filename,NULL);
-  group_edit_info.groups_edit_widget = GTK_WIDGET(gtk_builder_get_object(group_edit_info.builder,"groups_edit_widget"));
-  group_edit_info.groups_list_widget = GTK_WIDGET(gtk_builder_get_object(group_edit_info.builder,"groups_list_widget"));
-
-  /* Action buttons */
-  group_edit_info.add_group_btn_widget = GTK_WIDGET(gtk_builder_get_object(group_edit_info.builder,"add_group_btn_widget"));
-  group_edit_info.del_group_btn_widget = GTK_WIDGET(gtk_builder_get_object(group_edit_info.builder,"del_group_btn_widget"));
-  g_signal_connect(group_edit_info.add_group_btn_widget, "clicked", G_CALLBACK(add_group_btn_callback), &group_edit_info);
-  g_signal_connect(group_edit_info.del_group_btn_widget, "clicked", G_CALLBACK(del_group_btn_callback), &group_edit_info);
-  /* Action buttons End*/
-
-  g_free(filename);
-
-  gtk_builder_connect_signals(group_edit_info.builder, NULL);
-
-  group_edit_info.groups_dialog = gtk_dialog_new_with_buttons(gettext("Groups Manager"),
-                                    GTK_WINDOW(info->cameras_edit_dialog),
-                                    GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_MODAL | GTK_DIALOG_USE_HEADER_BAR,
-                                    "\uE876",
-                                    GTK_RESPONSE_OK,
-                                    NULL);
-
-  GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_dialog_get_header_bar(GTK_DIALOG(group_edit_info.groups_dialog)));
-  context = gtk_widget_get_style_context(GTK_WIDGET(header_bar));
-  gtk_style_context_add_class(context,"dialog-header");
-  gtk_header_bar_set_show_close_button(header_bar, FALSE);
-
-  GtkWidget* ok_button = gtk_dialog_get_widget_for_response(GTK_DIALOG(group_edit_info.groups_dialog),GTK_RESPONSE_OK);
-  context = gtk_widget_get_style_context(GTK_WIDGET(ok_button));
-  gtk_style_context_add_class(context,"icon-button");
-
-  context = gtk_widget_get_style_context(GTK_WIDGET(group_edit_info.groups_dialog));
-  gtk_style_context_add_class(context,"dialog-content");
-
-  gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(group_edit_info.groups_dialog))), group_edit_info.groups_edit_widget, TRUE, TRUE, 0);
-  gtk_dialog_set_default_response(GTK_DIALOG(group_edit_info.groups_dialog),GTK_RESPONSE_OK);
-
-  gtk_window_set_resizable(GTK_WINDOW(group_edit_info.groups_dialog), FALSE);
-
-  gtk_widget_show_all(group_edit_info.groups_edit_widget);
-
-  rebuild_group_list(&group_edit_info);
-
-  gint result = gtk_dialog_run(GTK_DIALOG(group_edit_info.groups_dialog));
-  switch (result)
+  GtkIpcamDialogGroupEditInfo* group_edit_info = (GtkIpcamDialogGroupEditInfo*)user_data;
+  switch (response)
   {
     case GTK_RESPONSE_OK:
        break;
@@ -200,6 +164,63 @@ gtk_ipcam_dialog_groups_edit_new(GtkIpcamDialogCameraEditInfo* info)
        break;
   }
 
-  gtk_widget_destroy(GTK_WIDGET(group_edit_info.groups_dialog));
-  g_object_unref(group_edit_info.builder);
+  gtk_window_destroy (GTK_WINDOW (dialog));
+  g_object_unref(group_edit_info->builder);
+}
+
+void
+gtk_ipcam_dialog_groups_edit_new(GtkIpcamDialogCameraEditInfo* info)
+{
+  GtkIpcamDialogGroupEditInfo* group_edit_info = g_new(GtkIpcamDialogGroupEditInfo,1);
+  group_edit_info->preference = info->preference;
+
+  GtkStyleContext *context;
+  group_edit_info->builder = gtk_builder_new();
+  gchar* filename = g_build_filename(PREFIX,DATADIR,"gipcamviewer","resources","ui","groups_edit.ui",NULL);
+  gtk_builder_add_from_file(group_edit_info->builder,filename,NULL);
+  group_edit_info->groups_edit_widget = GTK_WIDGET(gtk_builder_get_object(group_edit_info->builder,"groups_edit_widget"));
+  group_edit_info->groups_list_widget = GTK_WIDGET(gtk_builder_get_object(group_edit_info->builder,"groups_list_widget"));
+
+  /* Action buttons */
+  group_edit_info->add_group_btn_widget = GTK_WIDGET(gtk_builder_get_object(group_edit_info->builder,"add_group_btn_widget"));
+  group_edit_info->del_group_btn_widget = GTK_WIDGET(gtk_builder_get_object(group_edit_info->builder,"del_group_btn_widget"));
+  g_signal_connect(group_edit_info->add_group_btn_widget, "clicked", G_CALLBACK(add_group_btn_callback), group_edit_info);
+  g_signal_connect(group_edit_info->del_group_btn_widget, "clicked", G_CALLBACK(del_group_btn_callback), group_edit_info);
+  /* Action buttons End*/
+
+  g_free(filename);
+
+  group_edit_info->groups_dialog = gtk_dialog_new_with_buttons(gettext("Groups Manager"),
+                                    GTK_WINDOW(info->cameras_edit_dialog),
+                                    GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_MODAL | GTK_DIALOG_USE_HEADER_BAR,
+                                    "\uE876",
+                                    GTK_RESPONSE_OK,
+                                    NULL);
+
+  GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_dialog_get_header_bar(GTK_DIALOG(group_edit_info->groups_dialog)));
+  context = gtk_widget_get_style_context(GTK_WIDGET(header_bar));
+  gtk_style_context_add_class(context,"dialog-header");
+  gtk_header_bar_set_show_title_buttons(header_bar, FALSE);
+
+  GtkWidget* ok_button = gtk_dialog_get_widget_for_response(GTK_DIALOG(group_edit_info->groups_dialog),GTK_RESPONSE_OK);
+  context = gtk_widget_get_style_context(GTK_WIDGET(ok_button));
+  gtk_style_context_add_class(context,"icon-button");
+
+  context = gtk_widget_get_style_context(GTK_WIDGET(group_edit_info->groups_dialog));
+  gtk_style_context_add_class(context,"dialog-content");
+
+  gtk_box_append(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(group_edit_info->groups_dialog))), group_edit_info->groups_edit_widget);
+  gtk_dialog_set_default_response(GTK_DIALOG(group_edit_info->groups_dialog),GTK_RESPONSE_OK);
+
+  gtk_window_set_resizable(GTK_WINDOW(group_edit_info->groups_dialog), FALSE);
+
+  gtk_widget_show(group_edit_info->groups_edit_widget);
+
+  rebuild_group_list(&group_edit_info);
+
+  group_edit_info->group_add_dialog = gtk_ipcam_dialog_group_add_new();
+  g_signal_connect(group_edit_info->group_add_dialog, "new-camera", G_CALLBACK(add_new_group_callback), group_edit_info);
+
+  g_signal_connect(GTK_DIALOG(group_edit_info->groups_dialog), "response", G_CALLBACK (gtk_ipcam_dialog_groups_edit_new_response), group_edit_info);
+  gtk_widget_show(GTK_DIALOG(group_edit_info->groups_dialog));
 }

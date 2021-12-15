@@ -131,8 +131,7 @@ destroy_player(gpointer data)
 {
   g_assert(GTK_IS_IPCAM_PLAYER(data));
   GtkIpcamPlayer * player = GTK_IPCAM_PLAYER(data);
-  gtk_widget_destroy(GTK_WIDGET(player));
-  //g_object_unref(camera);
+  g_object_unref(player);
 }
 
 static void
@@ -174,7 +173,7 @@ layout_remove_camera(gpointer data, gpointer user_data)
   if(GTK_IS_GRID(win->cameras_area))
   {
     g_object_ref(player);
-    gtk_container_remove(GTK_CONTAINER(win->cameras_area), GTK_WIDGET(player));
+    gtk_grid_remove(GTK_WIDGET(win->cameras_area), GTK_WIDGET(player));
     printf("camera removed\n");
   }
 }
@@ -204,7 +203,7 @@ layout_camera(gpointer data, gpointer user_data)
   if(GTK_IS_GRID(win->cameras_area))
   {
     gtk_grid_attach(win->cameras_area, GTK_WIDGET(player), col, row, width, height);
-    gtk_widget_show_all(GTK_WIDGET(player));
+    gtk_widget_show(GTK_WIDGET(player));
     gtk_ipcam_player_load(player);
     g_object_unref(player);
   }
@@ -224,14 +223,14 @@ layout_cameras(GtkIpcamViewerWindow * win)
 
   if(gtk_ipcam_camera_group_obj_get_cameras_count(group) > 0)
   {
-    gtk_container_remove(GTK_CONTAINER(win->cameras_area), win->null_layer);
+    gtk_grid_remove(GTK_WIDGET(win->cameras_area), win->null_layer);
     win->cameras_count = 0;
     g_ptr_array_foreach(win->g_players, layout_camera, win);
   } else {
     if(GTK_IS_GRID(win->cameras_area))
     {
       gtk_grid_attach(win->cameras_area, win->null_layer, 1, 1, 1, 1);
-      gtk_widget_show_all(win->null_layer);
+      gtk_widget_show(win->null_layer);
     }
   }
 }
@@ -271,49 +270,17 @@ refresh_cameras_area(GtkComboBox* combo, gpointer user_data)
 static void
 create_ui(GtkIpcamViewerWindow * win)
 {
-  GdkMonitor* monitor = gdk_display_get_monitor_at_window(gdk_display_get_default(), gtk_widget_get_window(GTK_WIDGET(win)));
-
-  gint width = gtk_ipcam_preference_obj_get_width(win->preference);
-  gint height = gtk_ipcam_preference_obj_get_height(win->preference);
-
-  GdkRectangle area;
-  gdk_monitor_get_workarea(monitor,&area);
-
-  if(width <= 0) {
-    width = 800;
-  }
-
-  if(width > area.width){
-    width = area.width;
-  }
-
-  if(height > area.height){
-    height = area.height;
-  }
-
-  if(height <= 0) {
-    height = 600;
-  }
-
-  gtk_window_set_position(GTK_WINDOW (win), GTK_WIN_POS_CENTER);
-  gtk_window_set_default_size (GTK_WINDOW (win), width, height);
-
-  //g_signal_connect (G_OBJECT (play), "delete-event",
-  //    G_CALLBACK (delete_event_cb), play);
-
-  //gtk_widget_set_events (GTK_WIDGET (play),
-  //    GDK_KEY_RELEASE_MASK | GDK_KEY_PRESS_MASK);
-  //g_signal_connect (G_OBJECT (play), "key-press-event",
-  //    G_CALLBACK (key_press_event_cb), NULL);
-
-  GtkBuilder* builder = gtk_builder_new();
   gchar* filename = g_build_filename(PREFIX,DATADIR,"gipcamviewer","resources","ui","main_header.ui",NULL);
-  gtk_builder_add_from_file(builder,filename,NULL);
+  GtkBuilder* builder = gtk_builder_new_from_file(filename);
   GtkWidget* header = GTK_WIDGET(gtk_builder_get_object(builder,"main_header"));
   GtkWidget* add_new_camera_button = GTK_WIDGET(gtk_builder_get_object(builder,"add_new_camera_button"));
   GtkWidget* preferences_button = GTK_WIDGET(gtk_builder_get_object(builder,"preferences_button"));
   win->group_list_title_widget = GTK_WIDGET(gtk_builder_get_object(builder,"group_list_title"));
   g_free(filename);
+
+  g_assert(header != NULL);
+  g_assert(add_new_camera_button != NULL);
+  g_assert(preferences_button != NULL);
 
   g_signal_connect(header, "draw", G_CALLBACK(draw_titlebar), NULL);
   g_signal_connect(add_new_camera_button, "clicked", G_CALLBACK(gtk_ipcam_camera_edit_callback), win);
@@ -335,82 +302,52 @@ create_ui(GtkIpcamViewerWindow * win)
   gtk_application_add_window (GTK_APPLICATION (g_application_get_default ()),
       GTK_WINDOW (win));
 
+  g_object_unref(builder);
+
   filename = g_build_filename(PREFIX,DATADIR,"gipcamviewer","resources","ui","main_area.ui",NULL);
-  gtk_builder_add_from_file(builder,filename,NULL);
+  builder = gtk_builder_new_from_file(filename);
+
   win->main_area = GTK_BOX(gtk_builder_get_object(builder,"main_area"));
   win->cameras_area = GTK_GRID(gtk_builder_get_object(builder,"cameras_area"));
   GtkWidget* properties = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_properties"));
   g_free(filename);
 
-  g_assert(win->main_area != NULL);
   g_assert(win->cameras_area != NULL);
+  g_assert(win->main_area != NULL);
 
-  gtk_container_add(GTK_CONTAINER(win),GTK_WIDGET(win->main_area));
   /*
    * I will not handle this to 1.0v. But, let it here.
    * Could be used in a later version
    */
-  gtk_container_remove(GTK_CONTAINER(win->main_area),GTK_WIDGET(properties));
+  gtk_box_remove(GTK_BOX(win->main_area),GTK_WIDGET(properties));
 
-  gtk_builder_connect_signals(builder, NULL);
+  gtk_window_set_child(GTK_WINDOW(win),GTK_WIDGET(win->main_area));
+
+  //gtk_builder_connect_signals(builder, NULL);
   g_object_unref(builder);
 
-  builder = gtk_builder_new();
   filename = g_build_filename(PREFIX,DATADIR,"gipcamviewer","resources","ui","null_layer.ui",NULL);
-  gtk_builder_add_from_file(builder,filename,NULL);
+  builder = gtk_builder_new_from_file(filename);
   win->null_layer = GTK_WIDGET(gtk_builder_get_object(builder,"null_layer"));
   g_object_ref(win->null_layer);
   g_free(filename);
-  gtk_builder_connect_signals(builder, NULL);
+  //gtk_builder_connect_signals(builder, NULL);
   g_object_unref(builder);
 
 
-  builder = gtk_builder_new();
   filename = g_build_filename(PREFIX,DATADIR,"gipcamviewer","resources","ui","main_popover_menu.ui",NULL);
-  gtk_builder_add_from_file(builder,filename,NULL);
+  builder = gtk_builder_new_from_file(filename);
   win->main_popover_mennu_widget = GTK_WIDGET(gtk_builder_get_object(builder,"main_popover_menu_widget"));
   GtkWidget* refresh_button = GTK_WIDGET(gtk_builder_get_object(builder,"main_popover_menu_reload_button"));
   g_object_ref(win->main_popover_mennu_widget);
   g_free(filename);
-  gtk_builder_connect_signals(builder, NULL);
   g_object_unref(builder);
 
-  gtk_popover_set_relative_to(GTK_POPOVER(win->main_popover_mennu_widget),preferences_button);
+  gtk_widget_set_parent(GTK_WIDGET(win->main_popover_mennu_widget), GTK_WIDGET(preferences_button));
+  //gtk_popover_set_pointing_to(GTK_POPOVER(win->main_popover_mennu_widget),preferences_button);
   g_signal_connect(refresh_button, "clicked", G_CALLBACK(gtk_ipcam_reload_callback), win);
 
   layout_cameras(win);
-
-  //GstPlayer* player;
-
-  //player = gtk_ipcam_player_get_player(win->g_player);
-  //gst_player_set_uri (player, "http://otacasa.getmyip.com:3002/videostream.cgi?user=admin&pwd=ota1808&rate=25");
-  //gst_player_play (player);
-  //gst_player_set_rate(player,25);
-
-  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player))),"http://otacasa.getmyip.com:3002/videostream.cgi?user=admin&pwd=ota1808&rate=25");
-
-  //player = gtk_ipcam_player_get_player(win->g_player1);
-  //gst_player_set_uri (player, "http://otacasa.getmyip.com:3003/videostream.cgi?user=admin&pwd=ota1808&rate=25");
-  //gst_player_play (player);
-  //gst_player_set_rate(player,25);
-  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player1))),"http://otacasa.getmyip.com:3003/videostream.cgi?user=admin&pwd=ota1808&rate=25");
-
-  //player = gtk_ipcam_player_get_player(win->g_player2);
-  //gst_player_set_uri (player, "http://otacasa.getmyip.com:3004/videostream.cgi?user=admin&pwd=ota1808&rate=25");
-  //gst_player_play (player);
-  //gst_player_set_rate(player,25);
-  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player2))),"http://otacasa.getmyip.com:3004/videostream.cgi?user=admin&pwd=ota1808&rate=25");
-
-  //player = gtk_ipcam_player_get_player(win->g_player3);
-  //gst_player_set_uri (player, "rtsp://otaviojr:ota180879@otacasa.getmyip.com:3011/videoMain");
-  //gst_player_play (player);
-  //gst_player_set_rate(player,25);
-  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player3))),"rtsp://otaviojr:ota180879@otacasa.getmyip.com:3011/videoMain");
-
-  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player))));
-  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player1))));
-  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player2))));
-  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player3))));
 }
 
 static void
@@ -418,8 +355,8 @@ attach_style(GtkIpcamViewerWindow * win)
 {
   GtkCssProvider *cssProvider = gtk_css_provider_new();
   gchar* filename = g_build_filename(PREFIX,DATADIR,"gipcamviewer","resources","css","main.css",NULL);
-  gtk_css_provider_load_from_path(cssProvider, filename, NULL);
-  gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
+  gtk_css_provider_load_from_path(cssProvider, filename);
+  gtk_style_context_add_provider_for_display(gdk_display_get_default(),
                                               GTK_STYLE_PROVIDER(cssProvider),
                                               GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
   g_free(filename);
@@ -452,12 +389,12 @@ gtk_ipcam_viewer_window_dispose (GObject * object)
 
   if(self->preference){
     gint width, height, left, top;
-    gtk_window_get_size(GTK_WINDOW(self),&width,&height);
-    gtk_window_get_position(GTK_WINDOW(self),&left,&top);
+    gtk_window_get_default_size(GTK_WINDOW(self),&width,&height);
+    //gtk_window_get_position(GTK_WINDOW(self),&left,&top);
     gtk_ipcam_preference_obj_set_width(self->preference, width);
     gtk_ipcam_preference_obj_set_height(self->preference, height);
-    gtk_ipcam_preference_obj_set_left(self->preference, left);
-    gtk_ipcam_preference_obj_set_top(self->preference, top);
+    //gtk_ipcam_preference_obj_set_left(self->preference, left);
+    //gtk_ipcam_preference_obj_set_top(self->preference, top);
     gtk_ipcam_preference_obj_save(self->preference, FALSE);
     g_object_unref(self->preference);
   }
@@ -518,7 +455,7 @@ gtk_ipcam_viewer_app_command_line (GApplication * application,
 
   win =
       g_object_new (gtk_ipcam_viewer_window_get_type (), NULL);
-  gtk_widget_show_all(GTK_WIDGET (win));
+  gtk_widget_show(GTK_WIDGET (win));
 
   return
       G_APPLICATION_CLASS (gtk_ipcam_viewer_app_parent_class)->command_line
@@ -543,8 +480,6 @@ gtk_ipcam_viewer_app_new(void)
       "register-session", TRUE, NULL);
 
   g_application_set_default (G_APPLICATION (self));
-  //g_application_add_option_group (G_APPLICATION (self),
-  //    gst_init_get_option_group ());
 
   return self;
 }

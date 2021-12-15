@@ -20,7 +20,22 @@
 
 #include "gtk_ipcam_util.h"
 
-void  gtk_ipcam_dialog_cameras_add_new(GtkWidget* parent, GValue* ret);
+typedef struct _GtkIpcamDialogCameraAdd
+    GtkIpcamDialogCameraAdd;
+typedef struct _GtkIpcamDialogCameraAddClass
+    GtkIpcamDialogCameraAddClass;
 
+#define GTK_TYPE_IPCAM_DIALOG_CAMERA_ADD                     (gtk_ipcam_dialog_camera_add_get_type ())
+#define GTK_IS_IPCAM_DIALOG_CAMERA_ADD(obj)                  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_IPCAM_DIALOG_CAMERA_ADD))
+#define GTK_IS_IPCAM_DIALOG_CAMERA_ADD_CLASS(klass)          (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_IPCAM_DIALOG_CAMERA_ADD))
+#define GTK_IPCAM_DIALOG_CAMERA_ADD_GET_CLASS(obj)           (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_IPCAM_DIALOG_CAMERA_ADD, GtkIpcamDialogCameraAddClass))
+#define GTK_IPCAM_DIALOG_CAMERA_ADD(obj)                     (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_IPCAM_DIALOG_CAMERA_ADD, GtkIpcamDialogCameraAdd))
+#define GTK_IPCAM_DIALOG_CAMERA_ADD_CLASS(klass)             (G_TYPE_CHECK_CLASS_CAST ((klass), GTK_TYPE_IPCAM_DIALOG_CAMERA_ADD, GtkIpcamDialogCameraAddClass))
+#define GTK_IPCAM_DIALOG_CAMERA_ADD_CAST(obj)                ((GtkIpcamDialogCameraAdd*)(obj))
+
+GType gtk_ipcam_dialog_camera_add_get_type(void);
+
+GtkIpcamDialogCameraAdd* gtk_ipcam_dialog_camera_add_new(void);
+void gtk_ipcam_dialog_cameras_add_show(GtkIpcamDialogCameraAdd* self, GtkWidget* parent);
 
 #endif //__GTK_IPCAM_DIALOG_CAMERAS_ADD_H__

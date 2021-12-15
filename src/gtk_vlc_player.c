@@ -27,7 +27,7 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
-#include <gdk/gdkx.h>
+#include <gdk/x11/gdkx.h>
 
 #include <vlc/vlc.h>
 #include <vlc/libvlc_version.h>
@@ -111,7 +111,7 @@ static guint gtk_vlc_player_signals[LAST_SIGNAL] = {0, 0};
  * Will create \e gtk_vlc_player_get_type and set
  * \e gtk_vlc_player_parent_class
  */
-G_DEFINE_TYPE(GtkVlcPlayer, gtk_vlc_player, GTK_TYPE_BIN);
+G_DEFINE_TYPE(GtkVlcPlayer, gtk_vlc_player, GTK_TYPE_WIDGET);
 
 static void
 gtk_vlc_player_class_init(GtkVlcPlayerClass *klass)
@@ -224,8 +224,8 @@ gtk_vlc_player_init(GtkVlcPlayer *klass)
 	g_signal_connect (G_OBJECT (klass->priv->drawing_area), "draw",
 			 G_CALLBACK (draw_callback), NULL);
 
-	gtk_container_add(GTK_CONTAINER(klass), klass->priv->drawing_area);
-	gtk_widget_show(klass->priv->drawing_area);
+  gtk_widget_set_parent(GTK_WIDGET(klass->priv->drawing_area), GTK_WIDGET(klass));
+	gtk_widget_show(GTK_WIDGET(klass->priv->drawing_area));
 	/*
 	 * drawing area will be destroyed automatically with the
 	 * GtkContainer/GtkVlcPlayer
@@ -325,10 +325,10 @@ static void
 widget_on_realize(GtkWidget *widget, gpointer user_data)
 {
 	GtkVlcPlayer *player = GTK_VLC_PLAYER(user_data);
-	GdkWindow *window = gtk_widget_get_window(widget);
+	GdkSurface *surface = gtk_native_get_surface(gtk_widget_get_native(widget));
 
 	libvlc_media_player_set_xwindow(player->priv->media_player,
-					GDK_WINDOW_XID(window));
+					GDK_SURFACE_XID(surface));
 	libvlc_set_fullscreen(player->priv->media_player, false);
 }
 
@@ -363,9 +363,9 @@ vol_adj_on_value_changed(GtkAdjustment *adj, gpointer user_data)
 static inline void
 set_transient_toplevel_window(GtkWindow *target, GtkWidget *widget)
 {
-	GtkWidget *toplevel = gtk_widget_get_toplevel(widget);
+	GtkRoot *toplevel = gtk_widget_get_root(widget);
 
-	if (gtk_widget_is_toplevel(toplevel) && GTK_IS_WINDOW(toplevel))
+	if (GTK_IS_ROOT(toplevel) && GTK_IS_WINDOW(toplevel))
 		gtk_window_set_transient_for(target, GTK_WINDOW(toplevel));
 }
 

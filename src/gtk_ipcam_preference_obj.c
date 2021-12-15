@@ -273,6 +273,14 @@ gtk_ipcam_preference_obj_new(void)
   return ret;
 }
 
+static void
+gtk_ipcam_preference_obj_response(GtkDialog *dialog,
+                    int        response,
+                    gpointer   user_data)
+{
+    gtk_window_destroy (GTK_WINDOW (dialog));
+}
+
 gboolean
 gtk_ipcam_preference_obj_save(GtkIpcamPreferenceObj* self, gboolean notify)
 {
@@ -289,8 +297,9 @@ gtk_ipcam_preference_obj_save(GtkIpcamPreferenceObj* self, gboolean notify)
                                       GTK_BUTTONS_CLOSE,
                                       "ERROR saving preference file\n%s",
                                       error->message);
-     gtk_dialog_run(GTK_DIALOG(dialog));
-     gtk_widget_destroy(dialog);
+
+     g_signal_connect (dialog, "response", G_CALLBACK (gtk_ipcam_preference_obj_response), NULL);
+     gtk_widget_show(dialog);
      g_free(error);
   }
 

@@ -22,7 +22,6 @@
 #include "config.h"
 
 #include "gtk_ipcam_dialog_cameras_edit.h"
-#include "gtk_ipcam_dialog_camera_add.h"
 
 static gboolean changed;
 static gint refresh_form(gpointer data);
@@ -63,22 +62,19 @@ edit_group_btn_callback(GtkButton* button, gpointer user_data)
 }
 
 static void
-add_camera_btn_callback(GtkButton* button, gpointer user_data)
+add_new_camera_callback(GtkIpcamDialogCameraAdd* camera_add_dialog, GValue* name, gpointer user_data)
 {
-  GValue name = G_VALUE_INIT;
   GtkIpcamDialogCameraEditInfo* info = (GtkIpcamDialogCameraEditInfo*)user_data;
   GtkIpcamCameraGroupObj* camera_group = get_current_camera_group(info);
 
   g_assert(camera_group != NULL);
 
-  gtk_ipcam_dialog_cameras_add_new(info->cameras_edit_dialog, &name);
-  if(G_VALUE_TYPE(&name) == G_TYPE_STRING)
+  if(G_VALUE_TYPE(name) == G_TYPE_STRING)
   {
-    printf("Adding camera with name %s\n",g_value_get_string(&name));
+    printf("Adding camera with name %s\n",g_value_get_string(name));
     GtkIpcamCameraObj* camera = gtk_ipcam_camera_obj_new();
-    gtk_ipcam_camera_obj_set_name(camera, g_value_get_string(&name));
+    gtk_ipcam_camera_obj_set_name(camera, g_value_get_string(name));
     gint pos = gtk_ipcam_camera_group_obj_add_camera(camera_group, camera);
-    g_value_unset(&name);
     rebuild_camera_list(info);
     GtkListBoxRow* row = gtk_list_box_get_row_at_index(GTK_LIST_BOX(info->camera_list_widget),pos);
     if(row != NULL)
@@ -91,11 +87,42 @@ add_camera_btn_callback(GtkButton* button, gpointer user_data)
 }
 
 static void
+add_camera_btn_callback(GtkButton* button, gpointer user_data)
+{
+  GtkIpcamDialogCameraEditInfo* info = (GtkIpcamDialogCameraEditInfo*)user_data;
+  gtk_ipcam_dialog_cameras_add_show(info->camera_add_dialog, info->cameras_edit_dialog);
+}
+
+static void
+del_camera_btn_response(GtkDialog *dialog,
+                    int        response,
+                    gpointer   user_data)
+{
+  GtkIpcamDialogCameraEditInfo* info = (GtkIpcamDialogCameraEditInfo*)user_data;
+  GtkIpcamCameraGroupObj* group;
+  GtkIpcamCameraObj* camera = get_current_camera(info);
+
+  switch (response)
+  {
+    case GTK_RESPONSE_YES:
+      group = get_current_camera_group(info);
+      gtk_ipcam_camera_group_obj_del_camera(group, camera);
+      rebuild_camera_list(info);
+      changed = TRUE;
+      break;
+
+    default:
+      break;
+  }
+
+  gtk_window_destroy (GTK_WINDOW (dialog));
+}
+
+static void
 del_camera_btn_callback(GtkButton* button, gpointer user_data)
 {
   GtkStyleContext *context;
   GtkIpcamDialogCameraEditInfo* info = (GtkIpcamDialogCameraEditInfo*)user_data;
-  GtkIpcamCameraGroupObj* group;
   GtkIpcamCameraObj* camera = get_current_camera(info);
 
   GtkWidget* dialog;
@@ -109,20 +136,8 @@ del_camera_btn_callback(GtkButton* button, gpointer user_data)
   context = gtk_widget_get_style_context(GTK_WIDGET(dialog));
   gtk_style_context_add_class(context,"message-dialog");
 
-  gint result = gtk_dialog_run(GTK_DIALOG(dialog));
-  switch (result)
-  {
-    case GTK_RESPONSE_YES:
-      group = get_current_camera_group(info);
-      gtk_ipcam_camera_group_obj_del_camera(group, camera);
-      rebuild_camera_list(info);
-      changed = TRUE;
-      break;
-
-    default:
-      break;
-  }
-  gtk_widget_destroy(dialog);
+  g_signal_connect (dialog, "response", G_CALLBACK (del_camera_btn_response), user_data);
+  gtk_widget_show(dialog);
 }
 
 static void
@@ -141,7 +156,7 @@ cameras_down_btn_callback(GtkButton* button, gpointer user_data)
     {
       g_object_ref(row);
       gtk_list_box_unselect_row(GTK_LIST_BOX(info->camera_list_widget),row);
-      gtk_container_remove(GTK_CONTAINER(info->camera_list_widget),GTK_WIDGET(row));
+      gtk_list_box_remove(GTK_LIST_BOX(info->camera_list_widget),GTK_WIDGET(row));
       gtk_ipcam_camera_group_obj_change_camera_pos(group,camera,camera_index+1);
       gtk_list_box_insert(GTK_LIST_BOX(info->camera_list_widget), GTK_WIDGET(row), camera_index+1);
       gtk_list_box_select_row(GTK_LIST_BOX(info->camera_list_widget),row);
@@ -168,7 +183,7 @@ cameras_up_btn_callback(GtkButton* button, gpointer user_data)
     {
       g_object_ref(row);
       gtk_list_box_unselect_row(GTK_LIST_BOX(info->camera_list_widget),row);
-      gtk_container_remove(GTK_CONTAINER(info->camera_list_widget),GTK_WIDGET(row));
+      gtk_list_box_remove(GTK_LIST_BOX(info->camera_list_widget),GTK_WIDGET(row));
       gtk_ipcam_camera_group_obj_change_camera_pos(group,camera,camera_index-1);
       gtk_list_box_insert(GTK_LIST_BOX(info->camera_list_widget), GTK_WIDGET(row), camera_index-1);
       gtk_list_box_select_row(GTK_LIST_BOX(info->camera_list_widget),row);
@@ -190,19 +205,19 @@ add_camera(gpointer data, gpointer user_data)
   GtkWidget* label = gtk_label_new(gtk_ipcam_camera_obj_get_name(camera));
   gtk_widget_set_hexpand (label, TRUE);
   gtk_label_set_xalign(GTK_LABEL(label), 0.0);
-  gtk_container_add(GTK_CONTAINER(row),label);
-  gtk_widget_show_all(row);
+  gtk_box_append(GTK_BOX(row),label);
+  gtk_widget_show(row);
   gtk_list_box_insert(GTK_LIST_BOX(info->camera_list_widget),row,-1);
 }
 
 static void
 empty_camera_list(GtkIpcamDialogCameraEditInfo* info) {
-  GList *children, *iter;
+  GtkWidget *iter;
 
-  children = gtk_container_get_children(GTK_CONTAINER(info->camera_list_widget));
-  for(iter = children; iter != NULL; iter = g_list_next(iter))
-    gtk_container_remove(GTK_CONTAINER(info->camera_list_widget),GTK_WIDGET(iter->data));
-  g_list_free(children);
+  for(iter = gtk_widget_get_first_child(GTK_WIDGET(info->camera_list_widget));
+      iter != NULL;
+      iter = gtk_widget_get_next_sibling(iter))
+    gtk_list_box_remove(GTK_LIST_BOX(info->camera_list_widget),GTK_WIDGET(iter));
 }
 
 static void
@@ -325,31 +340,31 @@ refresh_form(gpointer data)
     }
 
     value = (gtk_ipcam_camera_obj_get_name(camera) ? gtk_ipcam_camera_obj_get_name(camera) : "");
-    gtk_entry_set_text(GTK_ENTRY(info->cameras_edit_name), value);
+    gtk_editable_set_text(GTK_EDITABLE(info->cameras_edit_name), value);
 
     value = (gtk_ipcam_camera_obj_get_username(camera) ? gtk_ipcam_camera_obj_get_username(camera) : "");
-    gtk_entry_set_text(GTK_ENTRY(info->cameras_edit_username), value);
+    gtk_editable_set_text(GTK_EDITABLE(info->cameras_edit_username), value);
 
     value = (gtk_ipcam_camera_obj_get_password(camera) ? gtk_ipcam_camera_obj_get_password(camera) : "");
-    gtk_entry_set_text(GTK_ENTRY(info->cameras_edit_password), value);
+    gtk_editable_set_text(GTK_EDITABLE(info->cameras_edit_password), value);
 
     value = (gtk_ipcam_camera_obj_get_remote_url(camera) ? gtk_ipcam_camera_obj_get_remote_url(camera) : "");
-    gtk_entry_set_text(GTK_ENTRY(info->cameras_edit_remote_url), value);
+    gtk_editable_set_text(GTK_EDITABLE(info->cameras_edit_remote_url), value);
 
     value = (gtk_ipcam_camera_obj_get_remote_port(camera) ? gtk_ipcam_camera_obj_get_remote_port(camera) : "");
-    gtk_entry_set_text(GTK_ENTRY(info->cameras_edit_remote_port), value);
+    gtk_editable_set_text(GTK_EDITABLE(info->cameras_edit_remote_port), value);
 
     value = (gtk_ipcam_camera_obj_get_remote_media_port(camera) ? gtk_ipcam_camera_obj_get_remote_media_port(camera) : "");
-    gtk_entry_set_text(GTK_ENTRY(info->cameras_edit_remote_media_port), value);
+    gtk_editable_set_text(GTK_EDITABLE(info->cameras_edit_remote_media_port), value);
 
     value = (gtk_ipcam_camera_obj_get_local_url(camera) ? gtk_ipcam_camera_obj_get_local_url(camera) : "");
-    gtk_entry_set_text(GTK_ENTRY(info->cameras_edit_local_url), value);
+    gtk_editable_set_text(GTK_EDITABLE(info->cameras_edit_local_url), value);
 
     value = (gtk_ipcam_camera_obj_get_local_port(camera) ? gtk_ipcam_camera_obj_get_local_port(camera) : "");
-    gtk_entry_set_text(GTK_ENTRY(info->cameras_edit_local_port), value);
+    gtk_editable_set_text(GTK_EDITABLE(info->cameras_edit_local_port), value);
 
     value = (gtk_ipcam_camera_obj_get_local_media_port(camera) ? gtk_ipcam_camera_obj_get_local_media_port(camera) : "");
-    gtk_entry_set_text(GTK_ENTRY(info->cameras_edit_local_media_port), value);
+    gtk_editable_set_text(GTK_EDITABLE(info->cameras_edit_local_media_port), value);
 
     if(gtk_ipcam_camera_obj_get_remote_https(camera) == TRUE)
     {
@@ -513,40 +528,40 @@ entry_changed(GtkWidget* widget, GdkEvent* event, gpointer user_data)
   {
     if(widget == info->cameras_edit_name)
     {
-      gtk_ipcam_camera_obj_set_name(camera, gtk_entry_get_text(GTK_ENTRY(widget)));
+      gtk_ipcam_camera_obj_set_name(camera, gtk_editable_get_text(GTK_EDITABLE(widget)));
       rebuild_camera_list(info);
     }
     else if(widget == info->cameras_edit_username)
     {
-      gtk_ipcam_camera_obj_set_username(camera, gtk_entry_get_text(GTK_ENTRY(widget)));
+      gtk_ipcam_camera_obj_set_username(camera, gtk_editable_get_text(GTK_EDITABLE(widget)));
     }
     else if(widget == info->cameras_edit_password)
     {
-      gtk_ipcam_camera_obj_set_password(camera, gtk_entry_get_text(GTK_ENTRY(widget)));
+      gtk_ipcam_camera_obj_set_password(camera, gtk_editable_get_text(GTK_EDITABLE(widget)));
     }
     else if(widget == info->cameras_edit_remote_url)
     {
-      gtk_ipcam_camera_obj_set_remote_url(camera, gtk_entry_get_text(GTK_ENTRY(widget)));
+      gtk_ipcam_camera_obj_set_remote_url(camera, gtk_editable_get_text(GTK_EDITABLE(widget)));
     }
     else if(widget == info->cameras_edit_remote_port)
     {
-      gtk_ipcam_camera_obj_set_remote_port(camera, gtk_entry_get_text(GTK_ENTRY(widget)));
+      gtk_ipcam_camera_obj_set_remote_port(camera, gtk_editable_get_text(GTK_EDITABLE(widget)));
     }
     else if(widget == info->cameras_edit_remote_media_port)
     {
-      gtk_ipcam_camera_obj_set_remote_media_port(camera, gtk_entry_get_text(GTK_ENTRY(widget)));
+      gtk_ipcam_camera_obj_set_remote_media_port(camera, gtk_editable_get_text(GTK_EDITABLE(widget)));
     }
     else if(widget == info->cameras_edit_local_url)
     {
-      gtk_ipcam_camera_obj_set_local_url(camera, gtk_entry_get_text(GTK_ENTRY(widget)));
+      gtk_ipcam_camera_obj_set_local_url(camera, gtk_editable_get_text(GTK_EDITABLE(widget)));
     }
     else if(widget == info->cameras_edit_local_port)
     {
-      gtk_ipcam_camera_obj_set_local_port(camera, gtk_entry_get_text(GTK_ENTRY(widget)));
+      gtk_ipcam_camera_obj_set_local_port(camera, gtk_editable_get_text(GTK_EDITABLE(widget)));
     }
     else if(widget == info->cameras_edit_local_media_port)
     {
-      gtk_ipcam_camera_obj_set_local_media_port(camera, gtk_entry_get_text(GTK_ENTRY(widget)));
+      gtk_ipcam_camera_obj_set_local_media_port(camera, gtk_editable_get_text(GTK_EDITABLE(widget)));
     }
     printf("entry_changed\n");
     changed = TRUE;
@@ -557,6 +572,11 @@ static void
 connect_signals(GtkIpcamDialogCameraEditInfo* info)
 {
   printf("connect_signals\n");
+
+  //New Camera Dialog Callback
+  g_signal_connect(info->camera_add_dialog, "new-camera", G_CALLBACK(add_new_camera_callback), info);
+  //New Camera Dialog Callback END
+
   /* HTTP/HTTPS toggled button */
   g_signal_connect(info->cameras_edit_remote_http, "toggled", G_CALLBACK(remote_http_toggled), info);
   g_signal_connect(info->cameras_edit_remote_https, "toggled", G_CALLBACK(remote_http_toggled), info);
@@ -653,133 +673,14 @@ group_changed_callback(GtkIpcamPreferenceObj* preference, gpointer user_data)
   gtk_ipcam_camera_groups_refresh(info->group_list_widget, info->preference);
 }
 
-void
-gtk_ipcam_dialog_cameras_edit_new(GtkIpcamPreferenceObj* preference)
+static void
+gtk_ipcam_dialog_cameras_edit_response(GtkDialog *dialog,
+                    int        response,
+                    gpointer   user_data)
 {
-  GtkIpcamDialogCameraEditInfo camera_edit_info;
-  camera_edit_info.preference = preference;
+  GtkIpcamDialogCameraEditInfo* camera_edit_info = (GtkIpcamDialogCameraEditInfo*)user_data;
 
-  GtkStyleContext *context;
-  camera_edit_info.builder = gtk_builder_new();
-  gchar* filename = g_build_filename(PREFIX,DATADIR,"gipcamviewer","resources","ui","cameras_edit.ui",NULL);
-  gtk_builder_add_from_file(camera_edit_info.builder,filename,NULL);
-  camera_edit_info.cameras_edit_widget = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit"));
-  camera_edit_info.group_list_widget = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"group_list"));
-  camera_edit_info.camera_list_widget = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"camera_list"));
-
-  /* form fields */
-  camera_edit_info.cameras_form_stack = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"camera_edit_form_stack_widget"));
-
-  camera_edit_info.cameras_edit_model = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_model"));
-  camera_edit_info.cameras_edit_name = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_name"));
-  camera_edit_info.cameras_edit_username = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_username"));
-  camera_edit_info.cameras_edit_password = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_password"));
-  camera_edit_info.cameras_edit_remote_protocol = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_remote_protocol"));
-  camera_edit_info.cameras_edit_remote_http = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_remote_http"));
-  camera_edit_info.cameras_edit_remote_https = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_remote_https"));
-  camera_edit_info.cameras_edit_remote_url = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_remote_url"));
-  camera_edit_info.cameras_edit_remote_port = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_remote_port"));
-  camera_edit_info.cameras_edit_remote_media_port = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_remote_media_port"));
-  camera_edit_info.cameras_edit_local_protocol = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_local_protocol"));
-  camera_edit_info.cameras_edit_local_http = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_local_http"));
-  camera_edit_info.cameras_edit_local_https = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_local_https"));
-  camera_edit_info.cameras_edit_local_url = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_local_url"));
-  camera_edit_info.cameras_edit_local_port = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_local_port"));
-  camera_edit_info.cameras_edit_local_media_port = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_local_media_port"));
-  camera_edit_info.cameras_edit_use_subchannel = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_use_subchannel"));
-  camera_edit_info.cameras_edit_flip_controls = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_flip_controls"));
-  camera_edit_info.cameras_edit_mirror_controls = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_mirror_controls"));
-
-  camera_edit_info.cameras_edit_remote_media = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_remote_media"));
-  camera_edit_info.cameras_edit_local_media = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_local_media"));
-  /* form fields */
-
-  /* Action buttons */
-  GtkWidget* cameras_edit_add_camera_button = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_add_camera_button"));
-  GtkWidget* cameras_edit_del_camera_button = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_del_camera_button"));
-  GtkWidget* cameras_edit_group_edit_button = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_group_edit_button"));
-  camera_edit_info.cameras_edit_down_button = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_down_button"));
-  camera_edit_info.cameras_edit_up_button = GTK_WIDGET(gtk_builder_get_object(camera_edit_info.builder,"cameras_edit_up_button"));
-
-  g_signal_connect(cameras_edit_add_camera_button, "clicked", G_CALLBACK(add_camera_btn_callback), &camera_edit_info);
-  g_signal_connect(cameras_edit_del_camera_button, "clicked", G_CALLBACK(del_camera_btn_callback), &camera_edit_info);
-  g_signal_connect(cameras_edit_group_edit_button, "clicked", G_CALLBACK(edit_group_btn_callback), &camera_edit_info);
-  g_signal_connect(camera_edit_info.cameras_edit_down_button, "clicked", G_CALLBACK(cameras_down_btn_callback), &camera_edit_info);
-  g_signal_connect(camera_edit_info.cameras_edit_up_button, "clicked", G_CALLBACK(cameras_up_btn_callback), &camera_edit_info);
-  /* Action buttons END */
-
-  g_free(filename);
-
-  gtk_builder_connect_signals(camera_edit_info.builder, NULL);
-
-  camera_edit_info.cameras_edit_dialog = gtk_dialog_new_with_buttons(gettext("Cameras Manager"),
-                                    GTK_WINDOW(gtk_application_get_active_window(GTK_APPLICATION (g_application_get_default()))),
-                                    GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_MODAL | GTK_DIALOG_USE_HEADER_BAR,
-                                    "\uE876",
-                                    GTK_RESPONSE_OK,
-                                    NULL);
-
-  GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_dialog_get_header_bar(GTK_DIALOG(camera_edit_info.cameras_edit_dialog)));
-  context = gtk_widget_get_style_context(GTK_WIDGET(header_bar));
-  gtk_style_context_add_class(context,"dialog-header");
-  gtk_header_bar_set_show_close_button(header_bar, FALSE);
-
-  GtkWidget* ok_button = gtk_dialog_get_widget_for_response(GTK_DIALOG(camera_edit_info.cameras_edit_dialog),GTK_RESPONSE_OK);
-  context = gtk_widget_get_style_context(GTK_WIDGET(ok_button));
-  gtk_style_context_add_class(context,"icon-button");
-
-  context = gtk_widget_get_style_context(GTK_WIDGET(camera_edit_info.cameras_edit_widget));
-  gtk_style_context_add_class(context,"dialog-content");
-
-  gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(camera_edit_info.cameras_edit_dialog))), camera_edit_info.cameras_edit_widget, TRUE, TRUE, 0);
-  gtk_window_set_resizable(GTK_WINDOW(camera_edit_info.cameras_edit_dialog), FALSE);
-
-  gtk_widget_show_all(camera_edit_info.cameras_edit_widget);
-
-  /* DRIVER LIST */
-  /****************************************************************************************
-   * We must connect the model list "changed" signal before
-   * refreshing camera groups. Otherwise, the driver list will
-   * not be selected on the first load.
-   ****************************************************************************************/
-  GtkCellRenderer *driver_list_cell = gtk_cell_renderer_text_new ();
-  gtk_cell_layout_pack_start( GTK_CELL_LAYOUT(camera_edit_info.cameras_edit_model), driver_list_cell, TRUE );
-  gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(camera_edit_info.cameras_edit_model), driver_list_cell, "text", GTK_IPCAM_COLUMN_CAMERA_DRIVER_NAME, NULL );
-
-  GPtrArray* drivers = gtk_ipcam_camera_driver_obj_list();
-  refresh_drivers(&camera_edit_info, drivers);
-  gtk_ipcam_camera_driver_obj_list_free(drivers);
-  /* DRIVER LIST END */
-
-  connect_signals(&camera_edit_info);
-
-  /* CAMERA LIST */
-  /****************************************************************************************
-   * We must connect the camera list "row-selected" signal before
-   * refreshing camera groups. Otherwise, the camera form will
-   * not be displayed for the first selection.
-   ****************************************************************************************/
-  g_signal_connect(camera_edit_info.camera_list_widget, "row-selected", G_CALLBACK(refresh_camera_form),&camera_edit_info);
-  /* CAMERA LIST END */
-
-  /* GOUP COMBO BOX */
-  GtkCellRenderer *group_list_cell = gtk_cell_renderer_text_new ();
-  gtk_cell_layout_pack_start( GTK_CELL_LAYOUT(camera_edit_info.group_list_widget), group_list_cell, TRUE );
-  gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(camera_edit_info.group_list_widget), group_list_cell, "text", GTK_IPCAM_COLUMN_CAMERA_GROUP_NAME, NULL );
-
-  g_signal_connect(camera_edit_info.group_list_widget, "changed", G_CALLBACK(refresh_camera_list),&camera_edit_info);
-
-  gtk_ipcam_camera_groups_refresh(camera_edit_info.group_list_widget, preference);
-
-  g_signal_connect(camera_edit_info.preference,"group-changed",G_CALLBACK(group_changed_callback),&camera_edit_info);
-  /* GROUP COMBO BOX END */
-
-  changed = FALSE;
-
-  refresh_form(&camera_edit_info);
-
-  gint result = gtk_dialog_run(GTK_DIALOG (camera_edit_info.cameras_edit_dialog));
-  switch (result)
+  switch (response)
   {
     case GTK_RESPONSE_OK:
        break;
@@ -788,28 +689,160 @@ gtk_ipcam_dialog_cameras_edit_new(GtkIpcamPreferenceObj* preference)
   }
 
   /* DESTROY GROUP COMBO BOX */
-  GtkListStore* old_model = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(camera_edit_info.group_list_widget)));
-  gtk_combo_box_set_model(GTK_COMBO_BOX(camera_edit_info.group_list_widget),NULL);
+  GtkListStore* old_model = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(camera_edit_info->group_list_widget)));
+  gtk_combo_box_set_model(GTK_COMBO_BOX(camera_edit_info->group_list_widget),NULL);
   if(old_model != NULL){
     g_object_unref(old_model);
   }
   /* DESTROY GROUP COMBO BOX END*/
 
   /* DESTROY MODEL COMBO BOX */
-  old_model = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(camera_edit_info.cameras_edit_model)));
-  gtk_combo_box_set_model(GTK_COMBO_BOX(camera_edit_info.cameras_edit_model),NULL);
+  old_model = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(camera_edit_info->cameras_edit_model)));
+  gtk_combo_box_set_model(GTK_COMBO_BOX(camera_edit_info->cameras_edit_model),NULL);
   if(old_model != NULL){
     g_object_unref(old_model);
   }
   /* DESTROY MODEL COMBO BOX END*/
 
-  gtk_widget_destroy (camera_edit_info.cameras_edit_dialog);
-  camera_edit_info.cameras_edit_dialog = NULL;
-
-  g_object_unref(camera_edit_info.builder);
+  g_object_unref(camera_edit_info->cameras_edit_dialog);
+  camera_edit_info->cameras_edit_dialog = NULL;
 
   if(changed)
   {
-    gtk_ipcam_preference_obj_save(preference, TRUE);
+    gtk_ipcam_preference_obj_save(camera_edit_info->preference, TRUE);
   }
+  g_free(camera_edit_info);
+  gtk_window_destroy (GTK_WINDOW (dialog));
+}
+
+void
+gtk_ipcam_dialog_cameras_edit_new(GtkIpcamPreferenceObj* preference)
+{
+  GtkIpcamDialogCameraEditInfo* camera_edit_info = g_new(GtkIpcamDialogCameraEditInfo, 1);
+  camera_edit_info->preference = preference;
+
+  GtkStyleContext *context;
+  gchar* filename = g_build_filename(PREFIX,DATADIR,"gipcamviewer","resources","ui","cameras_edit.ui",NULL);
+  GtkBuilder* builder = gtk_builder_new_from_file(filename);
+  camera_edit_info->cameras_edit_widget = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit"));
+  camera_edit_info->group_list_widget = GTK_WIDGET(gtk_builder_get_object(builder,"group_list"));
+  camera_edit_info->camera_list_widget = GTK_WIDGET(gtk_builder_get_object(builder,"camera_list"));
+
+  /* form fields */
+  camera_edit_info->cameras_form_stack = GTK_WIDGET(gtk_builder_get_object(builder,"camera_edit_form_stack_widget"));
+
+  camera_edit_info->cameras_edit_model = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_model"));
+  camera_edit_info->cameras_edit_name = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_name"));
+  camera_edit_info->cameras_edit_username = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_username"));
+  camera_edit_info->cameras_edit_password = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_password"));
+  camera_edit_info->cameras_edit_remote_protocol = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_remote_protocol"));
+  camera_edit_info->cameras_edit_remote_http = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_remote_http"));
+  camera_edit_info->cameras_edit_remote_https = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_remote_https"));
+  camera_edit_info->cameras_edit_remote_url = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_remote_url"));
+  camera_edit_info->cameras_edit_remote_port = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_remote_port"));
+  camera_edit_info->cameras_edit_remote_media_port = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_remote_media_port"));
+  camera_edit_info->cameras_edit_local_protocol = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_local_protocol"));
+  camera_edit_info->cameras_edit_local_http = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_local_http"));
+  camera_edit_info->cameras_edit_local_https = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_local_https"));
+  camera_edit_info->cameras_edit_local_url = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_local_url"));
+  camera_edit_info->cameras_edit_local_port = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_local_port"));
+  camera_edit_info->cameras_edit_local_media_port = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_local_media_port"));
+  camera_edit_info->cameras_edit_use_subchannel = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_use_subchannel"));
+  camera_edit_info->cameras_edit_flip_controls = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_flip_controls"));
+  camera_edit_info->cameras_edit_mirror_controls = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_mirror_controls"));
+
+  camera_edit_info->cameras_edit_remote_media = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_remote_media"));
+  camera_edit_info->cameras_edit_local_media = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_local_media"));
+  /* form fields */
+
+  /* Action buttons */
+  GtkWidget* cameras_edit_add_camera_button = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_add_camera_button"));
+  GtkWidget* cameras_edit_del_camera_button = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_del_camera_button"));
+  GtkWidget* cameras_edit_group_edit_button = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_group_edit_button"));
+  camera_edit_info->cameras_edit_down_button = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_down_button"));
+  camera_edit_info->cameras_edit_up_button = GTK_WIDGET(gtk_builder_get_object(builder,"cameras_edit_up_button"));
+
+  g_signal_connect(cameras_edit_add_camera_button, "clicked", G_CALLBACK(add_camera_btn_callback), camera_edit_info);
+  g_signal_connect(cameras_edit_del_camera_button, "clicked", G_CALLBACK(del_camera_btn_callback), camera_edit_info);
+  g_signal_connect(cameras_edit_group_edit_button, "clicked", G_CALLBACK(edit_group_btn_callback), camera_edit_info);
+  g_signal_connect(camera_edit_info->cameras_edit_down_button, "clicked", G_CALLBACK(cameras_down_btn_callback), camera_edit_info);
+  g_signal_connect(camera_edit_info->cameras_edit_up_button, "clicked", G_CALLBACK(cameras_up_btn_callback), camera_edit_info);
+  /* Action buttons END */
+
+  g_free(filename);
+
+  //gtk_builder_connect_signals(builder, NULL);
+
+  camera_edit_info->cameras_edit_dialog = gtk_dialog_new_with_buttons(gettext("Cameras Manager"),
+                                    GTK_WINDOW(gtk_application_get_active_window(GTK_APPLICATION (g_application_get_default()))),
+                                    GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_MODAL | GTK_DIALOG_USE_HEADER_BAR,
+                                    "\uE876",
+                                    GTK_RESPONSE_OK,
+                                    NULL);
+
+  GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_dialog_get_header_bar(GTK_DIALOG(camera_edit_info->cameras_edit_dialog)));
+  context = gtk_widget_get_style_context(GTK_WIDGET(header_bar));
+  gtk_style_context_add_class(context,"dialog-header");
+  gtk_header_bar_set_show_title_buttons(header_bar, FALSE);
+
+  GtkWidget* ok_button = gtk_dialog_get_widget_for_response(GTK_DIALOG(camera_edit_info->cameras_edit_dialog),GTK_RESPONSE_OK);
+  context = gtk_widget_get_style_context(GTK_WIDGET(ok_button));
+  gtk_style_context_add_class(context,"icon-button");
+
+  context = gtk_widget_get_style_context(GTK_WIDGET(camera_edit_info->cameras_edit_widget));
+  gtk_style_context_add_class(context,"dialog-content");
+
+  gtk_box_append(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(camera_edit_info->cameras_edit_dialog))), camera_edit_info->cameras_edit_widget);
+  gtk_window_set_resizable(GTK_WINDOW(camera_edit_info->cameras_edit_dialog), FALSE);
+
+  gtk_widget_show(camera_edit_info->cameras_edit_widget);
+
+  /* DRIVER LIST */
+  /****************************************************************************************
+   * We must connect the model list "changed" signal before
+   * refreshing camera groups. Otherwise, the driver list will
+   * not be selected on the first load.
+   ****************************************************************************************/
+  GtkCellRenderer *driver_list_cell = gtk_cell_renderer_text_new ();
+  gtk_cell_layout_pack_start( GTK_CELL_LAYOUT(camera_edit_info->cameras_edit_model), driver_list_cell, TRUE );
+  gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(camera_edit_info->cameras_edit_model), driver_list_cell, "text", GTK_IPCAM_COLUMN_CAMERA_DRIVER_NAME, NULL );
+
+  GPtrArray* drivers = gtk_ipcam_camera_driver_obj_list();
+  refresh_drivers(camera_edit_info, drivers);
+  gtk_ipcam_camera_driver_obj_list_free(drivers);
+  /* DRIVER LIST END */
+
+  camera_edit_info->camera_add_dialog = gtk_ipcam_dialog_camera_add_new();
+
+  connect_signals(camera_edit_info);
+
+  /* CAMERA LIST */
+  /****************************************************************************************
+   * We must connect the camera list "row-selected" signal before
+   * refreshing camera groups. Otherwise, the camera form will
+   * not be displayed for the first selection.
+   ****************************************************************************************/
+  g_signal_connect(camera_edit_info->camera_list_widget, "row-selected", G_CALLBACK(refresh_camera_form),camera_edit_info);
+  /* CAMERA LIST END */
+
+  /* GOUP COMBO BOX */
+  GtkCellRenderer *group_list_cell = gtk_cell_renderer_text_new ();
+  gtk_cell_layout_pack_start( GTK_CELL_LAYOUT(camera_edit_info->group_list_widget), group_list_cell, TRUE );
+  gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(camera_edit_info->group_list_widget), group_list_cell, "text", GTK_IPCAM_COLUMN_CAMERA_GROUP_NAME, NULL );
+
+  g_signal_connect(camera_edit_info->group_list_widget, "changed", G_CALLBACK(refresh_camera_list),camera_edit_info);
+
+  gtk_ipcam_camera_groups_refresh(camera_edit_info->group_list_widget, preference);
+
+  g_signal_connect(camera_edit_info->preference,"group-changed",G_CALLBACK(group_changed_callback),camera_edit_info);
+  /* GROUP COMBO BOX END */
+
+  changed = FALSE;
+
+  refresh_form(camera_edit_info);
+
+  g_signal_connect (GTK_DIALOG(camera_edit_info->cameras_edit_dialog), "response", G_CALLBACK (gtk_ipcam_dialog_cameras_edit_response), camera_edit_info);
+  gtk_widget_show(GTK_WIDGET (camera_edit_info->cameras_edit_dialog));
+
+  g_object_unref(builder);
 }

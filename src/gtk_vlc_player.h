@@ -64,7 +64,7 @@ typedef struct _GtkVlcPlayerPrivate GtkVlcPlayerPrivate;
  * \e GtkVlcPlayer instance structure
  */
 typedef struct _GtkVlcPlayer {
-	GtkBin parent_instance;	/**< Parent instance structure */
+	GtkWidget parent_instance;	/**< Parent instance structure */
 
 	GtkVlcPlayerPrivate *priv;	/**< @private */
 } GtkVlcPlayer;
@@ -73,16 +73,16 @@ typedef struct _GtkVlcPlayer {
  * \e GtkExperimentNavigator class structure
  */
 typedef struct _GtkVlcPlayerClass {
-	GtkBinClass parent_class;	/**< Parent class structure */
+	GtkWidgetClass parent_class;	/**< Parent class structure */
 
-	/**
-	 * Callback function to invoke when emitting the "time-changed"
-	 * signal.
-	 *
-	 * @param self      \e GtkVlcPlayer widget that emitted the signal
-	 * @param new_time  New (current) position of playback in milliseconds
-	 */
-	void (*time_changed)	(GtkVlcPlayer *self, gint64 new_time);
+																																																																									/**
+																																																																									 * Callback function to invoke when emitting the "time-changed"
+																																																																									 * signal.
+																																																																									 *
+																																																																									 * @param self      \e GtkVlcPlayer widget that emitted the signal
+																																																																									 * @param new_time  New (current) position of playback in milliseconds
+																																																																									 */
+																																																																									void (*time_changed)	(GtkVlcPlayer *self, gint64 new_time);
 
 	/**
 	 * Callback function to invoke when emitting the "length-changed"

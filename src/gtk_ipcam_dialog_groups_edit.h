@@ -20,6 +20,7 @@
 
 #include "gtk_ipcam_util.h"
 #include "gtk_ipcam_preference_obj.h"
+#include "gtk_ipcam_dialog_group_add.h"
 
 struct _GtkIpcamDialogCameraEditInfo;
 typedef struct _GtkIpcamDialogCameraEditInfo GtkIpcamDialogCameraEditInfo;
@@ -27,6 +28,8 @@ typedef struct _GtkIpcamDialogCameraEditInfo GtkIpcamDialogCameraEditInfo;
 typedef struct {
   GtkIpcamPreferenceObj* preference;
   GtkBuilder* builder;
+
+  GtkIpcamDialogGroupAdd* group_add_dialog;
 
   GtkWidget* groups_dialog;
   GtkWidget* groups_edit_widget;

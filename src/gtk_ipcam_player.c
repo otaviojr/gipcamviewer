@@ -28,7 +28,7 @@
 
 struct _GtkIpcamPlayer
 {
-  GtkEventBox parent;
+  GtkWidget parent;
 
   //GstPlayer *player;
   //GstPlayerVideoRenderer *renderer;
@@ -55,7 +55,7 @@ struct _GtkIpcamPlayer
 
 struct _GtkIpcamPlayerClass
 {
-  GtkEventBoxClass parent_class;
+  GtkWidgetClass parent_class;
 };
 
 enum
@@ -66,7 +66,7 @@ enum
   GTK_IPCAM_PLAYER_PROP_LAST
 };
 
-G_DEFINE_TYPE (GtkIpcamPlayer, gtk_ipcam_player, GTK_TYPE_EVENT_BOX);
+G_DEFINE_TYPE (GtkIpcamPlayer, gtk_ipcam_player, GTK_TYPE_WIDGET);
 
 static GParamSpec
 * gtk_ipcam_player_param_specs[GTK_IPCAM_PLAYER_PROP_LAST] = { NULL, };
@@ -417,12 +417,12 @@ gtk_ipcam_player_constructed(GObject* object)
   context = gtk_widget_get_style_context(GTK_WIDGET(overlay));
   gtk_style_context_add_class(context,"ipcam-player-overlay");
 
-  gtk_container_add(GTK_CONTAINER(frame),overlay);
+  gtk_frame_set_child(GTK_FRAME(frame), overlay);
 
   gtk_widget_set_halign(GTK_WIDGET(self->video_area), GTK_ALIGN_FILL);
   gtk_widget_set_valign(GTK_WIDGET(self->video_area), GTK_ALIGN_FILL);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->video_area);
-  gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay),self->video_area,TRUE);
+  //gtk_widget_set_overlay_pass_through(GTK_OVERLAY(overlay),self->video_area,TRUE);
 
   self->btn_up = gtk_button_new_with_label("\uE316");
   context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_up));
@@ -469,53 +469,19 @@ gtk_ipcam_player_constructed(GObject* object)
   gtk_widget_set_valign(GTK_WIDGET(self->btn_mute), GTK_ALIGN_END);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_mute);
 
-  gtk_container_add(GTK_CONTAINER(self),frame);
+  gtk_widget_set_parent(GTK_WIDGET(frame), GTK_WIDGET(self));
 
-  gtk_widget_set_events(GTK_WIDGET(self), GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_POINTER_MOTION_MASK);
+  GtkEventControllerMotion* motion = gtk_event_controller_motion_new();
+  g_signal_connect(motion, "enter", G_CALLBACK(gtk_ipcam_player_pointer_enter_cb), self);
+  g_signal_connect(motion, "motion", G_CALLBACK(gtk_ipcam_player_pointer_enter_cb), self);
+  g_signal_connect(motion, "leave", G_CALLBACK(gtk_ipcam_player_pointer_leave_cb), self);
+  gtk_widget_add_controller(GTK_WIDGET(self), motion);
+  //gtk_widget_set_events(GTK_WIDGET(self), GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_POINTER_MOTION_MASK);
   //gtk_widget_set_events(gtk_vlc_player_get_drawing_area(GTK_VLC_PLAYER(self->video_area)), gtk_widget_get_events(gtk_vlc_player_get_drawing_area(GTK_VLC_PLAYER(self->video_area))) & ~GDK_POINTER_MOTION_MASK);
-
-  g_signal_connect(self, "enter-notify-event", G_CALLBACK(gtk_ipcam_player_pointer_enter_cb), self);
-  g_signal_connect(self, "motion-notify-event", G_CALLBACK(gtk_ipcam_player_pointer_enter_cb), self);
-  g_signal_connect(self, "leave-notify-event", G_CALLBACK(gtk_ipcam_player_pointer_leave_cb), self);
 
   g_signal_connect (G_OBJECT(self), "unmap", G_CALLBACK (gtk_ipcam_player_unmap_cb), NULL);
   g_signal_connect (G_OBJECT(self), "realize", G_CALLBACK (gtk_ipcam_player_show_cb), NULL);
   g_signal_connect (G_OBJECT(self), "show", G_CALLBACK (gtk_ipcam_player_show_cb), NULL);
-
-  //gtk_widget_set_events (self->video_area, GDK_EXPOSURE_MASK
-  //    | GDK_LEAVE_NOTIFY_MASK
-  //    | GDK_BUTTON_PRESS_MASK
-  //    | GDK_POINTER_MOTION_MASK
-  //    | GDK_POINTER_MOTION_HINT_MASK | GDK_ENTER_NOTIFY_MASK);
-
-  //g_signal_connect (play->video_area, "motion-notify-event",
-  //    G_CALLBACK (video_area_toolbar_show_cb), play);
-  //g_signal_connect (play->video_area, "scroll-event",
-  //    G_CALLBACK (video_area_toolbar_show_cb), play);
-  //g_signal_connect (play->video_area, "button-press-event",
-  //    G_CALLBACK (mouse_button_pressed_cb), play);
-  //g_signal_connect (play->video_area, "leave-notify-event",
-  //    G_CALLBACK (video_area_leave_notify_cb), play);
-
-  //self->player =
-  //    gst_player_new (self->renderer,
-  //    gst_player_g_main_context_signal_dispatcher_new (NULL));
-
-  //g_assert (self->player != NULL);
-
-  //g_signal_connect (self->player, "position-updated",
-  //    G_CALLBACK (position_updated_cb), self);
-  //g_signal_connect (self->player, "duration-changed",
-  //    G_CALLBACK (duration_changed_cb), self);
-  //g_signal_connect (self->player, "end-of-stream", G_CALLBACK (eos_cb), self);
-  //g_signal_connect (self->player, "media-info-updated",
-  //    G_CALLBACK (media_info_updated_cb), self);
-  //g_signal_connect (self->player, "volume-changed",
-  //    G_CALLBACK (player_volume_changed_cb), self);
-
-  /* enable visualization (by default playbin uses goom) */
-  /* if visualization is enabled then use the first element */
-  //gst_player_set_visualization_enabled (self->player, TRUE);
 }
 
 static void

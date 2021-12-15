@@ -20,6 +20,7 @@
 
 #include "gtk_ipcam_util.h"
 #include "gtk_ipcam_preference_obj.h"
+#include "gtk_ipcam_dialog_camera_add.h"
 #include "gtk_ipcam_dialog_groups_edit.h"
 
 
@@ -31,7 +32,8 @@ enum {
 
 typedef struct _GtkIpcamDialogCameraEditInfo {
   GtkIpcamPreferenceObj* preference;
-  GtkBuilder* builder;
+
+  GtkIpcamDialogCameraAdd* camera_add_dialog;
 
   GtkWidget* cameras_edit_dialog;
 

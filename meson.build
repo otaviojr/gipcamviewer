@@ -41,8 +41,8 @@ sources = ['src/main.c',
             'src/gtk_ipcam_dialog_groups_edit.c',
             'src/gtk_ipcam_dialog_camera_add.h',
             'src/gtk_ipcam_dialog_camera_add.c',
-            'src/gtk_ipcam_dialog_groups_add.h',
-            'src/gtk_ipcam_dialog_groups_add.c',
+            'src/gtk_ipcam_dialog_group_add.h',
+            'src/gtk_ipcam_dialog_group_add.c',
             closure_marshaller_c,
             closure_marshaller_h
           ]
@@ -51,7 +51,7 @@ sources = ['src/main.c',
 x11_dep = dependency('x11')
 
 #GTK Dependencies
-gtk_dep = dependency('gtk+-3.0')
+gtk_dep = dependency('gtk4')
 
 #GStreamer dependencies
 gst_req = '>= 1.0.0'
@@ -74,10 +74,10 @@ gmodule_dep = dependency('gmodule-2.0')
 glibjson_dep = dependency('json-glib-1.0')
 
 #VLC Dependencies
-vlc_dep = dependency('libvlc', version: '>=3.0')
+vlc_dep = dependency('libvlc', version: '>= 3.0')
 
 #Lua deps
-lua_dep = dependency('lua-5.3')
+lua_dep = dependency('lua-5.4')
 
 deps = [
         #x11_dep,
@@ -152,10 +152,10 @@ code = '''
   }
 '''
 
-flags = run_command('pkg-config','--cflags','--libs','lua5.3')
+flags = run_command('pkg-config','--cflags','--libs','lua5.4')
 a_flags = flags.stdout().strip().split(' ')
 
-result = compiler.run(code, args : a_flags, name : 'lua5.3 has http plugin')
+result = compiler.run(code, args : a_flags, name : 'lua5.4 has http plugin')
 if result.returncode() != 0 or result.compiled() == false
   error('Lua HTTP support not installed: ' + result.stdout())
 endif
