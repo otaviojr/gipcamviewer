@@ -76,6 +76,7 @@ gtk_ipcam_camera_groups_refresh(GtkWidget* combo, GtkIpcamPreferenceObj* prefere
     gtk_combo_box_set_entry_text_column(GTK_COMBO_BOX(combo),GTK_IPCAM_COLUMN_CAMERA_GROUP_NAME);
     gtk_combo_box_set_id_column(GTK_COMBO_BOX(combo),GTK_IPCAM_COLUMN_CAMERA_GROUP_NAME);
     gtk_combo_box_set_active(GTK_COMBO_BOX(combo),0);
+    printf("P1.5\r\n");
   }
 }
 /* GROUP COMBO BOX FUNCTIONS END*/

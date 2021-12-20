@@ -19,15 +19,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include <libintl.h>
+#include <glib.h>
 #include <gtk/gtk.h>
-
-#include <gst/gst.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
-
 #include <gdk/gdk.h>
 #include<pango/pangocairo.h>
+#include <libavformat/avformat.h>
 
-#include "gtk_vlc_player.h"
 #include "gtk_ipcam_player.h"
 
 #include "gtk_ipcam_preference_obj.h"
@@ -220,6 +218,8 @@ layout_cameras(GtkIpcamViewerWindow * win)
 
   if(win->g_players == NULL) return;
 
+  printf("layout_cameras");
+
   g_ptr_array_foreach(win->g_players, layout_remove_camera, win);
 
   if(gtk_ipcam_camera_group_obj_get_cameras_count(group) > 0)
@@ -298,14 +298,6 @@ create_ui(GtkIpcamViewerWindow * win)
   gtk_window_set_position(GTK_WINDOW (win), GTK_WIN_POS_CENTER);
   gtk_window_set_default_size (GTK_WINDOW (win), width, height);
 
-  //g_signal_connect (G_OBJECT (play), "delete-event",
-  //    G_CALLBACK (delete_event_cb), play);
-
-  //gtk_widget_set_events (GTK_WIDGET (play),
-  //    GDK_KEY_RELEASE_MASK | GDK_KEY_PRESS_MASK);
-  //g_signal_connect (G_OBJECT (play), "key-press-event",
-  //    G_CALLBACK (key_press_event_cb), NULL);
-
   GtkBuilder* builder = gtk_builder_new();
   gchar* filename = g_build_filename(PREFIX,DATADIR,"gipcamviewer","resources","ui","main_header.ui",NULL);
   gtk_builder_add_from_file(builder,filename,NULL);
@@ -325,15 +317,15 @@ create_ui(GtkIpcamViewerWindow * win)
   gtk_cell_layout_pack_start( GTK_CELL_LAYOUT(win->group_list_title_widget), group_list_cell, TRUE );
   gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(win->group_list_title_widget), group_list_cell, "text", GTK_IPCAM_COLUMN_CAMERA_GROUP_NAME, NULL );
 
-  g_signal_connect(win->group_list_title_widget, "changed", G_CALLBACK(refresh_cameras_area),win);
-
   gtk_ipcam_camera_groups_refresh(win->group_list_title_widget, win->preference);
+
   /* Title Group Combo End */
 
   set_title (win, APP_NAME);
 
   gtk_application_add_window (GTK_APPLICATION (g_application_get_default ()),
       GTK_WINDOW (win));
+
 
   filename = g_build_filename(PREFIX,DATADIR,"gipcamviewer","resources","ui","main_area.ui",NULL);
   gtk_builder_add_from_file(builder,filename,NULL);
@@ -364,7 +356,6 @@ create_ui(GtkIpcamViewerWindow * win)
   gtk_builder_connect_signals(builder, NULL);
   g_object_unref(builder);
 
-
   builder = gtk_builder_new();
   filename = g_build_filename(PREFIX,DATADIR,"gipcamviewer","resources","ui","main_popover_menu.ui",NULL);
   gtk_builder_add_from_file(builder,filename,NULL);
@@ -379,38 +370,7 @@ create_ui(GtkIpcamViewerWindow * win)
   g_signal_connect(refresh_button, "clicked", G_CALLBACK(gtk_ipcam_reload_callback), win);
 
   layout_cameras(win);
-
-  //GstPlayer* player;
-
-  //player = gtk_ipcam_player_get_player(win->g_player);
-  //gst_player_set_uri (player, "http://otacasa.getmyip.com:3002/videostream.cgi?user=admin&pwd=ota1808&rate=25");
-  //gst_player_play (player);
-  //gst_player_set_rate(player,25);
-
-  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player))),"http://otacasa.getmyip.com:3002/videostream.cgi?user=admin&pwd=ota1808&rate=25");
-
-  //player = gtk_ipcam_player_get_player(win->g_player1);
-  //gst_player_set_uri (player, "http://otacasa.getmyip.com:3003/videostream.cgi?user=admin&pwd=ota1808&rate=25");
-  //gst_player_play (player);
-  //gst_player_set_rate(player,25);
-  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player1))),"http://otacasa.getmyip.com:3003/videostream.cgi?user=admin&pwd=ota1808&rate=25");
-
-  //player = gtk_ipcam_player_get_player(win->g_player2);
-  //gst_player_set_uri (player, "http://otacasa.getmyip.com:3004/videostream.cgi?user=admin&pwd=ota1808&rate=25");
-  //gst_player_play (player);
-  //gst_player_set_rate(player,25);
-  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player2))),"http://otacasa.getmyip.com:3004/videostream.cgi?user=admin&pwd=ota1808&rate=25");
-
-  //player = gtk_ipcam_player_get_player(win->g_player3);
-  //gst_player_set_uri (player, "rtsp://otaviojr:ota180879@otacasa.getmyip.com:3011/videoMain");
-  //gst_player_play (player);
-  //gst_player_set_rate(player,25);
-  //gtk_vlc_player_load_uri(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player3))),"rtsp://otaviojr:ota180879@otacasa.getmyip.com:3011/videoMain");
-
-  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player))));
-  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player1))));
-  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player2))));
-  //gtk_vlc_player_play(GTK_VLC_PLAYER(gtk_ipcam_player_get_widget(GTK_IPCAM_PLAYER(win->g_player3))));
+  g_signal_connect(win->group_list_title_widget, "changed", G_CALLBACK(refresh_cameras_area),win);
 }
 
 static void
@@ -491,6 +451,7 @@ preference_change_callback(GtkIpcamPreferenceObj* preference, gpointer user_data
 static void
 refresh_camera_group_callback(GtkIpcamPreferenceObj* preference, gpointer user_data)
 {
+  printf("refresh_camera_group_callback\r\n");
   GtkIpcamViewerWindow* win = (GtkIpcamViewerWindow*)user_data;
   gtk_ipcam_camera_groups_refresh(win->group_list_title_widget, win->preference);
 }
@@ -552,6 +513,8 @@ gtk_ipcam_viewer_app_new(void)
 static void
 gtk_ipcam_viewer_app_init (GtkIpcamViewerApp * self)
 {
+  printf("Registering FFMPEG codecs\r\n");
+  avformat_network_init();
 }
 
 int main(int argc, char *argv[])

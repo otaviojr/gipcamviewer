@@ -16,22 +16,17 @@
  */
 
 #include <gtk/gtk.h>
-
-#include <gst/gst.h>
+#include <gdk/gdk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
-#include <gdk/gdk.h>
 
 #include "gtk_ipcam_player.h"
-#include "gtk_vlc_player.h"
+#include "gtk_ipcam_ffmpeg_renderer.h"
 #include "gtk_ipcam_util.h"
 
 struct _GtkIpcamPlayer
 {
   GtkEventBox parent;
-
-  //GstPlayer *player;
-  //GstPlayerVideoRenderer *renderer;
 
   GtkWidget* btn_down;
   GtkWidget* btn_up;
@@ -125,29 +120,11 @@ gtk_ipcam_player_finalize(GObject * object)
     self->background_thread = NULL;
   }
 
-  //if(self->state == GTK_IPCAM_PLAYER_STATE_PLAYING)
-  //{
-  //  gtk_ipcam_player_stop_video(self);
-  //  gtk_ipcam_player_stop_audio(self);
-  //}
-
-  //if(self->frame)
-  //{
-  //  gtk_widget_destroy(self->frame);
-  //  self->frame = NULL;
-  //}
-
   if(self->camera != NULL)
   {
     g_object_unref(self->camera);
     self->camera = NULL;
   }
-
-  //if (self->player) {
-  //  gst_player_stop (self->player);
-  //  g_object_unref (self->player);
-  //}
-  //self->player = NULL;
 
   printf("gtk_ipcam_player_finalized\n");
 
@@ -297,7 +274,7 @@ gtk_ipcam_player_background_load(gpointer user_data)
     if(camera_url != NULL && !self->is_unmapped)
     {
       printf("Playing: %s\n",camera_url);
-      gtk_vlc_player_load_uri(GTK_VLC_PLAYER(self->video_area),camera_url);
+      gtk_ipcam_ffmpeg_renderer_load_uri(GTK_IPCAM_FFMPEG_RENDERER(self->video_area), camera_url);
 
       g_free(camera_url);
 
@@ -382,32 +359,15 @@ static void
 gtk_ipcam_player_constructed(GObject* object)
 {
   GtkIpcamPlayer *self = GTK_IPCAM_PLAYER(object);
-  //GtkWidget* dialog;
-  //self->renderer = gst_player_gtk_video_renderer_new();
-  //if(self->renderer){
-  //  self->video_area = gst_player_gtk_video_renderer_get_widget(GST_PLAYER_GTK_VIDEO_RENDERER(self->renderer));
-  //} else {
-  //  dialog = gtk_message_dialog_new(GTK_WINDOW(gtk_application_get_active_window(GTK_APPLICATION (g_application_get_default()))),
-  //                                   GTK_DIALOG_DESTROY_WITH_PARENT,
-  //                                   GTK_MESSAGE_ERROR,
-  //                                   GTK_BUTTONS_CLOSE,
-  //                                   "ERROR - %s",
-  //                                   "gtksink/gtkglsink gstreamer plugin not found");
-  //  gtk_dialog_run(GTK_DIALOG(dialog));
-  //  gtk_widget_destroy(dialog);
-  //  g_application_quit(G_APPLICATION (g_application_get_default()));
-  //}
 
   printf("gtk_ipcam_player_constructed\n");
 
-  //g_assert (self->renderer != NULL);
-  self->video_area = gtk_vlc_player_new();
-
+  self->video_area = gtk_ipcam_ffmpeg_renderer_new();
   g_assert (self->video_area != NULL);
 
   GtkStyleContext *context;
 	context = gtk_widget_get_style_context(GTK_WIDGET(self->video_area));
-	gtk_style_context_add_class(context,"ipcam-vlc-player");
+	gtk_style_context_add_class(context,"ipcam-video-player");
 
   printf("gtk_ipcam_player for %s camera\n", gtk_ipcam_camera_obj_get_name(self->camera));
   GtkWidget* frame = gtk_frame_new(gtk_ipcam_camera_obj_get_name(self->camera));
@@ -417,12 +377,10 @@ gtk_ipcam_player_constructed(GObject* object)
   context = gtk_widget_get_style_context(GTK_WIDGET(overlay));
   gtk_style_context_add_class(context,"ipcam-player-overlay");
 
-  gtk_container_add(GTK_CONTAINER(frame),overlay);
-
   gtk_widget_set_halign(GTK_WIDGET(self->video_area), GTK_ALIGN_FILL);
   gtk_widget_set_valign(GTK_WIDGET(self->video_area), GTK_ALIGN_FILL);
-  gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->video_area);
-  gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay),self->video_area,TRUE);
+  gtk_overlay_add_overlay(GTK_OVERLAY(overlay),GTK_WIDGET(self->video_area));
+  gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay),GTK_WIDGET(self->video_area),TRUE);
 
   self->btn_up = gtk_button_new_with_label("\uE316");
   context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_up));
@@ -469,10 +427,10 @@ gtk_ipcam_player_constructed(GObject* object)
   gtk_widget_set_valign(GTK_WIDGET(self->btn_mute), GTK_ALIGN_END);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_mute);
 
-  gtk_container_add(GTK_CONTAINER(self),frame);
+  gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(overlay));
+  gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(frame));
 
   gtk_widget_set_events(GTK_WIDGET(self), GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_POINTER_MOTION_MASK);
-  //gtk_widget_set_events(gtk_vlc_player_get_drawing_area(GTK_VLC_PLAYER(self->video_area)), gtk_widget_get_events(gtk_vlc_player_get_drawing_area(GTK_VLC_PLAYER(self->video_area))) & ~GDK_POINTER_MOTION_MASK);
 
   g_signal_connect(self, "enter-notify-event", G_CALLBACK(gtk_ipcam_player_pointer_enter_cb), self);
   g_signal_connect(self, "motion-notify-event", G_CALLBACK(gtk_ipcam_player_pointer_enter_cb), self);
@@ -482,40 +440,7 @@ gtk_ipcam_player_constructed(GObject* object)
   g_signal_connect (G_OBJECT(self), "realize", G_CALLBACK (gtk_ipcam_player_show_cb), NULL);
   g_signal_connect (G_OBJECT(self), "show", G_CALLBACK (gtk_ipcam_player_show_cb), NULL);
 
-  //gtk_widget_set_events (self->video_area, GDK_EXPOSURE_MASK
-  //    | GDK_LEAVE_NOTIFY_MASK
-  //    | GDK_BUTTON_PRESS_MASK
-  //    | GDK_POINTER_MOTION_MASK
-  //    | GDK_POINTER_MOTION_HINT_MASK | GDK_ENTER_NOTIFY_MASK);
-
-  //g_signal_connect (play->video_area, "motion-notify-event",
-  //    G_CALLBACK (video_area_toolbar_show_cb), play);
-  //g_signal_connect (play->video_area, "scroll-event",
-  //    G_CALLBACK (video_area_toolbar_show_cb), play);
-  //g_signal_connect (play->video_area, "button-press-event",
-  //    G_CALLBACK (mouse_button_pressed_cb), play);
-  //g_signal_connect (play->video_area, "leave-notify-event",
-  //    G_CALLBACK (video_area_leave_notify_cb), play);
-
-  //self->player =
-  //    gst_player_new (self->renderer,
-  //    gst_player_g_main_context_signal_dispatcher_new (NULL));
-
-  //g_assert (self->player != NULL);
-
-  //g_signal_connect (self->player, "position-updated",
-  //    G_CALLBACK (position_updated_cb), self);
-  //g_signal_connect (self->player, "duration-changed",
-  //    G_CALLBACK (duration_changed_cb), self);
-  //g_signal_connect (self->player, "end-of-stream", G_CALLBACK (eos_cb), self);
-  //g_signal_connect (self->player, "media-info-updated",
-  //    G_CALLBACK (media_info_updated_cb), self);
-  //g_signal_connect (self->player, "volume-changed",
-  //    G_CALLBACK (player_volume_changed_cb), self);
-
-  /* enable visualization (by default playbin uses goom) */
-  /* if visualization is enabled then use the first element */
-  //gst_player_set_visualization_enabled (self->player, TRUE);
+  printf("gtk_ipcam_player_constructed finished\n");
 }
 
 static void
@@ -563,18 +488,6 @@ gtk_ipcam_player_new(GtkIpcamCameraObj* camera)
   return g_object_new(GTK_TYPE_IPCAM_PLAYER, "camera", camera, NULL);
 }
 
-/*GtkWidget *
-gtk_ipcam_player_get_widget(GtkIpcamPlayer * self)
-{
-  GtkWidget *widget;
-
-  g_return_val_if_fail (GTK_IS_IPCAM_PLAYER(self), NULL);
-
-  g_object_get(self, "widget", &widget, NULL);
-
-  return widget;
-}*/
-
 GtkIpcamCameraObj *
 gtk_ipcam_player_get_camera(GtkIpcamPlayer * self)
 {
@@ -590,7 +503,8 @@ gtk_ipcam_player_get_camera(GtkIpcamPlayer * self)
 gboolean
 gtk_ipcam_player_start_video(GtkIpcamPlayer* self)
 {
-  gtk_vlc_player_play(GTK_VLC_PLAYER(self->video_area));
+  printf("Playing video\n");
+  gtk_ipcam_ffmpeg_renderer_play(GTK_IPCAM_FFMPEG_RENDERER(self->video_area));
   self->state = GTK_IPCAM_PLAYER_STATE_PLAYING;
   return TRUE;
 }
@@ -598,7 +512,7 @@ gtk_ipcam_player_start_video(GtkIpcamPlayer* self)
 gboolean
 gtk_ipcam_player_stop_video(GtkIpcamPlayer* self)
 {
-  gtk_vlc_player_stop(GTK_VLC_PLAYER(self->video_area));
+  gtk_ipcam_ffmpeg_renderer_stop(GTK_IPCAM_FFMPEG_RENDERER(self->video_area));
   self->state = GTK_IPCAM_PLAYER_STATE_STOPPED;
   return TRUE;
 }
@@ -606,21 +520,22 @@ gtk_ipcam_player_stop_video(GtkIpcamPlayer* self)
 gboolean
 gtk_ipcam_player_start_audio(GtkIpcamPlayer* self)
 {
-  gtk_vlc_player_set_volume(GTK_VLC_PLAYER(self->video_area), 2.0);
-  gtk_vlc_player_set_mute(GTK_VLC_PLAYER(self->video_area), 0);
+  //gtk_vlc_player_set_volume(GTK_VLC_PLAYER(self->video_area), 2.0);
+  //gtk_vlc_player_set_mute(GTK_VLC_PLAYER(self->video_area), 0);
   return TRUE;
 }
 
 gboolean
 gtk_ipcam_player_stop_audio(GtkIpcamPlayer* self)
 {
-  gtk_vlc_player_set_volume(GTK_VLC_PLAYER(self->video_area), 0);
-  gtk_vlc_player_set_mute(GTK_VLC_PLAYER(self->video_area), 1);
+  //gtk_vlc_player_set_volume(GTK_VLC_PLAYER(self->video_area), 0);
+  //gtk_vlc_player_set_mute(GTK_VLC_PLAYER(self->video_area), 1);
   return TRUE;
 }
 
 gboolean
 gtk_ipcam_player_is_audio_playing(GtkIpcamPlayer* self)
 {
-  return gtk_vlc_player_get_mute(GTK_VLC_PLAYER(self->video_area)) == 0;
+  return FALSE;
+  //return gtk_vlc_player_get_mute(GTK_VLC_PLAYER(self->video_area)) == 0;
 }

@@ -21,10 +21,6 @@ closure_marshaller_h = marshallers[1]
 sources = ['src/main.c',
             'src/gtk_ipcam_util.h',
             'src/gtk_ipcam_util.c',
-#            'src/gtk_video_renderer.h',
-#            'src/gtk_video_renderer.c',
-            'src/gtk_vlc_player.h',
-            'src/gtk_vlc_player.c',
             'src/gtk_ipcam_player.h',
             'src/gtk_ipcam_player.c',
             'src/gtk_ipcam_camera_obj.h',
@@ -43,6 +39,8 @@ sources = ['src/main.c',
             'src/gtk_ipcam_dialog_camera_add.c',
             'src/gtk_ipcam_dialog_groups_add.h',
             'src/gtk_ipcam_dialog_groups_add.c',
+            'src/gtk_ipcam_ffmpeg_renderer.h',
+            'src/gtk_ipcam_ffmpeg_renderer.c',
             closure_marshaller_c,
             closure_marshaller_h
           ]
@@ -53,28 +51,27 @@ x11_dep = dependency('x11')
 #GTK Dependencies
 gtk_dep = dependency('gtk+-3.0')
 
-#GStreamer dependencies
-gst_req = '>= 1.0.0'
+glib_dep = [
+  dependency('glib-2.0', version: '>= 2.38')
+]
 
-st_dep = dependency('gstreamer-1.0', version : gst_req,
-  fallback : ['gstreamer', 'gst_dep'])
-gstbase_dep = dependency('gstreamer-base-1.0', version : gst_req,
-  fallback : ['gstreamer', 'gst_base_dep'])
-gstnet_dep = dependency('gstreamer-net-1.0', version : gst_req,
-  fallback : ['gstreamer', 'gst_net_dep'])
-gstcontroller_dep = dependency('gstreamer-controller-1.0', version : gst_req,
-  fallback : ['gstreamer', 'gst_controller_dep'])
-
-#gstplayer_dep = dependency('gstreamer-player-1.0', version : gst_req)
-#gsttag_dep = dependency('gstreamer-tag-1.0', version : gst_req)
-
-glib_dep = dependency('glib-2.0', version: '>= 2.38')
 gobject_dep = dependency('gobject-2.0', version: '>= 2.38')
 gmodule_dep = dependency('gmodule-2.0')
 glibjson_dep = dependency('json-glib-1.0')
 
-#VLC Dependencies
-vlc_dep = dependency('libvlc', version: '>=3.0')
+#ffmpeg Dependencies
+ffmpeg_dep = [
+  dependency('libavformat'),
+  dependency('libavcodec'),
+  dependency('libavutil'),
+  dependency('libswscale'),
+  dependency('libswresample'),
+]
+
+#sdl2
+sdl2_dep = [
+  dependency('sdl2')
+]
 
 #Lua deps
 lua_dep = dependency('lua-5.4')
@@ -86,13 +83,8 @@ deps = [
         gmodule_dep,
         glibjson_dep,
         gtk_dep,
-        st_dep,
-        gstbase_dep,
-        gstnet_dep,
-        gstcontroller_dep,
-#        gstplayer_dep,
-#        gsttag_dep,
-        vlc_dep,
+        ffmpeg_dep,
+        sdl2_dep,
         lua_dep]
 
 cdata = configuration_data()
@@ -188,10 +180,12 @@ fonts_data_files = [
 install_data(fonts_data_files, install_dir : join_paths('/usr','share','fonts', 'truetype', 'material'))
 
 drivers_data_files = [
-               'resources/drivers/FOSCAM_FI8918W.json',
-               'resources/drivers/FOSCAM_FI8918W.lua',
-               'resources/drivers/FOSCAM_FI9821P.json',
-               'resources/drivers/FOSCAM_FI9821P.lua'
+                'resources/drivers/AMCREST_HD.json',
+                'resources/drivers/AMCREST_HD.lua',
+                'resources/drivers/FOSCAM_FI8918W.json',
+                'resources/drivers/FOSCAM_FI8918W.lua',
+                'resources/drivers/FOSCAM_FI9821P.json',
+                'resources/drivers/FOSCAM_FI9821P.lua'
              ]
 
 install_data(drivers_data_files, install_dir : join_paths(get_option('datadir'),'gipcamviewer','drivers'))
