@@ -357,7 +357,7 @@ decode_audio(GtkIpcamFFMpegRenderer *self, AVPacket *p_packet, AVFrame* p_frame)
     const uint8_t **in = (const uint8_t **)p_frame->extended_data;
 
     // Resampling output parameters: the number of output audio samples (256 samples added)
-    int64_t out_count = (int64_t)(p_frame->nb_samples * 44100 / p_frame->sample_rate) + 256;
+    int64_t out_count = (int64_t)((p_frame->nb_samples+512) * p_frame->channels * p_frame->sample_rate);
 
     // Resample output parameters: output audio buffer size (in bytes)
     int buf_size  = av_samples_get_buffer_size(NULL, p_frame->channels, out_count, AV_SAMPLE_FMT_S16, 0);
@@ -366,20 +366,14 @@ decode_audio(GtkIpcamFFMpegRenderer *self, AVPacket *p_packet, AVFrame* p_frame)
       return FALSE;
     }
 
-    if (self->s_resample_buf == NULL){
-      av_fast_malloc(&self->s_resample_buf, &self->s_resample_buf_len, buf_size);
-    }
+    av_fast_malloc(&self->s_resample_buf, &self->s_resample_buf_len, buf_size);
     if (self->s_resample_buf == NULL)
     {
       return FALSE;
     }
 
-    // Resample output parameter 1: output audio buffer size
-    // Resample output parameter 2: output audio buffer
-    uint8_t **out = &self->s_resample_buf;
-
     // Audio resampling: The return value is the number of samples of a single channel in the audio data obtained after resampling
-    int nb_samples = swr_convert(self->resampler, out, out_count, in, p_frame->nb_samples);
+    int nb_samples = swr_convert(self->resampler, &self->s_resample_buf, out_count, in, p_frame->nb_samples);
     if (nb_samples < 0) {
       printf("swr_convert() failed\n");
       return FALSE;
@@ -412,7 +406,7 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
   */
 
   AVPacket packet;
-  AVFrame *pFrame = NULL, *audioFrame = NULL;
+  AVFrame *pFrame = NULL;
   int ret;
 
   g_assert(self->pFormatCtx != NULL);
@@ -434,8 +428,6 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
     printf("Parsing frame\n");
     if(packet.stream_index == self->videoStream) {
 
-      pthread_mutex_lock(&self->lock);
-
       ret = avcodec_send_packet(self->pCodecCtx, &packet);
       // Decode video frame
       while(ret >= 0){
@@ -456,35 +448,29 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
             break;
         }
 
-        if(self->pixbuf){
-          g_object_unref(self->pixbuf);
-          self->pixbuf = NULL;
-        }
-
         self->sws_ctx = sws_getContext(width, height, self->pCodecCtx->pix_fmt, width, height,
            AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
 
         if(self->sws_ctx){
           if(sws_scale(self->sws_ctx,  (uint8_t const * const *) pFrame->data,
             pFrame->linesize, 0, height, picture_RGB->data, picture_RGB->linesize) > 0){
+            pthread_mutex_lock(&self->lock);
+            if(self->pixbuf){
+              g_object_unref(self->pixbuf);
+              self->pixbuf = NULL;
+            }
             self->pixbuf = gdk_pixbuf_new_from_data(picture_RGB->data[0], GDK_COLORSPACE_RGB,
               0, 8, width, height, picture_RGB->linesize[0], gtk_ipcam_ffmpeg_renderer_pixmap_destroy_notify, self);
-
+            pthread_mutex_unlock(&self->lock);
             sws_freeContext(self->sws_ctx);
             self->sws_ctx = NULL;
-
-            printf("Updating display\r\n");
-            //gtk_widget_queue_draw(GTK_WIDGET(self));
           }
         }
 
         av_frame_free(&pFrame);
         pFrame = NULL;
       }
-
-      pthread_mutex_unlock(&self->lock);
     } else if(packet.stream_index == self->audioStream) {
-      printf("Audio frame\n");
       ret = avcodec_send_packet(self->pAudioCodecCtx, &packet);
       // Decode video frame
       while(ret >= 0){
@@ -499,12 +485,10 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
             printf("Error while decoding audio 1\n");
             av_frame_free(&pFrame);
-            av_frame_free(&audioFrame);
             break;
         } else if (ret < 0) {
             printf("Error while decoding audio 2\n");
             av_frame_free(&pFrame);
-            av_frame_free(&audioFrame);
             break;
         }
 
@@ -618,15 +602,6 @@ gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* ur
   printf("Media info:\r\n");
   av_dump_format(self->pFormatCtx, 0, uri, 0);
 
-  // Find the first video stream
-  /*self->videoStream=-1;
-  for(i=0; i < self->pFormatCtx->nb_streams; i++){
-    if(self->pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_VIDEO) {
-      self->videoStream=i;
-      break;
-    }
-  }*/
-
   ret = av_find_best_stream(self->pFormatCtx, AVMEDIA_TYPE_VIDEO, -1, -1, &decoder, 0);
   if (ret < 0) {
     fprintf(stderr, "Cannot find a video stream in the input file\n");
@@ -634,6 +609,7 @@ gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* ur
   }
   self->videoStream = ret;
 
+  printf("Searching video stream\r\n");
   ret = av_find_best_stream(self->pFormatCtx, AVMEDIA_TYPE_AUDIO, -1, -1, &audio_decoder, 0);
   if (ret < 0) {
     fprintf(stderr, "Cannot find a audio stream in the input file\n");
@@ -660,6 +636,7 @@ gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* ur
     return FALSE; // Codec not found
   }
 
+  printf("Searching audio stream\r\n");
   if(self->audioStream >= 0){
     if (!(self->pAudioCodecCtx = avcodec_alloc_context3(audio_decoder))){
       printf("Error allocating codec\n");
@@ -681,6 +658,7 @@ gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* ur
       return FALSE;
     }
 
+    printf("Creating resampler\r\n");
     self->resampler = swr_alloc_set_opts(NULL,
                                    self->pAudioCodecCtx->channel_layout,
                                    AV_SAMPLE_FMT_S16,
@@ -699,15 +677,19 @@ gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* ur
               self->resampler = NULL;
     }
 
+    printf("Initializing SDL\r\n");
+
     SDL_Init(SDL_INIT_AUDIO);
+
+    printf("Initializing SDL - OK\r\n");
 
     SDL_zero(want);
     SDL_zero(have);
     want.freq = 44100;
     want.channels = self->pAudioCodecCtx->channels;
     want.format = AUDIO_S16SYS;
-    want.samples = self->pAudioCodecCtx->sample_rate;
-    self->audioDevice = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
+    printf("Openning device\r\n");
+    self->audioDevice = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
     if (self->audioDevice == 0) {
       printf("Failed to open audio: %s\r\n", SDL_GetError());
     } else {
