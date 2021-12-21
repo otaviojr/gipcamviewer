@@ -304,13 +304,13 @@ gtk_ipcam_preference_obj_save(GtkIpcamPreferenceObj* self, gboolean notify)
 guint
 gtk_ipcam_preference_obj_get_width(GtkIpcamPreferenceObj * self)
 {
-  guint ret;
+    guint ret;
 
-  g_return_val_if_fail (GTK_IS_IPCAM_PREFERENCE_OBJ(self), 0);
+    g_return_val_if_fail (GTK_IS_IPCAM_PREFERENCE_OBJ(self), 0);
 
-  g_object_get(self, "width", &ret, NULL);
+    g_object_get(self, "width", &ret, NULL);
 
-  return ret;
+    return ret;
 }
 
 gboolean

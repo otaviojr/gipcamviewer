@@ -23,5 +23,6 @@ GtkWidget * gtk_ipcam_ffmpeg_renderer_new();
 void gtk_ipcam_ffmpeg_renderer_play(GtkIpcamFFMpegRenderer* self);
 void gtk_ipcam_ffmpeg_renderer_stop(GtkIpcamFFMpegRenderer* self);
 gboolean gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* uri);
-
+gboolean gtk_ipcam_ffmpeg_renderer_set_mute(GtkIpcamFFMpegRenderer* self, gint mute);
+gint gtk_ipcam_ffmpeg_renderer_get_mute(GtkIpcamFFMpegRenderer* self);
 #endif //__GTK_IPCAM_FFMPEG_RENDERER_H__

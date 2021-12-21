@@ -520,22 +520,19 @@ gtk_ipcam_player_stop_video(GtkIpcamPlayer* self)
 gboolean
 gtk_ipcam_player_start_audio(GtkIpcamPlayer* self)
 {
-  //gtk_vlc_player_set_volume(GTK_VLC_PLAYER(self->video_area), 2.0);
-  //gtk_vlc_player_set_mute(GTK_VLC_PLAYER(self->video_area), 0);
+  gtk_ipcam_ffmpeg_renderer_set_mute(GTK_IPCAM_FFMPEG_RENDERER(self->video_area), 0);
   return TRUE;
 }
 
 gboolean
 gtk_ipcam_player_stop_audio(GtkIpcamPlayer* self)
 {
-  //gtk_vlc_player_set_volume(GTK_VLC_PLAYER(self->video_area), 0);
-  //gtk_vlc_player_set_mute(GTK_VLC_PLAYER(self->video_area), 1);
+  gtk_ipcam_ffmpeg_renderer_set_mute(GTK_IPCAM_FFMPEG_RENDERER(self->video_area), 1);
   return TRUE;
 }
 
 gboolean
 gtk_ipcam_player_is_audio_playing(GtkIpcamPlayer* self)
 {
-  return FALSE;
-  //return gtk_vlc_player_get_mute(GTK_VLC_PLAYER(self->video_area)) == 0;
+  return gtk_ipcam_ffmpeg_renderer_get_mute(GTK_IPCAM_FFMPEG_RENDERER(self->video_area)) == 0;
 }
