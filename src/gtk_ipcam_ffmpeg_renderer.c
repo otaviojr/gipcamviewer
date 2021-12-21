@@ -154,19 +154,6 @@ gtk_ipcam_ffmpeg_renderer_finalize(GObject * object)
     self->pixbuf = NULL;
   }
 
-  if (self->resampler) {
-    swr_free(&self->resampler);
-    self->resampler = NULL;
-  }
-
-  if(self->s_resample_buf){
-    av_freep(&self->s_resample_buf);
-  }
-
-  if(self->audioDevice >= 0){
-    SDL_CloseAudioDevice(self->audioDevice);
-  }
-
   if(unload == TRUE){
     gtk_ipcam_ffmpeg_renderer_unload(self);
   }
@@ -293,7 +280,6 @@ gtk_ipcam_ffmpeg_renderer_new()
 
 static void gtk_ipcam_ffmpeg_renderer_pixmap_destroy_notify(guchar *pixels,
 				  gpointer data) {
-    printf("Destroy pixmap\n");
 }
 
 static gboolean
@@ -318,8 +304,6 @@ gtk_ipcam_ffmpeg_renderer_on_window_draw(GtkIpcamFFMpegRenderer *self, cairo_t *
     if(video_width <= 0 || video_height <= 0)
       return FALSE;
 
-    printf("Drawing frame (%d->%d) (%d->%d)\n", width, video_width, height, video_height);
-
     if(video_width > video_height){
       video_height = (video_height*width)/video_width;
       video_width = width;
@@ -329,8 +313,6 @@ gtk_ipcam_ffmpeg_renderer_on_window_draw(GtkIpcamFFMpegRenderer *self, cairo_t *
       video_height = height;
       left = (width/2)-(video_width/2);
     }
-
-    printf("Drawing frame - Changed - (%d->%d) (%d->%d)\n", width, video_width, height, video_height);
 
     GdkPixbuf *temp = gdk_pixbuf_scale_simple(self->pixbuf, video_width, video_height, GDK_INTERP_BILINEAR);
     if(temp){
@@ -357,7 +339,7 @@ decode_audio(GtkIpcamFFMpegRenderer *self, AVPacket *p_packet, AVFrame* p_frame)
     const uint8_t **in = (const uint8_t **)p_frame->extended_data;
 
     // Resampling output parameters: the number of output audio samples (256 samples added)
-    int64_t out_count = (int64_t)((p_frame->nb_samples+512) * p_frame->channels * p_frame->sample_rate);
+    int64_t out_count = av_rescale_rnd(swr_get_delay(self->resampler, p_frame->sample_rate) + p_frame->nb_samples, 44100, p_frame->sample_rate, AV_ROUND_UP);
 
     // Resample output parameters: output audio buffer size (in bytes)
     int buf_size  = av_samples_get_buffer_size(NULL, p_frame->channels, out_count, AV_SAMPLE_FMT_S16, 0);
@@ -382,6 +364,7 @@ decode_audio(GtkIpcamFFMpegRenderer *self, AVPacket *p_packet, AVFrame* p_frame)
     {
       printf("audio buffer is probably too small\n");
     }
+    //printf("requested %d - converted %d\n", out_count, nb_samples);
     // The size of one frame of audio data returned by resampling (in bytes)
     p_cp_buf = self->s_resample_buf;
     cp_len = nb_samples * p_frame->channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
@@ -425,7 +408,6 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
   g_signal_emit(self, gtk_ipcam_ffmpeg_renderer_signals[GTK_IPCAM_FFMPEG_RENDERER_PLAY], 0, NULL);
 
   while(self->state == GTK_IPCAM_FFMPEG_RENDERER_STATE_PLAYING && av_read_frame(self->pFormatCtx, &packet) >=0) {
-    printf("Parsing frame\n");
     if(packet.stream_index == self->videoStream) {
 
       ret = avcodec_send_packet(self->pCodecCtx, &packet);
@@ -439,11 +421,9 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
 
         ret = avcodec_receive_frame(self->pCodecCtx, pFrame);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
-            printf("Error while decoding 1\n");
             av_frame_free(&pFrame);
             break;
         } else if (ret < 0) {
-            printf("Error while decoding 2\n");
             av_frame_free(&pFrame);
             break;
         }
@@ -483,16 +463,15 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
 
         ret = avcodec_receive_frame(self->pAudioCodecCtx, pFrame);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
-            printf("Error while decoding audio 1\n");
             av_frame_free(&pFrame);
             break;
         } else if (ret < 0) {
-            printf("Error while decoding audio 2\n");
             av_frame_free(&pFrame);
             break;
         }
 
-        decode_audio(self, &packet, pFrame);
+        if(!gtk_ipcam_ffmpeg_renderer_get_mute(self))
+          decode_audio(self, &packet, pFrame);
 
         av_frame_free(&pFrame);
         pFrame = NULL;
@@ -550,6 +529,20 @@ gtk_ipcam_ffmpeg_renderer_unload(GtkIpcamFFMpegRenderer* self)
 {
   printf("gtk_ipcam_ffmpeg_renderer_unload\r\n");
 
+  if (self->resampler) {
+    swr_free(&self->resampler);
+    self->resampler = NULL;
+  }
+
+  if(self->s_resample_buf){
+    av_freep(&self->s_resample_buf);
+    self->s_resample_buf = NULL;
+  }
+
+  if(self->audioDevice >= 0){
+    SDL_CloseAudioDevice(self->audioDevice);
+  }
+
   if(self->pCodecCtx){
     avcodec_free_context(&self->pCodecCtx);
   }
@@ -581,6 +574,7 @@ gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* ur
   if(self->state != GTK_IPCAM_FFMPEG_RENDERER_STATE_IDLE){
     gtk_ipcam_ffmpeg_renderer_stop(self);
     gtk_ipcam_ffmpeg_renderer_unload(self);
+    self->state = GTK_IPCAM_FFMPEG_RENDERER_STATE_IDLE;
   }
 
   /* FFMpeg stuff */
@@ -677,12 +671,6 @@ gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* ur
               self->resampler = NULL;
     }
 
-    printf("Initializing SDL\r\n");
-
-    SDL_Init(SDL_INIT_AUDIO);
-
-    printf("Initializing SDL - OK\r\n");
-
     SDL_zero(want);
     SDL_zero(have);
     want.freq = 44100;
@@ -697,10 +685,11 @@ gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* ur
         printf("We didn't get Float32 audio format.\r\n");
       }
       printf("Audio device opened\r\n");
-      SDL_PauseAudioDevice(self->audioDevice, 1);
+      SDL_PauseAudioDevice(self->audioDevice, 0);
     }
   }
 
+  printf("All right\r\n");
   self->state = GTK_IPCAM_FFMPEG_RENDERER_STATE_LOADED;
 
   printf("URI loaded: %s\r\n", uri);
@@ -712,7 +701,6 @@ gtk_ipcam_ffmpeg_renderer_set_mute(GtkIpcamFFMpegRenderer* self, gint mute)
 {
   g_return_val_if_fail (GTK_IS_IPCAM_FFMPEG_RENDERER(self), FALSE);
   g_object_set(G_OBJECT(self), "mute", mute, NULL);
-  SDL_PauseAudioDevice(self->audioDevice, mute);
   return TRUE;
 }
 

@@ -25,6 +25,7 @@
 #include <gdk/gdk.h>
 #include<pango/pangocairo.h>
 #include <libavformat/avformat.h>
+#include <SDL2/SDL.h>
 
 #include "gtk_ipcam_player.h"
 
@@ -515,6 +516,7 @@ gtk_ipcam_viewer_app_init (GtkIpcamViewerApp * self)
 {
   printf("Registering FFMPEG codecs\r\n");
   avformat_network_init();
+  SDL_Init(SDL_INIT_AUDIO);
 }
 
 int main(int argc, char *argv[])
