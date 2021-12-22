@@ -516,6 +516,7 @@ gtk_ipcam_viewer_app_init (GtkIpcamViewerApp * self)
 {
   printf("Registering FFMPEG codecs\r\n");
   avformat_network_init();
+  av_log_set_level(AV_LOG_QUIET);
   SDL_Init(SDL_INIT_AUDIO);
 }
 

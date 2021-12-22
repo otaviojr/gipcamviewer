@@ -428,7 +428,26 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
             break;
         }
 
-        self->sws_ctx = sws_getContext(width, height, self->pCodecCtx->pix_fmt, width, height,
+        enum AVPixelFormat pixFormat;
+        switch (self->pCodecCtx->pix_fmt) {
+        case AV_PIX_FMT_YUVJ420P :
+            pixFormat = AV_PIX_FMT_YUV420P;
+            break;
+        case AV_PIX_FMT_YUVJ422P  :
+            pixFormat = AV_PIX_FMT_YUV422P;
+            break;
+        case AV_PIX_FMT_YUVJ444P   :
+            pixFormat = AV_PIX_FMT_YUV444P;
+            break;
+        case AV_PIX_FMT_YUVJ440P :
+            pixFormat = AV_PIX_FMT_YUV440P;
+            break;
+        default:
+            pixFormat = self->pCodecCtx->pix_fmt;
+            break;
+        }
+
+        self->sws_ctx = sws_getContext(width, height, pixFormat, width, height,
            AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
 
         if(self->sws_ctx){
@@ -501,7 +520,7 @@ gtk_ipcam_ffmpeg_renderer_play(GtkIpcamFFMpegRenderer* self)
 
   if(self->state != GTK_IPCAM_FFMPEG_RENDERER_STATE_LOADED)
     return;
-    
+
   self->state = GTK_IPCAM_FFMPEG_RENDERER_STATE_PLAYING;
 
   if(self->background_thread > 0) {
