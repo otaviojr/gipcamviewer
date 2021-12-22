@@ -43,7 +43,7 @@
   border: 0px solid transparent;
   box-shadow: none;
   color: transparent;
-  /* border-radius: 100%; */
+  border-radius: 0;
   margin: 0px;
   padding: 0px;
 }

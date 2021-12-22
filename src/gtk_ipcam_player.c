@@ -379,8 +379,19 @@ gtk_ipcam_player_constructed(GObject* object)
 
   gtk_widget_set_halign(GTK_WIDGET(self->video_area), GTK_ALIGN_FILL);
   gtk_widget_set_valign(GTK_WIDGET(self->video_area), GTK_ALIGN_FILL);
-  gtk_overlay_add_overlay(GTK_OVERLAY(overlay),GTK_WIDGET(self->video_area));
+  gtk_container_add(GTK_CONTAINER(overlay),GTK_WIDGET(self->video_area));
   gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay),GTK_WIDGET(self->video_area),TRUE);
+  gtk_overlay_reorder_overlay(GTK_OVERLAY(overlay), GTK_WIDGET(self->video_area),1);
+
+  self->btn_mute = gtk_button_new_with_label("\uE04F");
+  context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_mute));
+  gtk_widget_set_size_request(GTK_WIDGET(self->btn_mute), 30, 50);
+  gtk_style_context_add_class(context,"ipcam-player-control-btn");
+  gtk_style_context_add_class(context,"ipcam-player-control-mute");
+  gtk_widget_set_halign(GTK_WIDGET(self->btn_mute), GTK_ALIGN_END);
+  gtk_widget_set_valign(GTK_WIDGET(self->btn_mute), GTK_ALIGN_END);
+  gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_mute);
+  gtk_overlay_reorder_overlay(GTK_OVERLAY(overlay), GTK_WIDGET(self->btn_mute),98);
 
   self->btn_up = gtk_button_new_with_label("\uE316");
   context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_up));
@@ -390,6 +401,7 @@ gtk_ipcam_player_constructed(GObject* object)
   gtk_widget_set_halign(GTK_WIDGET(self->btn_up), GTK_ALIGN_CENTER);
   gtk_widget_set_valign(GTK_WIDGET(self->btn_up), GTK_ALIGN_START);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_up);
+  gtk_overlay_reorder_overlay(GTK_OVERLAY(overlay), GTK_WIDGET(self->btn_up),94);
 
   self->btn_down = gtk_button_new_with_label("\uE313");
   context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_down));
@@ -399,6 +411,7 @@ gtk_ipcam_player_constructed(GObject* object)
   gtk_widget_set_halign(GTK_WIDGET(self->btn_down), GTK_ALIGN_CENTER);
   gtk_widget_set_valign(GTK_WIDGET(self->btn_down), GTK_ALIGN_END);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_down);
+  gtk_overlay_reorder_overlay(GTK_OVERLAY(overlay), GTK_WIDGET(self->btn_down),95);
 
   self->btn_left = gtk_button_new_with_label("\uE314");
   context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_left));
@@ -408,6 +421,7 @@ gtk_ipcam_player_constructed(GObject* object)
   gtk_widget_set_halign(GTK_WIDGET(self->btn_left), GTK_ALIGN_START);
   gtk_widget_set_valign(GTK_WIDGET(self->btn_left), GTK_ALIGN_CENTER);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_left);
+  gtk_overlay_reorder_overlay(GTK_OVERLAY(overlay), GTK_WIDGET(self->btn_left),96);
 
   self->btn_right = gtk_button_new_with_label("\uE315");
   context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_right));
@@ -417,15 +431,8 @@ gtk_ipcam_player_constructed(GObject* object)
   gtk_widget_set_halign(GTK_WIDGET(self->btn_right), GTK_ALIGN_END);
   gtk_widget_set_valign(GTK_WIDGET(self->btn_right), GTK_ALIGN_CENTER);
   gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_right);
+  gtk_overlay_reorder_overlay(GTK_OVERLAY(overlay), GTK_WIDGET(self->btn_right),97);
 
-  self->btn_mute = gtk_button_new_with_label("\uE04F");
-  context = gtk_widget_get_style_context(GTK_WIDGET(self->btn_mute));
-  gtk_widget_set_size_request(GTK_WIDGET(self->btn_mute), 30, 50);
-  gtk_style_context_add_class(context,"ipcam-player-control-btn");
-	gtk_style_context_add_class(context,"ipcam-player-control-right");
-  gtk_widget_set_halign(GTK_WIDGET(self->btn_mute), GTK_ALIGN_END);
-  gtk_widget_set_valign(GTK_WIDGET(self->btn_mute), GTK_ALIGN_END);
-  gtk_overlay_add_overlay(GTK_OVERLAY(overlay),self->btn_mute);
 
   gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(overlay));
   gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(frame));

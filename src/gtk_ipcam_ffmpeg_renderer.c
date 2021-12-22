@@ -499,6 +499,9 @@ gtk_ipcam_ffmpeg_renderer_play(GtkIpcamFFMpegRenderer* self)
 {
   printf("Starting video with uri: %s\n",g_value_get_string(&self->uri));
 
+  if(self->state != GTK_IPCAM_FFMPEG_RENDERER_STATE_LOADED)
+    return;
+    
   self->state = GTK_IPCAM_FFMPEG_RENDERER_STATE_PLAYING;
 
   if(self->background_thread > 0) {

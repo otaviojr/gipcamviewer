@@ -180,12 +180,14 @@ fonts_data_files = [
 install_data(fonts_data_files, install_dir : join_paths('/usr','share','fonts', 'truetype', 'material'))
 
 drivers_data_files = [
-                'resources/drivers/AMCREST_HD.json',
-                'resources/drivers/AMCREST_HD.lua',
+                'resources/drivers/AMCREST_HD_RTSP.json',
+                'resources/drivers/AMCREST_HD_RTSP.lua',
                 'resources/drivers/FOSCAM_FI8918W.json',
                 'resources/drivers/FOSCAM_FI8918W.lua',
-                'resources/drivers/FOSCAM_FI9821P.json',
-                'resources/drivers/FOSCAM_FI9821P.lua'
+                'resources/drivers/FOSCAM_HD_RTSP.json',
+                'resources/drivers/FOSCAM_HD_RTSP.lua',
+                'resources/drivers/HIKVISION_HD_RTSP.json',
+                'resources/drivers/HIKVISION_HD_RTSP.lua'
              ]
 
 install_data(drivers_data_files, install_dir : join_paths(get_option('datadir'),'gipcamviewer','drivers'))

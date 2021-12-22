@@ -1,43 +1,27 @@
 local http = require "http.request"
+local socket = require("socket")
+local tcp = assert(socket.tcp())
 
 function driver_get_base_url()
   print("FOSCAM_FI9821P: get base url for " .. camera_name .. " camera")
 
+  local local_protocol = "rtsp://"
+  local remote_protocol = "rtsp://"
+
   --[[Test local URI]]
-  local uri = "http://" .. camera_local_url .. ":" .. camera_local_port .. "/cgi-bin/CGIProxy.fcgi?usr=" .. camera_username .. "&pwd=" .. camera_password .. "&cmd=setSubVideoStreamType&streamType=1"
-  print("FOSCAM_FI9821P: Testing local URI: " .. uri)
-  local req = http.new_from_uri(uri)
-  req.headers:upsert(":method", "GET")
-  local headers, stream = req:go(2)
-  if headers ~= nil and headers:get ":status" == "200" then
-    local body, err = stream:get_body_as_string()
-    if body ~= nil then
-      print("FOSCAM_FI9821P: Local URI success..")
-      return "rtsp://" .. camera_username .. ":" .. camera_password .. "@" .. camera_local_url .. ":" .. camera_local_media_port, "http://" .. camera_username .. ":" .. camera_password .. "@" .. camera_local_url .. ":" .. camera_local_port
-    else
-      print("FOSCAM_FI9821P: Local URI failed..")
-    end
-  else
-    print("FOSCAM_FI9821P: Local URI failed..")
+  local err = tcp:connect(camera_local_url, camera_local_port);
+  if (nil ~= err) then
+    print("FOSCAM_FI8918W: Local URI success..")
+    return local_protocol .. camera_username .. ":" .. camera_password .. "@" .. camera_local_url .. ":" .. camera_local_media_port,"http://" .. camera_username .. ":" .. camera_password .. "@" .. camera_local_url .. ":" .. camera_local_port
   end
 
   --[[Test remote URI]]
-  local uri = "http://" .. camera_remote_url .. ":" .. camera_remote_port .. "/cgi-bin/CGIProxy.fcgi?usr=" .. camera_username .. "&pwd=" .. camera_password .. "&cmd=setSubVideoStreamType&streamType=1"
-  print("FOSCAM_FI9821P: Testing remote URI: " .. uri)
-  local req = http.new_from_uri(uri)
-  req.headers:upsert(":method", "GET")
-  local headers, stream = req:go(2)
-  if headers ~= nil and headers:get ":status" == "200" then
-    local body, err = stream:get_body_as_string()
-    if body ~= nil then
-      print("FOSCAM_FI9821P: Remote URI success..")
-      return "rtsp://" .. camera_username .. ":" .. camera_password .. "@" .. camera_remote_url .. ":" .. camera_remote_media_port, "http://" .. camera_username .. ":" .. camera_password .. "@" .. camera_remote_url .. ":" .. camera_remote_port
-    else
-      print("FOSCAM_FI9821P: Remote URI failed..")
-    end
-  else
-    print("FOSCAM_FI9821P: Remote URI failed..")
+  local err = tcp:connect(camera_remote_url, camera_remote_port);
+  if (nil ~= err) then
+    print("AMCREST HD: Remote URI success..")
+    return remote_protocol .. camera_username .. ":" .. camera_password .. "@" .. camera_remote_url .. ":" .. camera_remote_media_port,"http://" .. camera_username .. ":" .. camera_password .. "@" .. camera_local_url .. ":" .. camera_local_port
   end
+
   return nil,nil
 end
 

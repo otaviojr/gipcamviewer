@@ -1,8 +1,8 @@
 {
-  "model": "Foscam FI9821P",
+  "model": "HIKVISION HD (RSTP)",
   "author": "Otávio Ribeiro",
   "author-email": "otavio.ribeiro@gmail.com",
   "created-at": "2017-08-15",
   "protocol": "rtsp",
-  "has-ptz": true
+  "has-ptz": false
 }
