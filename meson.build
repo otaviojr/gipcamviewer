@@ -74,7 +74,7 @@ sdl2_dep = [
 ]
 
 #Lua deps
-lua_dep = dependency('lua-5.4')
+lua_dep = dependency('lua-5.3')
 
 deps = [
         #x11_dep,
@@ -144,10 +144,10 @@ code = '''
   }
 '''
 
-flags = run_command('pkg-config','--cflags','--libs','lua5.4')
+flags = run_command('pkg-config','--cflags','--libs','lua5.3')
 a_flags = flags.stdout().strip().split(' ')
 
-result = compiler.run(code, args : a_flags, name : 'lua5.4 has http plugin')
+result = compiler.run(code, args : a_flags, name : 'lua5.3 has http plugin')
 if result.returncode() != 0 or result.compiled() == false
   error('Lua HTTP support not installed: ' + result.stdout())
 endif
@@ -180,10 +180,12 @@ fonts_data_files = [
 install_data(fonts_data_files, install_dir : join_paths('/usr','share','fonts', 'truetype', 'material'))
 
 drivers_data_files = [
+                'resources/drivers/common/http_digest.lua',
+                'resources/drivers/common/md5.lua',
                 'resources/drivers/AMCREST_HD_RTSP.json',
                 'resources/drivers/AMCREST_HD_RTSP.lua',
-                'resources/drivers/FOSCAM_FI8918W.json',
-                'resources/drivers/FOSCAM_FI8918W.lua',
+                'resources/drivers/FOSCAM_SD_HTTP.json',
+                'resources/drivers/FOSCAM_SD_HTTP.lua',
                 'resources/drivers/FOSCAM_HD_RTSP.json',
                 'resources/drivers/FOSCAM_HD_RTSP.lua',
                 'resources/drivers/HIKVISION_HD_RTSP.json',

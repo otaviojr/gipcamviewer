@@ -233,6 +233,39 @@ gtk_ipcam_camera_driver_obj_init_lua(GtkIpcamCameraDriverObj* self, GtkIpcamCame
     l = luaL_newstate();
     luaL_openlibs(l);
 
+    if(l == NULL) return NULL;
+
+    lua_pushstring(l,gtk_ipcam_camera_driver_obj_get_drivers_dir());
+    lua_setglobal(l, "drivers_dir");
+    lua_pushstring(l,gtk_ipcam_camera_obj_get_name(camera));
+    lua_setglobal(l, "camera_name");
+    lua_pushstring(l,gtk_ipcam_camera_obj_get_remote_url(camera));
+    lua_setglobal(l, "camera_remote_url");
+    lua_pushstring(l,gtk_ipcam_camera_obj_get_remote_port(camera));
+    lua_setglobal(l, "camera_remote_port");
+    lua_pushstring(l,gtk_ipcam_camera_obj_get_remote_media_port(camera));
+    lua_setglobal(l, "camera_remote_media_port");
+    lua_pushstring(l,gtk_ipcam_camera_obj_get_local_url(camera));
+    lua_setglobal(l, "camera_local_url");
+    lua_pushstring(l,gtk_ipcam_camera_obj_get_local_port(camera));
+    lua_setglobal(l, "camera_local_port");
+    lua_pushstring(l,gtk_ipcam_camera_obj_get_local_media_port(camera));
+    lua_setglobal(l, "camera_local_media_port");
+    lua_pushstring(l,gtk_ipcam_camera_obj_get_username(camera));
+    lua_setglobal(l, "camera_username");
+    lua_pushstring(l,gtk_ipcam_camera_obj_get_password(camera));
+    lua_setglobal(l, "camera_password");
+    lua_pushboolean(l,gtk_ipcam_camera_obj_get_remote_https(camera));
+    lua_setglobal(l, "camera_remote_https");
+    lua_pushboolean(l,gtk_ipcam_camera_obj_get_local_https(camera));
+    lua_setglobal(l, "camera_local_https");
+    lua_pushboolean(l,gtk_ipcam_camera_obj_get_subchannel(camera));
+    lua_setglobal(l, "camera_subchannel");
+
+    /* exporting functions to lua */
+    lua_pushcfunction(l, lua_sleep);
+    lua_setglobal(l, "sleep");
+    
     if(luaL_dofile(l, driver_path))
     {
       printf("Couldn't load file: %s\n", lua_tostring(l, -1));
@@ -248,36 +281,6 @@ gtk_ipcam_camera_driver_obj_init_lua(GtkIpcamCameraDriverObj* self, GtkIpcamCame
   g_free(driver_path);
   g_free(filename);
 
-  if(l == NULL) return NULL;
-
-  lua_pushstring(l,gtk_ipcam_camera_obj_get_name(camera));
-  lua_setglobal(l, "camera_name");
-  lua_pushstring(l,gtk_ipcam_camera_obj_get_remote_url(camera));
-  lua_setglobal(l, "camera_remote_url");
-  lua_pushstring(l,gtk_ipcam_camera_obj_get_remote_port(camera));
-  lua_setglobal(l, "camera_remote_port");
-  lua_pushstring(l,gtk_ipcam_camera_obj_get_remote_media_port(camera));
-  lua_setglobal(l, "camera_remote_media_port");
-  lua_pushstring(l,gtk_ipcam_camera_obj_get_local_url(camera));
-  lua_setglobal(l, "camera_local_url");
-  lua_pushstring(l,gtk_ipcam_camera_obj_get_local_port(camera));
-  lua_setglobal(l, "camera_local_port");
-  lua_pushstring(l,gtk_ipcam_camera_obj_get_local_media_port(camera));
-  lua_setglobal(l, "camera_local_media_port");
-  lua_pushstring(l,gtk_ipcam_camera_obj_get_username(camera));
-  lua_setglobal(l, "camera_username");
-  lua_pushstring(l,gtk_ipcam_camera_obj_get_password(camera));
-  lua_setglobal(l, "camera_password");
-  lua_pushboolean(l,gtk_ipcam_camera_obj_get_remote_https(camera));
-  lua_setglobal(l, "camera_remote_https");
-  lua_pushboolean(l,gtk_ipcam_camera_obj_get_local_https(camera));
-  lua_setglobal(l, "camera_local_https");
-  lua_pushboolean(l,gtk_ipcam_camera_obj_get_subchannel(camera));
-  lua_setglobal(l, "camera_subchannel");
-
-  /* exporting functions to lua */
-  lua_pushcfunction(l, lua_sleep);
-  lua_setglobal(l, "sleep");
   return l;
 }
 

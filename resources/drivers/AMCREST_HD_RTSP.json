@@ -4,5 +4,5 @@
   "author-email": "otavio.ribeiro@gmail.com",
   "created-at": "2017-08-15",
   "protocol": "rtsp",
-  "has-ptz": false
+  "has-ptz": true
 }
