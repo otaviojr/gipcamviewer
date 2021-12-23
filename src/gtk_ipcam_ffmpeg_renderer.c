@@ -282,13 +282,42 @@ static void gtk_ipcam_ffmpeg_renderer_pixmap_destroy_notify(guchar *pixels,
 				  gpointer data) {
 }
 
+static void
+gtk_ipcam_ffmpeg_renderer_draw_no_signal(GtkIpcamFFMpegRenderer *self, cairo_t *cr, gpointer data)
+{
+  (void)data;
+  gint x, y, width, height;
+  cairo_text_extents_t extents;
+  if(!GTK_IS_IPCAM_FFMPEG_RENDERER(self)){
+    return;
+  }
+
+  width = gtk_widget_get_allocated_width(GTK_WIDGET(self));
+  height = gtk_widget_get_allocated_height(GTK_WIDGET(self));
+
+  cairo_select_font_face (cr, "Monospace", CAIRO_FONT_SLANT_NORMAL,
+          CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size (cr, 16);
+  cairo_text_extents (cr, "No Signal", &extents);
+  x = width/2.0-(extents.width/2 + extents.x_bearing);
+  y = height/2.0 - (extents.height/2 );
+
+  cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
+  cairo_rectangle(cr, x-10, y - (extents.height)-5,  extents.width + 20, extents.height + 15);
+  cairo_fill (cr);
+
+  cairo_set_source_rgb (cr, 1.0, 1.0, 1);
+  cairo_move_to (cr, x, y);
+  cairo_show_text (cr, "No Signal");
+}
+
 static gboolean
 gtk_ipcam_ffmpeg_renderer_on_window_draw(GtkIpcamFFMpegRenderer *self, cairo_t *cr, gpointer data)
 {
   (void)data;
   gint width, height, video_width, video_height, top = 0, left = 0;
 
-  if(!GTK_IS_IPCAM_FFMPEG_RENDERER(self) && GDK_IS_PIXBUF(self->pixbuf)){
+  if(!GTK_IS_IPCAM_FFMPEG_RENDERER(self)){
     return FALSE;
   }
 
@@ -320,6 +349,10 @@ gtk_ipcam_ffmpeg_renderer_on_window_draw(GtkIpcamFFMpegRenderer *self, cairo_t *
       cairo_paint(cr);
       g_object_unref(temp);
     }
+  }
+
+  if(self->state != GTK_IPCAM_FFMPEG_RENDERER_STATE_PLAYING){
+    gtk_ipcam_ffmpeg_renderer_draw_no_signal(self, cr, data);
   }
 
   pthread_mutex_unlock(&self->lock);
@@ -507,6 +540,7 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
   av_free(picture_RGB);
 
   g_signal_emit(self, gtk_ipcam_ffmpeg_renderer_signals[GTK_IPCAM_FFMPEG_RENDERER_ENDED], 0, NULL);
+  self->state = GTK_IPCAM_FFMPEG_RENDERER_STATE_LOADED;
 
   printf("Video over!\n");
 

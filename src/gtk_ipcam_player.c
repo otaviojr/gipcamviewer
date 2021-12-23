@@ -113,6 +113,8 @@ gtk_ipcam_player_finalize(GObject * object)
   printf("gtk_ipcam_player_finalize\n");
   GtkIpcamPlayer *self = GTK_IPCAM_PLAYER(object);
 
+  self->state = GTK_IPCAM_PLAYER_STATE_STOPPED;
+
   if(self->background_thread)
   {
     g_thread_join(self->background_thread);
@@ -177,6 +179,21 @@ gtk_ipcam_player_run_backgroup(GtkIpcamPlayer *self, GThreadFunc func)
     g_thread_unref(self->background_thread);
   }
   self->background_thread = g_thread_new("player_run_background", func, self);
+}
+
+static void
+gtk_ipcam_player_video_ended_cb(GtkWidget* widget, gpointer user_data)
+{
+  GtkIpcamPlayer* self;
+  printf("Video ended\n");
+  if(!GTK_IS_IPCAM_PLAYER(user_data)){
+    return;
+  }
+  self = GTK_IPCAM_PLAYER(user_data);
+  if(self->state == GTK_IPCAM_PLAYER_STATE_PLAYING){
+    printf("Trying to reload...\n");
+    gtk_ipcam_player_load(self);
+  }
 }
 
 static void
@@ -446,6 +463,8 @@ gtk_ipcam_player_constructed(GObject* object)
   g_signal_connect (G_OBJECT(self), "unmap", G_CALLBACK (gtk_ipcam_player_unmap_cb), NULL);
   g_signal_connect (G_OBJECT(self), "realize", G_CALLBACK (gtk_ipcam_player_show_cb), NULL);
   g_signal_connect (G_OBJECT(self), "show", G_CALLBACK (gtk_ipcam_player_show_cb), NULL);
+
+  g_signal_connect (G_OBJECT(self->video_area), "ended", G_CALLBACK (gtk_ipcam_player_video_ended_cb), self);
 
   printf("gtk_ipcam_player_constructed finished\n");
 }
