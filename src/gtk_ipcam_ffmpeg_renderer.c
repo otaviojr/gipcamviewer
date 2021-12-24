@@ -17,6 +17,12 @@ gtk_ipcam_ffmpeg_renderer_on_window_draw(GtkIpcamFFMpegRenderer *self, cairo_t *
 static gboolean
 gtk_ipcam_ffmpeg_renderer_unload(GtkIpcamFFMpegRenderer* self);
 
+//123
+typedef struct _GtkIpcamFFMpegImageMem {
+  AVFrame *picture_RGB;
+  uint8_t* buffer;
+} GtkIpcamFFMpegImageMem;
+
 typedef enum _GtkIpcamFFMpegRendererState
 {
   GTK_IPCAM_FFMPEG_RENDERER_STATE_IDLE,
@@ -280,6 +286,14 @@ gtk_ipcam_ffmpeg_renderer_new()
 
 static void gtk_ipcam_ffmpeg_renderer_pixmap_destroy_notify(guchar *pixels,
 				  gpointer data) {
+
+    GtkIpcamFFMpegImageMem* mem = (GtkIpcamFFMpegImageMem*)data;
+
+    // Free the RGB image
+    av_free(mem->buffer);
+    av_free(mem->picture_RGB);
+
+    g_free(mem);
 }
 
 static void
@@ -428,15 +442,8 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
   g_assert(self->pFormatCtx != NULL);
   g_assert(self->pCodecCtx != NULL);
 
-  AVFrame *picture_RGB;
-  uint8_t* buffer;
-
   int width = self->pCodecCtx->width;
   int height = self->pCodecCtx->height;
-
-  picture_RGB = av_frame_alloc();
-  buffer = av_malloc (av_image_get_buffer_size(AV_PIX_FMT_RGB24, width+1, height+1, 1) * sizeof(uint8_t));
-  av_image_fill_arrays(picture_RGB->data, picture_RGB->linesize, buffer, AV_PIX_FMT_RGB24, width, height, 1);
 
   g_signal_emit(self, gtk_ipcam_ffmpeg_renderer_signals[GTK_IPCAM_FFMPEG_RENDERER_PLAY], 0, NULL);
 
@@ -484,15 +491,20 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
            AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
 
         if(self->sws_ctx){
+          GtkIpcamFFMpegImageMem* mem = g_new(GtkIpcamFFMpegImageMem, 1);
+          mem->picture_RGB = av_frame_alloc();
+          mem->buffer = av_malloc (av_image_get_buffer_size(AV_PIX_FMT_RGB24, width+1, height+1, 1) * sizeof(uint8_t));
+          av_image_fill_arrays(mem->picture_RGB->data, mem->picture_RGB->linesize, mem->buffer, AV_PIX_FMT_RGB24, width, height, 1);
+
           if(sws_scale(self->sws_ctx,  (uint8_t const * const *) pFrame->data,
-            pFrame->linesize, 0, height, picture_RGB->data, picture_RGB->linesize) > 0){
+            pFrame->linesize, 0, height, mem->picture_RGB->data, mem->picture_RGB->linesize) > 0){
             pthread_mutex_lock(&self->lock);
             if(self->pixbuf){
               g_object_unref(self->pixbuf);
               self->pixbuf = NULL;
             }
-            self->pixbuf = gdk_pixbuf_new_from_data(picture_RGB->data[0], GDK_COLORSPACE_RGB,
-              0, 8, width, height, picture_RGB->linesize[0], gtk_ipcam_ffmpeg_renderer_pixmap_destroy_notify, self);
+            self->pixbuf = gdk_pixbuf_new_from_data(mem->picture_RGB->data[0], GDK_COLORSPACE_RGB,
+              0, 8, width, height, mem->picture_RGB->linesize[0], gtk_ipcam_ffmpeg_renderer_pixmap_destroy_notify, mem);
             pthread_mutex_unlock(&self->lock);
             sws_freeContext(self->sws_ctx);
             self->sws_ctx = NULL;
@@ -534,10 +546,6 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
 
     g_thread_yield();
   }
-
-  // Free the RGB image
-  av_free(buffer);
-  av_free(picture_RGB);
 
   g_signal_emit(self, gtk_ipcam_ffmpeg_renderer_signals[GTK_IPCAM_FFMPEG_RENDERER_ENDED], 0, NULL);
   self->state = GTK_IPCAM_FFMPEG_RENDERER_STATE_LOADED;
