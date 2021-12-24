@@ -143,7 +143,10 @@ gtk_ipcam_ffmpeg_renderer_finalize(GObject * object)
 
   printf("gtk_ipcam_ffmpeg_renderer_finalize\n");
 
-  g_source_remove(self->refresh_timeout);
+  if(self->refresh_timeout > 0){
+    g_source_remove(self->refresh_timeout);
+    self->refresh_timeout = 0;
+  }
 
   if(self->state != GTK_IPCAM_FFMPEG_RENDERER_STATE_IDLE){
     self->state = GTK_IPCAM_FFMPEG_RENDERER_STATE_IDLE;
