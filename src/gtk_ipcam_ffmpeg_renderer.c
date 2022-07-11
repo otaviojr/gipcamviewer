@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <glib.h>
 #include <pthread.h>
 #include <gtk/gtk.h>
@@ -36,7 +37,7 @@ struct _GtkIpcamFFMpegRenderer
 
   GtkIpcamFFMpegRendererState state;
 
-  pthread_t background_thread;
+  pthread_t background_thread, watchdog_thread;
   pthread_mutex_t lock;
 
   gint refresh_timeout;
@@ -61,6 +62,9 @@ struct _GtkIpcamFFMpegRenderer
 
   GValue uri;
   GValue mute;
+
+  time_t watchdog;
+  gboolean watchdog_running;
 };
 
 struct _GtkIpcamFFMpegRendererClass
@@ -156,6 +160,12 @@ gtk_ipcam_ffmpeg_renderer_finalize(GObject * object)
   if(self->background_thread > 0){
     pthread_join(self->background_thread, NULL);
     self->background_thread = 0;
+  }
+
+  if(self->watchdog_thread > 0){
+    self->watchdog_running = FALSE;
+    pthread_join(self->watchdog_thread, NULL);
+    self->watchdog_thread = 0;
   }
 
   if(self->pixbuf){
@@ -262,6 +272,25 @@ gtk_ipcam_ffmpeg_renderer_invalidate_cb (void *ptr)
   return FALSE;
 }
 
+static void*
+gtk_ipcam_ffmpeg_renderer_watchdog(void* user_data)
+{
+  GtkIpcamFFMpegRenderer *self = GTK_IPCAM_FFMPEG_RENDERER(user_data);
+  printf("Watchdog started!\n");
+  while(self->watchdog_running == TRUE){
+    if(self->state == GTK_IPCAM_FFMPEG_RENDERER_STATE_PLAYING){
+      time_t cur = time(NULL);
+      if(self->watchdog > 0 && difftime(cur, self->watchdog) > 5){
+            printf("Watchdog reached, restarting video!\n");
+            gtk_ipcam_ffmpeg_renderer_stop(self);
+      }
+    }
+    g_thread_yield();
+  }
+  printf("Watchdog over!\n");
+  return NULL;
+}
+
 static void
 gtk_ipcam_ffmpeg_renderer_init(GtkIpcamFFMpegRenderer * self)
 {
@@ -272,6 +301,7 @@ gtk_ipcam_ffmpeg_renderer_init(GtkIpcamFFMpegRenderer * self)
   self->resampler = NULL;
   self->s_resample_buf = NULL;
   self->s_resample_buf_len = 0;
+  self->watchdog = 0;
 
   pthread_mutex_init(&self->lock, NULL);
 
@@ -279,6 +309,9 @@ gtk_ipcam_ffmpeg_renderer_init(GtkIpcamFFMpegRenderer * self)
 
   g_value_init(&self->uri, G_TYPE_STRING);
   g_value_init(&self->mute, G_TYPE_UINT);
+
+  self->watchdog_running = TRUE;
+  pthread_create(&self->watchdog_thread, NULL, gtk_ipcam_ffmpeg_renderer_watchdog, (void*)self);
 }
 
 GtkWidget *
@@ -451,6 +484,7 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
   g_signal_emit(self, gtk_ipcam_ffmpeg_renderer_signals[GTK_IPCAM_FFMPEG_RENDERER_PLAY], 0, NULL);
 
   while(self->state == GTK_IPCAM_FFMPEG_RENDERER_STATE_PLAYING && av_read_frame(self->pFormatCtx, &packet) >=0) {
+    self->watchdog = time(NULL);
     if(packet.stream_index == self->videoStream) {
 
       ret = avcodec_send_packet(self->pCodecCtx, &packet);
@@ -782,3 +816,4 @@ gtk_ipcam_ffmpeg_renderer_get_mute(GtkIpcamFFMpegRenderer* self)
 
   return ret;
 }
+

@@ -180,7 +180,7 @@ if result.returncode() != 0 or result.compiled() == false
   error('Lua Socket support not installed: ' + result.stdout())
 endif
 
-exe = executable('gipcamviewer', sources, dependencies : deps, install : true)
+exe = executable('gipcamviewer', sources, dependencies : deps, c_args : ['-Wno-incompatible-pointer-types','-Wno-discarded-qualifiers'],install : true)
 
 ui_data_files = [
                'resources/ui/main_area.ui',
