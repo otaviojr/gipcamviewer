@@ -730,6 +730,8 @@ gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* ur
     return FALSE; // Codec not found
   }
 
+  av_dict_set(&optionsDict, "readrate", "1", 0);
+
   // Open codec
   if(avcodec_open2(self->pCodecCtx, self->pCodec, &optionsDict)<0){
     printf("Error opening codec!\n");
