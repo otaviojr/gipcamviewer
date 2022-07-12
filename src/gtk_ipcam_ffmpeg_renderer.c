@@ -282,6 +282,7 @@ gtk_ipcam_ffmpeg_renderer_watchdog(void* user_data)
       time_t cur = time(NULL);
       if(self->watchdog > 0 && difftime(cur, self->watchdog) > 5){
             printf("Watchdog reached, restarting video!\n");
+            self->watchdog = 0;
             gtk_ipcam_ffmpeg_renderer_stop(self);
       }
     }
@@ -305,13 +306,13 @@ gtk_ipcam_ffmpeg_renderer_init(GtkIpcamFFMpegRenderer * self)
 
   pthread_mutex_init(&self->lock, NULL);
 
-  self->refresh_timeout = g_timeout_add (1000 / 60, gtk_ipcam_ffmpeg_renderer_invalidate_cb, self);
-
   g_value_init(&self->uri, G_TYPE_STRING);
   g_value_init(&self->mute, G_TYPE_UINT);
 
   self->watchdog_running = TRUE;
   pthread_create(&self->watchdog_thread, NULL, gtk_ipcam_ffmpeg_renderer_watchdog, (void*)self);
+
+  self->refresh_timeout = g_timeout_add (1000 / 60, gtk_ipcam_ffmpeg_renderer_invalidate_cb, self);
 }
 
 GtkWidget *
@@ -380,8 +381,10 @@ gtk_ipcam_ffmpeg_renderer_on_window_draw(GtkIpcamFFMpegRenderer *self, cairo_t *
     video_width = gdk_pixbuf_get_width (self->pixbuf);
     video_height = gdk_pixbuf_get_height (self->pixbuf);
 
-    if(video_width <= 0 || video_height <= 0)
+    if(video_width <= 0 || video_height <= 0){
+      pthread_mutex_unlock(&self->lock);
       return FALSE;
+    }
 
     if(video_width > video_height){
       video_height = (video_height*width)/video_width;
@@ -401,7 +404,7 @@ gtk_ipcam_ffmpeg_renderer_on_window_draw(GtkIpcamFFMpegRenderer *self, cairo_t *
     }
   }
 
-  if(self->state != GTK_IPCAM_FFMPEG_RENDERER_STATE_PLAYING){
+  if(!self->pixbuf || self->state != GTK_IPCAM_FFMPEG_RENDERER_STATE_PLAYING){
     gtk_ipcam_ffmpeg_renderer_draw_no_signal(self, cr, data);
   }
 
@@ -484,7 +487,6 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
   g_signal_emit(self, gtk_ipcam_ffmpeg_renderer_signals[GTK_IPCAM_FFMPEG_RENDERER_PLAY], 0, NULL);
 
   while(self->state == GTK_IPCAM_FFMPEG_RENDERER_STATE_PLAYING && av_read_frame(self->pFormatCtx, &packet) >=0) {
-    self->watchdog = time(NULL);
     if(packet.stream_index == self->videoStream) {
 
       ret = avcodec_send_packet(self->pCodecCtx, &packet);
@@ -504,6 +506,8 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
             av_frame_free(&pFrame);
             break;
         }
+
+        self->watchdog = time(NULL);
 
         enum AVPixelFormat pixFormat;
         switch (self->pCodecCtx->pix_fmt) {
@@ -535,14 +539,15 @@ gtk_ipcam_ffmpeg_renderer_play_background(void* user_data)
 
           if(sws_scale(self->sws_ctx,  (uint8_t const * const *) pFrame->data,
             pFrame->linesize, 0, height, mem->picture_RGB->data, mem->picture_RGB->linesize) > 0){
-            pthread_mutex_lock(&self->lock);
-            if(self->pixbuf){
-              g_object_unref(self->pixbuf);
-              self->pixbuf = NULL;
+            if (pthread_mutex_trylock(&self->lock) == 0){
+              if(self->pixbuf){
+                g_object_unref(self->pixbuf);
+                self->pixbuf = NULL;
+              }
+              self->pixbuf = gdk_pixbuf_new_from_data(mem->picture_RGB->data[0], GDK_COLORSPACE_RGB,
+                0, 8, width, height, mem->picture_RGB->linesize[0], gtk_ipcam_ffmpeg_renderer_pixmap_destroy_notify, mem);
+              pthread_mutex_unlock(&self->lock);
             }
-            self->pixbuf = gdk_pixbuf_new_from_data(mem->picture_RGB->data[0], GDK_COLORSPACE_RGB,
-              0, 8, width, height, mem->picture_RGB->linesize[0], gtk_ipcam_ffmpeg_renderer_pixmap_destroy_notify, mem);
-            pthread_mutex_unlock(&self->lock);
             sws_freeContext(self->sws_ctx);
             self->sws_ctx = NULL;
           }
