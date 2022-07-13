@@ -18,7 +18,6 @@ gtk_ipcam_ffmpeg_renderer_on_window_draw(GtkIpcamFFMpegRenderer *self, cairo_t *
 static gboolean
 gtk_ipcam_ffmpeg_renderer_unload(GtkIpcamFFMpegRenderer* self);
 
-//123
 typedef struct _GtkIpcamFFMpegImageMem {
   AVFrame *picture_RGB;
   uint8_t* buffer;
@@ -278,9 +277,15 @@ gtk_ipcam_ffmpeg_renderer_watchdog(void* user_data)
   GtkIpcamFFMpegRenderer *self = GTK_IPCAM_FFMPEG_RENDERER(user_data);
   printf("Watchdog started!\n");
   while(self->watchdog_running == TRUE){
+    time_t cur = time(NULL);
     if(self->state == GTK_IPCAM_FFMPEG_RENDERER_STATE_PLAYING){
-      time_t cur = time(NULL);
       if(self->watchdog > 0 && difftime(cur, self->watchdog) > 5){
+            printf("Watchdog reached, restarting video!\n");
+            self->watchdog = 0;
+            gtk_ipcam_ffmpeg_renderer_stop(self);
+      }
+    } else {
+      if(self->watchdog > 0 && difftime(cur, self->watchdog) > 30){
             printf("Watchdog reached, restarting video!\n");
             self->watchdog = 0;
             gtk_ipcam_ffmpeg_renderer_stop(self);
@@ -799,6 +804,8 @@ gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* ur
 
   printf("All right\r\n");
   self->state = GTK_IPCAM_FFMPEG_RENDERER_STATE_LOADED;
+
+  self->watchdog = time(NULL);
 
   printf("URI loaded: %s\r\n", uri);
   return TRUE;
