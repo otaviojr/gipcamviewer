@@ -295,7 +295,6 @@ gtk_ipcam_player_background_load(gpointer user_data)
 
       g_free(camera_url);
 
-      gtk_ipcam_enable_controls(self);
       gtk_ipcam_player_stop_audio(self);
       gtk_ipcam_player_start_video(self);
     }
@@ -465,6 +464,8 @@ gtk_ipcam_player_constructed(GObject* object)
   g_signal_connect (G_OBJECT(self), "show", G_CALLBACK (gtk_ipcam_player_show_cb), NULL);
 
   g_signal_connect (G_OBJECT(self->video_area), "ended", G_CALLBACK (gtk_ipcam_player_video_ended_cb), self);
+
+  gtk_ipcam_enable_controls(self);
 
   printf("gtk_ipcam_player_constructed finished\n");
 }
