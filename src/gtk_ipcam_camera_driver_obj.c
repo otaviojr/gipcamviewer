@@ -658,6 +658,7 @@ gtk_ipcam_camera_driver_obj_list()
 
   while ((filename = g_dir_read_name(dir))){
     token = g_strrstr(filename,".");
+    if(token == NULL) continue;
     *token = 0;
     if(g_strcmp0(++token,"json") == 0)
     {

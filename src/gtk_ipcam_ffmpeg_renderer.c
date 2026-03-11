@@ -433,7 +433,8 @@ decode_audio(GtkIpcamFFMpegRenderer *self, AVPacket *p_packet, AVFrame* p_frame)
     int64_t out_count = av_rescale_rnd(swr_get_delay(self->resampler, p_frame->sample_rate) + p_frame->nb_samples, 44100, p_frame->sample_rate, AV_ROUND_UP);
 
     // Resample output parameters: output audio buffer size (in bytes)
-    int buf_size  = av_samples_get_buffer_size(NULL, p_frame->channels, out_count, AV_SAMPLE_FMT_S16, 0);
+    int nb_channels = p_frame->ch_layout.nb_channels;
+    int buf_size  = av_samples_get_buffer_size(NULL, nb_channels, out_count, AV_SAMPLE_FMT_S16, 0);
     if (buf_size < 0){
       printf("av_samples_get_buffer_size() failed\n");
       return FALSE;
@@ -458,14 +459,14 @@ decode_audio(GtkIpcamFFMpegRenderer *self, AVPacket *p_packet, AVFrame* p_frame)
     //printf("requested %d - converted %d\n", out_count, nb_samples);
     // The size of one frame of audio data returned by resampling (in bytes)
     p_cp_buf = self->s_resample_buf;
-    cp_len = nb_samples * p_frame->channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
+    cp_len = nb_samples * nb_channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
   } else {
     return FALSE;
   }
 
   SDL_QueueAudio(self->audioDevice,
-                   p_cp_buf,
-                   cp_len);
+                    p_cp_buf,
+                    cp_len);
   return TRUE;
 }
 
@@ -766,19 +767,20 @@ gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* ur
     }
 
     printf("Creating resampler\r\n");
-    self->resampler = swr_alloc_set_opts(NULL,
-                                   self->pAudioCodecCtx->channel_layout,
+    AVChannelLayout out_ch_layout = AV_CHANNEL_LAYOUT_STEREO;
+    int ret_swr = swr_alloc_set_opts2(&self->resampler,
+                                   &out_ch_layout,
                                    AV_SAMPLE_FMT_S16,
                                    44100,
-                                   self->pAudioCodecCtx->channel_layout,
+                                   &self->pAudioCodecCtx->ch_layout,
                                    self->pAudioCodecCtx->sample_fmt,
                                    self->pAudioCodecCtx->sample_rate,
                                    0,
                                    NULL);
-    if (self->resampler == NULL || swr_init(self->resampler) < 0){
+    if (ret_swr < 0 || swr_init(self->resampler) < 0){
       printf("Cannot create sample rate converter for conversion of %d Hz %s %d channels to %d Hz %s %d channels!\n",
-              self->pAudioCodecCtx->sample_rate, av_get_sample_fmt_name(self->pAudioCodecCtx->sample_fmt), self->pAudioCodecCtx->channels,
-              44100, av_get_sample_fmt_name(AV_SAMPLE_FMT_S16), self->pAudioCodecCtx->channels);
+              self->pAudioCodecCtx->sample_rate, av_get_sample_fmt_name(self->pAudioCodecCtx->sample_fmt), self->pAudioCodecCtx->ch_layout.nb_channels,
+              44100, av_get_sample_fmt_name(AV_SAMPLE_FMT_S16), self->pAudioCodecCtx->ch_layout.nb_channels);
               if(self->resampler)
                 swr_free(&self->resampler);
               self->resampler = NULL;
@@ -787,7 +789,7 @@ gtk_ipcam_ffmpeg_renderer_load_uri(GtkIpcamFFMpegRenderer* self, const gchar* ur
     SDL_zero(want);
     SDL_zero(have);
     want.freq = 44100;
-    want.channels = self->pAudioCodecCtx->channels;
+    want.channels = self->pAudioCodecCtx->ch_layout.nb_channels;
     want.format = AUDIO_S16SYS;
     printf("Openning device\r\n");
     self->audioDevice = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);

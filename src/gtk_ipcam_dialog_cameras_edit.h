@@ -72,6 +72,6 @@ typedef struct _GtkIpcamDialogCameraEditInfo {
   GtkIpcamCameraObj* current_camera;
 } GtkIpcamDialogCameraEditInfo;
 
-void gtk_ipcam_dialog_cameras_edit_new();
+void gtk_ipcam_dialog_cameras_edit_new(GtkIpcamPreferenceObj* preference);
 
 #endif //__GTK_IPCAM_DIALOG_CAMERAS_EDIT_H__
