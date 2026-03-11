@@ -1,3 +1,4 @@
 build/*
 parts
 snap
+.cache
